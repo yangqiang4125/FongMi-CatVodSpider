@@ -1,16 +1,15 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.ali.Data;
 import com.github.catvod.bean.ali.Item;
-import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttpUtil;
 import com.github.catvod.utils.Misc;
@@ -18,16 +17,18 @@ import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.QRCode;
 import com.github.catvod.utils.Trans;
 import com.google.gson.JsonObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,71 +38,20 @@ import java.util.regex.Pattern;
 /**
  * @author ColaMint & Adam & FongMi
  */
-public class Ali extends Spider{
+public class Ali {
 
     private final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     private ScheduledExecutorService service;
     private static String authorization;
-    private static String refreshToken;
+    private String refreshToken;
     private long expiresTime;
     private ImageView view;
-    private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
-    private static Integer isPic=0;
-    public Ali(){}
-    public Ali(String extend){
-        init(null,extend);
-    }
-    @Override
-    public void init(Context context, String extend) {
-        if (!TextUtils.isEmpty(extend)) {
-            if (extend.startsWith("http")) extend = OkHttpUtil.string(extend);
-            refreshToken = Prefers.getString("token", extend);
-        }
-        fetchRule(false,0);
-    }
 
-    public static JSONObject fetchRule(boolean flag,int t) {
-        try {
-            if (flag || Misc.siteRule == null) {
-                String json = OkHttpUtil.string(Misc.jsonUrl+"?t="+Time());
-                JSONObject jo = new JSONObject(json);
-                if(t==0) {
-                    String[] fenleis = getRuleVal(jo,"fenlei", "").split("#");
-                    for (String fenlei : fenleis) {
-                        String[] info = fenlei.split("\\$");
-                        jo.remove(info[1]);
-                    }
-                    Misc.siteRule = jo;
-                    String tk = Misc.siteRule.optString("token","");
-                    if(!tk.equals("")&&tk.equals(refreshToken)){
-                        refreshToken = tk;
-                    }
-                    Misc.apikey = Misc.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
-                    szRegx =  Misc.siteRule.optString("szRegx", szRegx);
-                    isPic = Misc.siteRule.optInt("isPic", 0);
-                }
-                return jo;
-            }
-        } catch (JSONException e) {
-        }
-        return Misc.siteRule;
+    public Ali(String token) {
+        if (TextUtils.isEmpty(token)) Init.show("尚未設定 Token");
+        if (token.startsWith("http")) token = OkHttpUtil.string(token);
+        refreshToken = Prefers.getString("token", token);
     }
-
-    public static String getRuleVal(JSONObject o,String key, String defaultVal) {
-        String v = o.optString(key);
-        if (v.isEmpty() || v.equals("空"))
-            return defaultVal;
-        return v;
-    }
-
-    public static String getRuleVal(JSONObject o,String key) {
-        return getRuleVal(o,key, "");
-    }
-
-    public static long Time() {
-        return (System.currentTimeMillis() / 1000);
-    }
-
 
     private static HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
@@ -127,147 +77,55 @@ public class Ali extends Spider{
         return OkHttpUtil.postJson(url, body.toString(), getHeaders(shareToken));
     }
 
-    @Override
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
-        String[] idInfo = url.split("\\$\\$\\$");
-        if (idInfo.length > 0)  url = idInfo[0].trim();
-        url = Misc.getRealUrl(url);
-        idInfo[0]=url;
         Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) {
-            Vod vod = getVod(matcher,idInfo);
-            if (vod != null) return Result.string(vod);
-        }
+        if (matcher.find()) return Result.string(getVod(matcher, url));
         return "";
     }
 
     public String playerContent(String flag, String id) {
-        try {
-            if (id.equals("无数据")) return "";
-            String[] ids = id.split("\\+");
-            String shareId = ids[0];
-            String shareToken = ids[1];
-            String fileId = ids[2];
-            String sub = getSub(shareId, shareToken, ids);
-            if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
-            while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
+        if (id.equals("无数据")) return "";
+        String[] ids = id.split("\\+");
+        String shareId = ids[0];
+        String shareToken = ids[1];
+        String fileId = ids[2];
+        String sub = getSub(shareId, shareToken, ids);
+        if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
+        while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
+        if (flag.equals("原畫")) {
             return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
-           /* if (flag.contains("原画")) {
-            } else {
-                return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
-            }*/
-        } catch (Exception e) {
-            return "";
+        } else {
+            return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
         }
     }
-    @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) {
-        return playerContent(flag, id);
-    }
 
-    private Vod getVod(Matcher matcher, String[] idInfo) throws Exception {
+    private Vod getVod(Matcher matcher, String url) throws Exception {
         String shareId = matcher.group(1);
         String shareToken = getShareToken(shareId);
+        String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
+        JSONObject body = new JSONObject();
+        body.put("share_id", shareId);
+        String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
+        JSONObject object = new JSONObject(json);
+        LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
+        Map<String, List<String>> subMap = new HashMap<>();
+        listFiles(new Item(getParentFileId(fileId, object)), fileMap, subMap, shareId, shareToken);
         List<String> playUrls = new ArrayList<>();
-        JSONObject object = null;
-        if(shareToken.isEmpty()){
-            if (idInfo.length == 1) return null;
-        }else {
-            try {
-                String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
-                JSONObject body = new JSONObject();
-                body.put("share_id", shareId);
-                String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
-                object = new JSONObject(json);
-                LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
-                Map<String, List<String>> subMap = new HashMap<>();
-                String f = getParentFileId(fileId, object);
-                if (!f.isEmpty()) {
-                    listFiles(new Item(f), fileMap, subMap, shareId, shareToken);
-                    List<Item> files = new ArrayList<>(fileMap.keySet());
-                    for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
-                }
-            } catch (Exception e) {
-            }
-        }
-        boolean fp = playUrls.isEmpty();
-        if (fp) playUrls.add("无数据$无数据");
-        String s = TextUtils.join("#", playUrls);
+        List<Item> files = new ArrayList<>(fileMap.keySet());
+        for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
+        if (playUrls.isEmpty()) playUrls.add("无数据$无数据");
         List<String> sourceUrls = new ArrayList<>();
-        Vod vod = new Vod(); String type = "";
-        if (!fp){
-            if (s.contains("4K")) {
-                type = "4K";
-            }else if (s.contains("4k")) {
-                type = "4K";
-            }else if (s.contains("1080")) {
-                if(!s.contains("1079"))type = "1080";
-            }
-        }
-        sourceUrls.add(s);
-        sourceUrls.add(s);
-        String from = "原画%$$$普画%";
-        from = from.replace("%", type);
-        vod.setVodId(TextUtils.join("$$$",idInfo));
-        vod.setVodContent(idInfo[0]);
-        String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
-        String vname=object!=null?object.getString("share_name"):"无名称";
-        if (idInfo != null) {
-            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
-            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
-        }
-        vod.setVodPic(vpic);
-        vod.setVodName(vname);
+        sourceUrls.add(TextUtils.join("#", playUrls));
+        sourceUrls.add(TextUtils.join("#", playUrls));
+        Vod vod = new Vod();
+        vod.setVodId(url);
+        vod.setVodContent(url);
+        vod.setVodPic(object.getString("avatar"));
+        vod.setVodName(object.getString("share_name"));
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
-        vod.setVodPlayFrom(from);
-        vod.setTypeName("阿里云盘");
-        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
-        return vod;
-    }
-
-    public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
-        try {
-            int sid = -1;
-            if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
-            if(sid<1)return vod;
-            if (sid == 1) {
-                JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
-                if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
-                    JSONArray jsonArray = response.getJSONArray("list");
-                    if (jsonArray.length() > 0) {
-                        JSONObject o = (JSONObject) jsonArray.get(0);
-                        sid = o.optInt("id", 0);
-
-                    }
-                }
-            }
-            if (sid > 0) {
-                Document doc = Jsoup.parse(OkHttpUtil.string("https://www.voflix.com/detail/"+sid+".html"));
-                Elements em = doc.select(".module-main");
-                Elements el = doc.select(".module-info-main");
-                String tag = el.select(".module-info-tag").text();
-                if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
-                el = el.select(".module-info-items");
-                String content = el.select(".module-info-introduction-content").text();
-                content = Misc.trim(content);
-                String director = el.select(".module-info-item-content a").eq(0).text();
-                String actor = el.select(".module-info-item-content").eq(2).text();
-                String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
-                String yearText = el.select(".module-info-item-content").eq(3).text();
-                String year = yearText.replaceAll("(.*)\\(.*", "$1");
-                String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
-                actor = actor.substring(0, actor.length() - 1);
-                vod.setVodTag(tag);
-                vod.setVodContent(content);
-                vod.setVodDirector(director);
-                vod.setVodActor(actor);
-                vod.setVodYear(year);
-                vod.setVodArea(area);
-                vod.setVodPic(pic);
-            }
-        } catch (Exception e) {
-        }
+        vod.setVodPlayFrom("原畫$$$普畫");
+        vod.setTypeName("阿里雲盤");
         return vod;
     }
 
@@ -293,7 +151,7 @@ public class Ali extends Spider{
             } else if (Misc.isSub(file.getExt())) {
                 String key = file.removeExt();
                 if (!subMap.containsKey(key)) subMap.put(key, new ArrayList<>());
-                subMap.get(key).add(key + "@" + file.getFileId() + "@" + file.getExt());
+                subMap.get(key).add(key + "@@@" + file.getFileId() + "@@@" + file.getExt());
             }
         }
         if (item.getNextMarker().length() > 0) {
@@ -348,18 +206,14 @@ public class Ali extends Spider{
     }
 
     private String getSub(String shareId, String shareToken, String[] ids) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (String text : ids) {
-                if (!text.contains("@")) continue;
-                String[] arr = text.split("@");
-                String url = Proxy.getUrl() + "?do=ali&type=sub&share_id=" + shareId + "&share_token=" + shareToken + "&file_id=" + arr[1];
-                sb.append(Trans.get(arr[0])).append("#").append(Misc.getSubMimeType(arr[2])).append("#").append(url).append("$$$");
-            }
-            return Misc.substring(sb.toString(), 3);
-        } catch (Exception e) {
-            return "";
+        StringBuilder sb = new StringBuilder();
+        for (String text : ids) {
+            if (!text.contains("@@@")) continue;
+            String[] arr = text.split("@@@");
+            String url = Proxy.getUrl() + "?do=ali&type=sub&share_id=" + shareId + "&share_token=" + shareToken + "&file_id=" + arr[1];
+            sb.append(Trans.get(arr[0])).append("#").append(Misc.getSubMimeType(arr[2])).append("#").append(url).append("$$$");
         }
+        return Misc.substring(sb.toString(), 3);
     }
 
     private String getShareToken(String shareId) {
@@ -370,7 +224,7 @@ public class Ali extends Spider{
             String json = post("v2/share_link/get_share_token", body);
             return new JSONObject(json).getString("share_token");
         } catch (JSONException e) {
-            Init.show("来晚啦，该分享已失效。");
+            Init.show("來晚啦，該分享已失效。");
             e.printStackTrace();
             return "";
         }
@@ -423,36 +277,6 @@ public class Ali extends Spider{
         }
     }
 
-    public Vod vod(String url, String type) {
-        String[] idInfo = url.split("\\$\\$\\$");
-        if (idInfo.length > 0)  url = idInfo[0].trim();
-        String vpic = "";
-        String vname="";
-        if (idInfo != null) {
-            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
-            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
-        }
-
-        if (vname.isEmpty()) {
-            Document doc = Jsoup.parse(OkHttpUtil.string(url));
-            vname = doc.select("head > title").text();
-        }
-        if (vname.isEmpty()) {
-            vname = url;
-        }
-        if (vpic.isEmpty()) {
-            vpic = Misc.getWebName(url,1);
-        }
-        Vod vod = new Vod();
-        vod.setTypeName(type);
-        vod.setVodId(url);
-        vod.setVodName(vname);
-        vod.setVodPlayFrom(type);
-        vod.setVodPlayUrl("播放$" + url);
-        vod.setVodPic(vpic);
-        return vod;
-    }
-
     public static Object[] vod(Map<String, String> params) {
         String shareId = params.get("share_id");
         String shareToken = params.get("share_token");
@@ -485,7 +309,7 @@ public class Ali extends Spider{
 
     private void setToken(String value) {
         Prefers.put("token", refreshToken = value);
-        Init.show("请重新进入播放页");
+        Init.show("請重新進入播放頁");
         checkService();
     }
 
@@ -493,7 +317,7 @@ public class Ali extends Spider{
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER;
         Misc.addView(view = create(data.getData().getCodeContent()), params);
-        Init.show("请使用阿里云盘 App 扫描二维码");
+        Init.show("請使用阿里雲盤 App 掃描二維碼");
     }
 
     private ImageView create(String value) {
