@@ -3,6 +3,7 @@ package com.github.catvod.utils;
 import android.net.Uri;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,30 +11,22 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.SpiderDebug;
-import com.github.catvod.net.OkHttpUtil;
-import com.github.catvod.parser.Base64Utils;
 import com.github.catvod.spider.Init;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class Misc {
-    public static JSONObject siteRule = null;
-    public static String zzy=null;
-    public static String jsonUrl = "http://test.xinjun58.com/sp/d.json";
-    public static String apikey = "0ac44ae016490db2204ce0a042db2916";//豆瓣key
-    public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
-    private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
-    public static final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
-    public static Map<String, Vod> mv = new HashMap<>();
+
+    public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
+
     public static boolean isVip(String url) {
         List<String> hosts = Arrays.asList("iqiyi.com", "v.qq.com", "youku.com", "le.com", "tudou.com", "mgtv.com", "sohu.com", "acfun.cn", "bilibili.com", "baofeng.com", "pptv.com");
         for (String host : hosts) if (url.contains(host)) return true;
@@ -52,51 +45,6 @@ public class Misc {
         if (type.equals("srt")) return "application/x-subrip";
         if (type.equals("ass") || type.equals("ssa")) return "text/x-ssa";
         return "application/x-subrip";
-    }
-
-    public static String getWebName(String url,int type){
-        if (url.contains("mgtv.com")) {
-            if(type==0) return "芒果TV";
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/mgtv.jpg";
-        }
-        if (url.contains("qq.com")) {
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/qq.jpg";
-            return "腾讯视频";
-        }
-        if (url.contains("iqiyi.com")) {
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/iqiyi.jpg";
-            return "爱奇艺";
-        }
-        if (url.contains("youku.com")) {
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/youku.jpg";
-            return "优酷";
-        }
-        if (url.contains("bilibili.com")) {
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/bili.jpg";
-            return "哗哩哔哩";
-        }
-        if (url.startsWith("magnet")) {
-            return "磁力";
-        }
-        if (url.contains("aliyundrive")) {
-            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
-            return "阿里云";
-        }
-        if(type==1)return "http://image.xinjun58.com/sp/pic/bg/zl.jpg";
-        String host = Uri.parse(url).getHost();
-        return host;
-    }
-    public static Matcher matcher(String regx, String content) {
-        Pattern pattern = Pattern.compile(regx);
-        return pattern.matcher(content);
-    }
-
-    public static boolean isNumeric(String str){
-        Pattern pattern = Pattern.compile("[0-9]*");
-        return pattern.matcher(str).matches();
-    }
-    public static String trim(String str) {
-        return str == null ? str : str.replaceAll("^[\\s　|\\s ]*|[\\s　|\\s ]*$", "");
     }
 
     public static String getSize(double size) {
@@ -219,7 +167,8 @@ public class Misc {
         try {
             ViewGroup group = Init.getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
             group.addView(view, params);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -227,7 +176,8 @@ public class Misc {
         try {
             ViewGroup group = Init.getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
             group.removeView(view);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -241,17 +191,5 @@ public class Misc {
             webView.setWebViewClient(client);
             webView.loadUrl(url);
         });
-    }
-    public static String getRealUrl(String url){
-        if (url.contains("upyunso.com/download")) {
-            url = Base64Utils.sendGet(url);
-        } else if (url.contains("alipansou") || url.contains("zhaoziyuan")) {
-            Matcher matcher = matcher(a, OkHttpUtil.string(url, null));
-            if (!matcher.find()) {
-                return "";
-            }
-            url = matcher.group(1).replaceAll("\\\\", "");
-        }
-        return url;
     }
 }
