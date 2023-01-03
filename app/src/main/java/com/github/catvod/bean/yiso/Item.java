@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Item {
+
     @SerializedName("data")
     private DataDTO data;
 
@@ -20,29 +21,20 @@ public class Item {
             return new Item();
         }
     }
+
     public DataDTO getData() {
         return data == null ? new DataDTO() : data;
     }
 
-    public DataDTO getData(String pic) {
-        return data == null ? new DataDTO(pic) : data;
-    }
-
     public static class DataDTO {
-        public String pic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
-        public DataDTO() {
-        }
-        public DataDTO(String pic) {
-            this.pic = pic;
-        }
 
         @SerializedName("list")
         private List<ListDTO> list;
 
-        public List<Vod> getList() {
+        public List<Vod> getList(String key) {
             List<Vod> items = new ArrayList<>();
             list = list == null ? Collections.emptyList() : list;
-            for (ListDTO item : list) items.add(item.getVod(pic));
+            for (ListDTO item : list) if (item.getName().contains(key)) items.add(item.getVod());
             return items;
         }
 
@@ -67,10 +59,15 @@ public class Item {
                 return fileInfos;
             }
 
-            public Vod getVod(String pic) {
+            public String getName() {
+                return getFileInfos().get(0).getFileName();
+            }
+
+            public Vod getVod() {
                 String id = getUrl();
-                String name = getFileInfos().get(0).getFileName();
+                String name = getName();
                 String remark = getGmtCreate();
+                String pic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
                 return new Vod(id, name, pic, remark);
             }
 
