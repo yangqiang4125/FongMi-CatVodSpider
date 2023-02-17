@@ -43,10 +43,10 @@ public class Ali {
     private final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     private ScheduledExecutorService service;
     private static String authorization;
-    private String refreshToken;
+    private static String refreshToken;
     private long expiresTime;
     private ImageView view;
-
+    private static String szRegx = "";//集数数字正则匹配
     public Ali(String token) {
         if (!TextUtils.isEmpty(token)) {
             if (token.startsWith("http")) token = OkHttpUtil.string(token);

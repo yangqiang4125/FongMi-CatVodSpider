@@ -1,8 +1,9 @@
 package com.github.catvod.spider;
 
+import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.utils.Misc;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
+import com.github.catvod.net.OkHttpUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -142,7 +143,7 @@ public class PushAgentQQ extends Spider {
         try {
             JSONObject jo = fetchRule(true,1);
             JSONArray classes = new JSONArray();
-            String[] fenleis = getRuleVal(Misc.siteRule,"fenlei", "").split("#");
+            String[] fenleis = Ali.getRuleVal(Misc.siteRule,"fenlei", "").split("#");
             for (String fenlei : fenleis) {
                 String[] info = fenlei.split("\\$");
                 JSONObject jsonObject = new JSONObject();
@@ -170,7 +171,7 @@ public class PushAgentQQ extends Spider {
             String url=null,name=null,pic=null;
             JSONObject jsonObject = null, v = null;
             if (tid.equals("bili")) {
-                String json = OkHttpUtil.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all", null);
+                String json = OkHttpUtil.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
                 JSONObject j = new JSONObject(json);
                 JSONObject o = j.getJSONObject("data");
                 JSONArray array = o.getJSONArray("list");
@@ -199,9 +200,9 @@ public class PushAgentQQ extends Spider {
                 JSONArray array = jo.getJSONArray(tid);
                 for (int i = 0; i < array.length(); i++) {
                     jsonObject = array.getJSONObject(i);
-                    url = getRuleVal(jsonObject, "url");
-                    name = getRuleVal(jsonObject, "name");
-                    pic = getRuleVal(jsonObject, "pic");
+                    url = Ali.getRuleVal(jsonObject, "url");
+                    name = Ali.getRuleVal(jsonObject, "name");
+                    pic = Ali.getRuleVal(jsonObject, "pic");
                     if(pic.equals("")) pic = Misc.getWebName(url, 1);
                     v = new JSONObject();
                     v.put("vod_id", url + "$$$" + pic + "$$$" + name);
