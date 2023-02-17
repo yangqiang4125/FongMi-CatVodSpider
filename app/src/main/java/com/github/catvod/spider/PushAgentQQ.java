@@ -1,15 +1,15 @@
 package com.github.catvod.spider;
 
+import android.content.Context;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
-import com.github.catvod.utils.Misc;
 import com.github.catvod.net.OkHttpUtil;
+import com.github.catvod.utils.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.content.Context;
+
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PushAgentQQ extends Spider {
@@ -237,9 +237,9 @@ public class PushAgentQQ extends Spider {
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
         if (url.contains("aliyundrive")) return ali.detailContent(ids);
-        if (Misc.isVip(url)) return Result.string(vod(url, "官源"));
-        if (Misc.isVideoFormat(url)) return Result.string(vod(url, "直连"));
-        return Result.string(vod(url, "网页"));
+        if (Misc.isVip(url)) return Result.string(ali.vod(url, "官源"));
+        if (Misc.isVideoFormat(url)) return Result.string(ali.vod(url, "直连"));
+        return Result.string(ali.vod(url, "网页"));
     }
 
     @Override
@@ -248,16 +248,5 @@ public class PushAgentQQ extends Spider {
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
         return Result.get().url(id).string();
-    }
-
-    private Vod vod(String url, String type) {
-        Vod vod = new Vod();
-        vod.setTypeName(type);
-        vod.setVodId(url);
-        vod.setVodName(url);
-        vod.setVodPlayFrom(type);
-        vod.setVodPlayUrl("播放$" + url);
-        vod.setVodPic(Misc.getWebName(url,1));
-        return vod;
     }
 }

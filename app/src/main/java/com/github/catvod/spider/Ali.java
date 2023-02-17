@@ -322,6 +322,17 @@ public class Ali {
         }
     }
 
+    public Vod vod(String url, String type) {
+        Vod vod = new Vod();
+        vod.setTypeName(type);
+        vod.setVodId(url);
+        vod.setVodName(url);
+        vod.setVodPlayFrom(type);
+        vod.setVodPlayUrl("播放$" + url);
+        vod.setVodPic(Misc.getWebName(url,1));
+        return vod;
+    }
+
     public static Object[] vod(Map<String, String> params) {
         String shareId = params.get("share_id");
         String shareToken = params.get("share_token");

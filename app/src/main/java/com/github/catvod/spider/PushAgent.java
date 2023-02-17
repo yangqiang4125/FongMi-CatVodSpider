@@ -22,9 +22,9 @@ public class PushAgent extends Spider {
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
         if (url.contains("aliyundrive")) return ali.detailContent(ids);
-        if (Misc.isVip(url)) return Result.string(vod(url, "官源"));
-        if (Misc.isVideoFormat(url)) return Result.string(vod(url, "直连"));
-        return Result.string(vod(url, "网页"));
+        if (Misc.isVip(url)) return Result.string(ali.vod(url, "官源"));
+        if (Misc.isVideoFormat(url)) return Result.string(ali.vod(url, "直连"));
+        return Result.string(ali.vod(url, "网页"));
     }
 
     @Override
@@ -33,16 +33,5 @@ public class PushAgent extends Spider {
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
         return Result.get().url(id).string();
-    }
-
-    private Vod vod(String url, String type) {
-        Vod vod = new Vod();
-        vod.setTypeName(type);
-        vod.setVodId(url);
-        vod.setVodName(url);
-        vod.setVodPlayFrom(type);
-        vod.setVodPlayUrl("播放$" + url);
-        vod.setVodPic("https://pic.rmb.bdstatic.com/bjh/1d0b02d0f57f0a42201f92caba5107ed.jpeg");
-        return vod;
     }
 }
