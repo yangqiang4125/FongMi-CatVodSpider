@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * @author ColaMint & FongMi
  */
-public class Paper extends Spider {
+public class Gitcafe extends Spider {
 
     private final String url = "https://gitcafe.net/alipaper/";
     private final String api = "https://gitcafe.net/tool/alipaper/";
@@ -59,7 +59,7 @@ public class Paper extends Spider {
                     String typeId = td.select("a").attr("href").replace("#", "");
                     if (!types.contains(typeId)) continue;
                     classes.add(new Class(typeId, td.text()));
-                    filters.put(typeId, Arrays.asList(new Filter("type", "類型", values)));
+                    filters.put(typeId, Arrays.asList(new Filter("type", "类型", values)));
                 } else {
                     String value = td.select("a").attr("onclick").split("'")[1];
                     values.add(new Filter.Value(td.text(), value));

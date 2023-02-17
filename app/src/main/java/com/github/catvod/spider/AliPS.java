@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * @author ColaMint & FongMi
  */
-public class PanSou extends Spider {
+public class AliPS extends Spider {
 
     private final String siteUrl = "https://www.alipansou.com";
     private HashMap<String, String> header;
@@ -53,7 +53,7 @@ public class PanSou extends Spider {
     @Override
     public String searchContent(String key, boolean quick) {
         Map<String, String> types = new HashMap<>();
-        types.put("7", "資料夾");
+        types.put("7", "资料夹");
         types.put("1", "影片");
         List<Vod> list = new ArrayList<>();
         for (Map.Entry<String, String> entry : types.entrySet()) {

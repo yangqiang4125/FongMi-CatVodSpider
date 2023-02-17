@@ -48,10 +48,53 @@ public class Ali {
     private ImageView view;
 
     public Ali(String token) {
-        if (TextUtils.isEmpty(token)) Init.show("尚未設定 Token");
-        if (token.startsWith("http")) token = OkHttpUtil.string(token);
-        refreshToken = Prefers.getString("token", token);
+        if (!TextUtils.isEmpty(token)) {
+            if (token.startsWith("http")) token = OkHttpUtil.string(token);
+            refreshToken = Prefers.getString("token", token);
+        }
+        fetchRule(false,0);
     }
+    public static JSONObject fetchRule(boolean flag,int t) {
+        try {
+            if (flag || Misc.siteRule == null) {
+                String json = OkHttpUtil.string(Misc.jsonUrl+"?t="+Time());
+                JSONObject jo = new JSONObject(json);
+                if(t==0) {
+                    String[] fenleis = getRuleVal(jo,"fenlei", "").split("#");
+                    for (String fenlei : fenleis) {
+                        String[] info = fenlei.split("\\$");
+                        jo.remove(info[1]);
+                    }
+                    Misc.siteRule = jo;
+                    String tk = Misc.siteRule.optString("token","");
+                    if(!tk.equals("")&&tk.equals(refreshToken)){
+                        refreshToken = tk;
+                    }
+                    Misc.apikey = Misc.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
+                    szRegx =  Misc.siteRule.optString("szRegx", ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*");
+                }
+                return jo;
+            }
+        } catch (JSONException e) {
+        }
+        return Misc.siteRule;
+    }
+
+    public static String getRuleVal(JSONObject o,String key, String defaultVal) {
+        String v = o.optString(key);
+        if (v.isEmpty() || v.equals("空"))
+            return defaultVal;
+        return v;
+    }
+
+    public static String getRuleVal(JSONObject o,String key) {
+        return getRuleVal(o,key, "");
+    }
+
+    public static long Time() {
+        return (System.currentTimeMillis() / 1000);
+    }
+
 
     private static HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
@@ -93,7 +136,7 @@ public class Ali {
         String sub = getSub(shareId, shareToken, ids);
         if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
         while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
-        if (flag.equals("原畫")) {
+        if (flag.equals("原画")) {
             return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
         } else {
             return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
@@ -124,8 +167,8 @@ public class Ali {
         vod.setVodPic(object.getString("avatar"));
         vod.setVodName(object.getString("share_name"));
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
-        vod.setVodPlayFrom("原畫$$$普畫");
-        vod.setTypeName("阿里雲盤");
+        vod.setVodPlayFrom("原画$$$普画");
+        vod.setTypeName("阿里云盘");
         return vod;
     }
 
@@ -224,7 +267,7 @@ public class Ali {
             String json = post("v2/share_link/get_share_token", body);
             return new JSONObject(json).getString("share_token");
         } catch (JSONException e) {
-            Init.show("來晚啦，該分享已失效。");
+            Init.show("來晚啦，该分享已失效。");
             e.printStackTrace();
             return "";
         }
@@ -309,7 +352,7 @@ public class Ali {
 
     private void setToken(String value) {
         Prefers.put("token", refreshToken = value);
-        Init.show("請重新進入播放頁");
+        Init.show("请重新进入播放页");
         checkService();
     }
 
@@ -317,7 +360,7 @@ public class Ali {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER;
         Misc.addView(view = create(data.getData().getCodeContent()), params);
-        Init.show("請使用阿里雲盤 App 掃描二維碼");
+        Init.show("请使用阿里云盘 App 扫描二维码");
     }
 
     private ImageView create(String value) {
