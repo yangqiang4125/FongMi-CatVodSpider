@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PushAgentQQ extends Spider {
     private Ali ali;
