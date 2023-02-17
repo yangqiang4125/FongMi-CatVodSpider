@@ -8,7 +8,7 @@ import com.github.catvod.utils.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.github.catvod.bean.Result;
 import java.util.HashMap;
 import java.util.List;
 
