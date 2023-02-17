@@ -122,6 +122,8 @@ public class Ali {
 
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
+        String[] idInfo = url.split("\\$\\$\\$");
+        if (idInfo.length > 0)  url = idInfo[0].trim();
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) return Result.string(getVod(matcher, url));
         return "";

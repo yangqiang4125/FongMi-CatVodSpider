@@ -7,8 +7,9 @@ import com.github.catvod.net.OkHttpUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.content.Context;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class PushAgentQQ extends Spider {
     private Ali ali;
@@ -141,7 +142,7 @@ public class PushAgentQQ extends Spider {
     @Override
     public String homeContent(boolean filter) {
         try {
-            JSONObject jo = fetchRule(true,1);
+            JSONObject jo = Ali.fetchRule(true,1);
             JSONArray classes = new JSONArray();
             String[] fenleis = Ali.getRuleVal(Misc.siteRule,"fenlei", "").split("#");
             for (String fenlei : fenleis) {
@@ -196,7 +197,7 @@ public class PushAgentQQ extends Spider {
                 if(arr.length>3)count = Integer.parseInt(arr[3]);
                 videos = getDouban(key, sort, count);
             }else{
-                if (jo == null) jo = fetchRule(true,1);
+                if (jo == null) jo = Ali.fetchRule(true,1);
                 JSONArray array = jo.getJSONArray(tid);
                 for (int i = 0; i < array.length(); i++) {
                     jsonObject = array.getJSONObject(i);
