@@ -91,7 +91,7 @@ public class Bili extends Spider {
             Vod vod = new Vod();
             vod.setVodId(object.getString("bvid"));
             vod.setVodName(Jsoup.parse(object.getString("title")).text());
-            vod.setVodRemarks(object.getString("duration").split(":")[0] + "分鐘");
+            vod.setVodRemarks(object.getString("duration").split(":")[0] + "分钟");
             vod.setVodPic(pic.startsWith("//") ? "https:" + pic : pic);
             list.add(vod);
         }
@@ -119,7 +119,7 @@ public class Bili extends Spider {
         vod.setVodName(detailData.getString("title"));
         vod.setVodPic(detailData.getString("pic"));
         vod.setTypeName(detailData.getString("tname"));
-        vod.setVodRemarks(detailData.getLong("duration") / 60 + "分鐘");
+        vod.setVodRemarks(detailData.getLong("duration") / 60 + "分钟");
         vod.setVodContent(detailData.getString("desc"));
         vod.setVodPlayFrom("B站");
         vod.setVodPlayUrl(TextUtils.join("#", playlist));

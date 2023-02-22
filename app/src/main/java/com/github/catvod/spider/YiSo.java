@@ -1,14 +1,11 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.yiso.Item;
-import com.github.catvod.crawler.Spider;
 import com.github.catvod.utils.Misc;
 import com.google.gson.JsonParser;
 
@@ -18,23 +15,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class YiSo extends Spider {
+public class YiSo extends Ali {
 
-    private Ali ali;
-
-    @Override
-    public void init(Context context, String extend) {
-        ali = new Ali(extend);
-    }
-
-    @Override
+    String pic = "http://f.haocew.com/image/tv/yiso.jpg";
+    /*@Override
     public String detailContent(List<String> ids) throws Exception {
         return ali.detailContent(ids);
-    }
+    }*/
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-        return ali.playerContent(flag, id);
+        return playerContent(flag, id);
     }
 
     @Override
@@ -45,7 +36,7 @@ public class YiSo extends Spider {
         Misc.loadWebView(url, getWebViewClient(result));
         while (!result.containsKey("json")) SystemClock.sleep(50);
         String json = JsonParser.parseString(Objects.requireNonNull(result.get("json"))).getAsJsonPrimitive().getAsString();
-        return Result.string(Item.objectFrom(json).getData().getList());
+        return Result.string(Item.objectFrom(json).getData(pic).getList());
     }
 
     private WebViewClient getWebViewClient(Map<String, String> result) {
