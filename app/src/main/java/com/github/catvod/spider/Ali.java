@@ -129,8 +129,10 @@ public class Ali extends Spider{
         String url = ids.get(0).trim();
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url = idInfo[0].trim();
+        url = Misc.getRealUrl(url);
+        idInfo[0]=url;
         Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) return Result.string(getVod(matcher, url,idInfo));
+        if (matcher.find()) return Result.string(getVod(matcher,idInfo));
         return "";
     }
 
@@ -149,8 +151,12 @@ public class Ali extends Spider{
             return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
         }
     }
+    @Override
+    public String playerContent(String flag, String id, List<String> vipFlags) {
+        return playerContent(flag, id);
+    }
 
-    private Vod getVod(Matcher matcher, String url,String[] idInfo) throws Exception {
+    private Vod getVod(Matcher matcher, String[] idInfo) throws Exception {
         String shareId = matcher.group(1);
         String shareToken = getShareToken(shareId);
         String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
@@ -174,16 +180,15 @@ public class Ali extends Spider{
         if (s.contains("4K")) {
             type = "4K";
         }else if (s.contains("4k")) {
-            type = "4k";
+            type = "4K";
         }else if (s.contains("1080")) {
             if(!s.contains("1079"))type = "1080";
         }
         String from = "原画%$$$普画";
         from = from.replace("%", type);
-        url = Misc.getRealUrl(url);
         Vod vod = new Vod();
-        vod.setVodId(url);
-        vod.setVodContent(url);
+        vod.setVodId(TextUtils.join("$$$",idInfo));
+        vod.setVodContent(idInfo[0]);
         String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
         String vname=object.getString("share_name");
         if (idInfo != null) {

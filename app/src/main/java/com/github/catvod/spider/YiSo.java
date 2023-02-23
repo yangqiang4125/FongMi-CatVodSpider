@@ -24,11 +24,6 @@ public class YiSo extends Ali {
     }*/
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-        return playerContent(flag, id);
-    }
-
-    @Override
     public String searchContent(String key, boolean quick) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) return "";
         String url = "https://yiso.fun/api/search?name=" + URLEncoder.encode(key) + "&from=ali";

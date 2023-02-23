@@ -23,18 +23,24 @@ public class AliPS extends Ali {
     private Map<String, String> getHeaders(String id) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Misc.CHROME);
-        headers.put("Referer", siteUrl + id);
+        headers.put("Referer", siteUrl+id);
         headers.put("_bid", "6d14a5dd6c07980d9dc089a693805ad8");
         return headers;
     }
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        String url = siteUrl + ids.get(0).replace("/s/", "/cv/");
-        Map<String, List<String>> respHeaders = new HashMap<>();
-        OkHttpUtil.stringNoRedirect(url, getHeaders(ids.get(0)), respHeaders);
-        url = OkHttpUtil.getRedirectLocation(respHeaders);
-        return super.detailContent(Arrays.asList(url));
+        String id = ids.get(0);
+        if (!id.contains("aliyundrive.com")) {
+            String [] arr=id.split("\\$\\$\\$");
+            String url = arr[0].replace("/s/", "/cv/");
+            Map<String, List<String>> respHeaders = new HashMap<>();
+            OkHttpUtil.stringNoRedirect(url, getHeaders(arr[0]), respHeaders);
+            url = OkHttpUtil.getRedirectLocation(respHeaders);
+            String uid = url+"$$$" + arr[1] + "$$$" + arr[2];
+            return super.detailContent(Arrays.asList(uid));
+        }
+        return super.detailContent(ids);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class AliPS extends Ali {
                         remark = remark + " " + dx;
                     }
                     Vod vod = new Vod();
-                    vod.setVodId(id);
+                    vod.setVodId(id + "$$$" + pic + "$$$" + title);
                     vod.setVodName(title);
                     vod.setVodPic(pic);
                     vod.setVodRemarks(remark);
@@ -78,10 +84,5 @@ public class AliPS extends Ali {
             }
         }
         return Result.string(list);
-    }
-
-    @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) {
-        return playerContent(flag, id);
     }
 }

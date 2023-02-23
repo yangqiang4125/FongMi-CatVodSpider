@@ -91,7 +91,7 @@ public class Zhaozy extends Ali {
                         //类别：文件夹 | 收录时间：2022-10-08 22:51
                         remark = remark.replaceAll(".*收录时间：(.*)", "$1");
                         Vod vod = new Vod();
-                        vod.setVodId(id);
+                        vod.setVodId(id + "$$$" + pic + "$$$" + title);
                         vod.setVodName(title);
                         vod.setVodPic(pic);
                         vod.setVodRemarks(remark);
