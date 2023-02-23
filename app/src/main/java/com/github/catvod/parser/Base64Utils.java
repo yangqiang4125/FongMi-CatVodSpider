@@ -1,7 +1,7 @@
 package com.github.catvod.parser;
 
+import com.github.catvod.net.OkHttpUtil;
 import com.github.catvod.utils.Misc;
-import com.github.catvod.utils.okhttp.OkHttpUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +18,7 @@ public class Base64Utils {
     public static JSONArray getJSONByUrl(String url){
         JSONArray a2 = new JSONArray();
         try {
-            String json = OkHttpUtil.string(url, Misc.Headers(1,url));
+            String json = OkHttpUtil.string(url);
             String s = getBase64(json),title="",uri="",atime="",ctime="",zt="",remark="";
             JSONObject jsonObject = new JSONObject(s);
             if (jsonObject.optString("status", "").equals("success")) {
@@ -71,7 +71,7 @@ public class Base64Utils {
         try {
             String r = url.replaceAll(".*url=(.*)", "$1");
             String url1 = "https://api.upyunso.com/download?url=" + r;
-            String s = OkHttpUtil.string(url1, Misc.Headers(1,url));
+            String s = OkHttpUtil.string(url1);
             s = getBase64(s);
             JSONObject jsonObject = new JSONObject(s);
             if (jsonObject.optString("status", "").equals("success")) {
