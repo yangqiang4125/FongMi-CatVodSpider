@@ -3,6 +3,5 @@
 *build
 *.jks
 Nbys.java
-/jar
 /local.properties
 /gradle.properties
