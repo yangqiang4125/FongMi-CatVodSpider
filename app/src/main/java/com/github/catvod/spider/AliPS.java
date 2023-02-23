@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 public class AliPS extends Ali {
 
     private final String siteUrl = "https://www.alipansou.com";
-    private HashMap<String, String> header;
-
     private Map<String, String> getHeaders(String id) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Misc.CHROME);
@@ -71,9 +69,9 @@ public class AliPS extends Ali {
                         remark = remark + " " + dx;
                     }
                     Vod vod = new Vod();
-                    vod.setVodId(id + "$$$" + pic + "$$$" + title);
+                    vod.setVodId(id);
                     vod.setVodName(title);
-                    vod.setVodPic("https://inews.gtimg.com/newsapp_bt/0/13263837859/1000");
+                    vod.setVodPic(pic);
                     vod.setVodRemarks(remark);
                     list.add(vod);
                 }

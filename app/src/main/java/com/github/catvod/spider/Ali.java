@@ -180,6 +180,7 @@ public class Ali extends Spider{
         }
         String from = "原画%$$$普画";
         from = from.replace("%", type);
+        url = Misc.getRealUrl(url);
         Vod vod = new Vod();
         vod.setVodId(url);
         vod.setVodContent(url);

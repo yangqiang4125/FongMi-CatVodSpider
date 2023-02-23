@@ -11,6 +11,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.github.catvod.crawler.SpiderDebug;
+import com.github.catvod.net.OkHttpUtil;
+import com.github.catvod.parser.Base64Utils;
 import com.github.catvod.spider.Init;
 
 import org.json.JSONException;
@@ -29,6 +31,7 @@ public class Misc {
     public static String jsonUrl = "http://test.xinjun58.com/sp/d.json";
     public static String apikey = "0ac44ae016490db2204ce0a042db2916";//豆瓣key
     public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
+    private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
     public static final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
     public static boolean isVip(String url) {
         List<String> hosts = Arrays.asList("iqiyi.com", "v.qq.com", "youku.com", "le.com", "tudou.com", "mgtv.com", "sohu.com", "acfun.cn", "bilibili.com", "baofeng.com", "pptv.com");
@@ -231,5 +234,17 @@ public class Misc {
             webView.setWebViewClient(client);
             webView.loadUrl(url);
         });
+    }
+    public static String getRealUrl(String url){
+        if (url.contains("upyunso.com/download")) {
+            url = Base64Utils.sendGet(url);
+        } else if (url.contains("alipansou") || url.contains("zhaoziyuan")) {
+            Matcher matcher = matcher(a, OkHttpUtil.string(url, null));
+            if (!matcher.find()) {
+                return "";
+            }
+            url = matcher.group(1).replaceAll("\\\\", "");
+        }
+        return url;
     }
 }

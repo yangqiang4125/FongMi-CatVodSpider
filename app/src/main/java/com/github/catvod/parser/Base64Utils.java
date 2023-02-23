@@ -1,7 +1,6 @@
 package com.github.catvod.parser;
 
 import com.github.catvod.net.OkHttpUtil;
-import com.github.catvod.utils.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
