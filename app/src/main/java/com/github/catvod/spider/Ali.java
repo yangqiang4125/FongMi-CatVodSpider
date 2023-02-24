@@ -132,7 +132,10 @@ public class Ali extends Spider{
         url = Misc.getRealUrl(url);
         idInfo[0]=url;
         Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) return Result.string(getVod(matcher,idInfo));
+        if (matcher.find()) {
+            Vod vod = getVod(matcher,idInfo);
+            if (vod != null) return Result.string(vod);
+        }
         return "";
     }
 
@@ -159,38 +162,43 @@ public class Ali extends Spider{
     private Vod getVod(Matcher matcher, String[] idInfo) throws Exception {
         String shareId = matcher.group(1);
         String shareToken = getShareToken(shareId);
-        String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
-        JSONObject body = new JSONObject();
-        body.put("share_id", shareId);
-        String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
-        JSONObject object = new JSONObject(json);
-        LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
-        Map<String, List<String>> subMap = new HashMap<>();
-        listFiles(new Item(getParentFileId(fileId, object)), fileMap, subMap, shareId, shareToken);
         List<String> playUrls = new ArrayList<>();
-        List<Item> files = new ArrayList<>(fileMap.keySet());
-        for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
-        if (playUrls.isEmpty()) playUrls.add("无数据$无数据");
-        List<String> sourceUrls = new ArrayList<>();
-        String s = TextUtils.join("#", playUrls);
-        sourceUrls.add(s);
-        sourceUrls.add(s);
-
-        String type = "";
-        if (s.contains("4K")) {
-            type = "4K";
-        }else if (s.contains("4k")) {
-            type = "4K";
-        }else if (s.contains("1080")) {
-            if(!s.contains("1079"))type = "1080";
+        JSONObject object = null;
+        if(shareToken.isEmpty()){
+            if (idInfo.length == 1) return null;
+        }else {
+            String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
+            JSONObject body = new JSONObject();
+            body.put("share_id", shareId);
+            String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
+            object = new JSONObject(json);
+            LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
+            Map<String, List<String>> subMap = new HashMap<>();
+            listFiles(new Item(getParentFileId(fileId, object)), fileMap, subMap, shareId, shareToken);
+            List<Item> files = new ArrayList<>(fileMap.keySet());
+            for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
         }
-        String from = "原画%$$$普画";
+        List<String> sourceUrls = new ArrayList<>();
+        Vod vod = new Vod(); String type = "";
+        if (playUrls.isEmpty()) playUrls.add("无数据$无数据");
+        else {
+            String s = TextUtils.join("#", playUrls);
+            sourceUrls.add(s);
+            sourceUrls.add(s);
+            if (s.contains("4K")) {
+                type = "4K";
+            }else if (s.contains("4k")) {
+                type = "4K";
+            }else if (s.contains("1080")) {
+                if(!s.contains("1079"))type = "1080";
+            }
+        }
+        String from = "原画%$$$普画%";
         from = from.replace("%", type);
-        Vod vod = new Vod();
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
         String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
-        String vname=object.getString("share_name");
+        String vname=object!=null?object.getString("share_name"):"无名称";
         if (idInfo != null) {
             if(idInfo.length>1) vpic = idInfo[1];
             if(idInfo.length>2) vname = idInfo[2];
@@ -280,14 +288,18 @@ public class Ali extends Spider{
     }
 
     private String getSub(String shareId, String shareToken, String[] ids) {
-        StringBuilder sb = new StringBuilder();
-        for (String text : ids) {
-            if (!text.contains("@")) continue;
-            String[] arr = text.split("@");
-            String url = Proxy.getUrl() + "?do=ali&type=sub&share_id=" + shareId + "&share_token=" + shareToken + "&file_id=" + arr[1];
-            sb.append(Trans.get(arr[0])).append("#").append(Misc.getSubMimeType(arr[2])).append("#").append(url).append("$$$");
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (String text : ids) {
+                if (!text.contains("@")) continue;
+                String[] arr = text.split("@");
+                String url = Proxy.getUrl() + "?do=ali&type=sub&share_id=" + shareId + "&share_token=" + shareToken + "&file_id=" + arr[1];
+                sb.append(Trans.get(arr[0])).append("#").append(Misc.getSubMimeType(arr[2])).append("#").append(url).append("$$$");
+            }
+            return Misc.substring(sb.toString(), 3);
+        } catch (Exception e) {
+            return "";
         }
-        return Misc.substring(sb.toString(), 3);
     }
 
     private String getShareToken(String shareId) {
