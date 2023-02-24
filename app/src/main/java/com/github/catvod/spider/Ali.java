@@ -200,8 +200,8 @@ public class Ali extends Spider{
         String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
         String vname=object!=null?object.getString("share_name"):"无名称";
         if (idInfo != null) {
-            if(idInfo.length>1) vpic = idInfo[1];
-            if(idInfo.length>2) vname = idInfo[2];
+            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
         }
         vod.setVodPic(vpic);
         vod.setVodName(vname);
@@ -369,8 +369,8 @@ public class Ali extends Spider{
         String vpic = "";
         String vname="";
         if (idInfo != null) {
-            if(idInfo.length>1) vpic = idInfo[1];
-            if(idInfo.length>2) vname = idInfo[2];
+            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
         }
 
         if (vname.isEmpty()) {
