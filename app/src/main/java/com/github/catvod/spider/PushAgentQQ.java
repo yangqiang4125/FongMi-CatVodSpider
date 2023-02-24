@@ -1,19 +1,17 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
-import com.github.catvod.crawler.Spider;
+import com.github.catvod.bean.Result;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttpUtil;
 import com.github.catvod.utils.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.github.catvod.bean.Result;
+
 import java.util.HashMap;
 import java.util.List;
 
-public class PushAgentQQ extends Spider {
-    private Ali ali;
+public class PushAgentQQ extends Ali {
     private static String douban_api_host = "https://frodo.douban.com/api/v2";
     public static JSONObject getUrls(){
         String _urls = "{" +
@@ -136,11 +134,6 @@ public class PushAgentQQ extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) {
-        ali = new Ali(extend);
-    }
-
-    @Override
     public String homeContent(boolean filter) {
         try {
             JSONObject jo = Ali.fetchRule(true,1);
@@ -236,15 +229,15 @@ public class PushAgentQQ extends Spider {
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
-        if (url.contains("aliyundrive")) return ali.detailContent(ids);
-        if (Misc.isVip(url)) return Result.string(ali.vod(url, "官源"));
-        if (Misc.isVideoFormat(url)) return Result.string(ali.vod(url, "直连"));
-        return Result.string(ali.vod(url, "网页"));
+        if (url.contains("aliyundrive")) return super.detailContent(ids);
+        if (Misc.isVip(url)) return Result.string(vod(url, "官源"));
+        if (Misc.isVideoFormat(url)) return Result.string(vod(url, "直连"));
+        return Result.string(vod(url, "网页"));
     }
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        if (flag.contains("画")) return ali.playerContent(flag, id);
+        if (flag.contains("画")) return playerContent(flag, id);
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
         return Result.get().url(id).string();

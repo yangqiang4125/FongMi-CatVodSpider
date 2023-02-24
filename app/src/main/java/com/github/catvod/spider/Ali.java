@@ -140,18 +140,22 @@ public class Ali extends Spider{
     }
 
     public String playerContent(String flag, String id) {
-        if (id.equals("无数据")) return "";
-        String[] ids = id.split("\\+");
-        String shareId = ids[0];
-        String shareToken = ids[1];
-        String fileId = ids[2];
-        String sub = getSub(shareId, shareToken, ids);
-        if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
-        while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
-        if (flag.contains("原画")) {
-            return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
-        } else {
-            return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
+        try {
+            if (id.equals("无数据")) return "";
+            String[] ids = id.split("\\+");
+            String shareId = ids[0];
+            String shareToken = ids[1];
+            String fileId = ids[2];
+            String sub = getSub(shareId, shareToken, ids);
+            if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
+            while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
+            if (flag.contains("原画")) {
+                return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
+            } else {
+                return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
     @Override
@@ -167,16 +171,22 @@ public class Ali extends Spider{
         if(shareToken.isEmpty()){
             if (idInfo.length == 1) return null;
         }else {
-            String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
-            JSONObject body = new JSONObject();
-            body.put("share_id", shareId);
-            String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
-            object = new JSONObject(json);
-            LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
-            Map<String, List<String>> subMap = new HashMap<>();
-            listFiles(new Item(getParentFileId(fileId, object)), fileMap, subMap, shareId, shareToken);
-            List<Item> files = new ArrayList<>(fileMap.keySet());
-            for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
+            try {
+                String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
+                JSONObject body = new JSONObject();
+                body.put("share_id", shareId);
+                String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
+                object = new JSONObject(json);
+                LinkedHashMap<Item, String> fileMap = new LinkedHashMap<>();
+                Map<String, List<String>> subMap = new HashMap<>();
+                String f = getParentFileId(fileId, object);
+                if (!f.isEmpty()) {
+                    listFiles(new Item(f), fileMap, subMap, shareId, shareToken);
+                    List<Item> files = new ArrayList<>(fileMap.keySet());
+                    for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + fileMap.get(file) + findSubs(file.getName(), subMap));
+                }
+            } catch (Exception e) {
+            }
         }
         List<String> sourceUrls = new ArrayList<>();
         Vod vod = new Vod(); String type = "";
