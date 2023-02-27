@@ -24,6 +24,7 @@ import org.jsoup.nodes.Element;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;
@@ -45,6 +46,7 @@ public class Ali extends Spider{
     private long expiresTime;
     private ImageView view;
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
+    private static Integer isPic=0;
     public Ali(){}
     public Ali(String extend){
         init(null,extend);
@@ -76,6 +78,7 @@ public class Ali extends Spider{
                     }
                     Misc.apikey = Misc.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                     szRegx =  Misc.siteRule.optString("szRegx", szRegx);
+                    isPic = Misc.siteRule.optInt("isPic", 0);
                 }
                 return jo;
             }
@@ -219,6 +222,46 @@ public class Ali extends Spider{
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
+        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod);
+        return vod;
+    }
+
+    public static Vod getVodInfo(String key,Vod vod){
+        try {
+            JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
+            if (response.optInt("code", 0) == 1) {
+                JSONArray jsonArray = response.getJSONArray("list");
+                if(jsonArray.length()>0){
+                    JSONObject o = (JSONObject) jsonArray.get(0);
+                    int id = o.optInt("id", 0);
+                    if (id > 0) {
+                        Document doc = Jsoup.parse(OkHttpUtil.string("https://www.voflix.com/detail/"+id+".html"));
+                        Elements em = doc.select(".module-main");
+                        Elements el = doc.select(".module-info-main");
+                        String tag = el.select(".module-info-tag").text();
+                        if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
+                        el = el.select(".module-info-items");
+                        String content = el.select(".module-info-introduction-content").text();
+                        content = Misc.trim(content);
+                        String director = el.select(".module-info-item-content a").eq(0).text();
+                        String actor = el.select(".module-info-item-content").eq(2).text();
+                        String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
+                        String yearText = el.select(".module-info-item-content").eq(3).text();
+                        String year = yearText.replaceAll("(.*)\\(.*", "$1");
+                        String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
+                        actor = actor.substring(0, actor.length() - 1);
+                        vod.setVodTag(tag);
+                        vod.setVodContent(content);
+                        vod.setVodDirector(director);
+                        vod.setVodActor(actor);
+                        vod.setVodYear(year);
+                        vod.setVodArea(area);
+                        vod.setVodPic(pic);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
         return vod;
     }
 
