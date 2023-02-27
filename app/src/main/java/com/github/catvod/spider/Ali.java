@@ -217,19 +217,19 @@ public class Ali extends Spider{
             if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
             if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
         }
-        int sid = 0;
-        if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
         vod.setVodPic(vpic);
         vod.setVodName(vname);
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
-        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, sid);
+        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
         return vod;
     }
 
-    public static Vod getVodInfo(String key,Vod vod,int sid){
+    public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
         try {
+            int sid = 0;
+            if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if (sid == 0) {
                 JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1) {
@@ -257,6 +257,7 @@ public class Ali extends Spider{
                 String year = yearText.replaceAll("(.*)\\(.*", "$1");
                 String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
                 actor = actor.substring(0, actor.length() - 1);
+                if (idInfo.length == 3)  vod.setVodId(TextUtils.join("$$$", idInfo) + "$$$" + sid);
                 vod.setVodTag(tag);
                 vod.setVodContent(content);
                 vod.setVodDirector(director);

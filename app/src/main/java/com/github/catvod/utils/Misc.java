@@ -10,6 +10,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttpUtil;
 import com.github.catvod.parser.Base64Utils;
@@ -17,13 +18,12 @@ import com.github.catvod.spider.Init;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 public class Misc {
     public static JSONObject siteRule = null;
@@ -33,6 +33,7 @@ public class Misc {
     public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
     private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
     public static final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
+    public static Map<String, Vod> mv = new HashMap<>();
     public static boolean isVip(String url) {
         List<String> hosts = Arrays.asList("iqiyi.com", "v.qq.com", "youku.com", "le.com", "tudou.com", "mgtv.com", "sohu.com", "acfun.cn", "bilibili.com", "baofeng.com", "pptv.com");
         for (String host : hosts) if (url.contains(host)) return true;
