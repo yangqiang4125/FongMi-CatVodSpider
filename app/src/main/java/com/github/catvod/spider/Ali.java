@@ -217,48 +217,53 @@ public class Ali extends Spider{
             if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
             if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
         }
+        int sid = 0;
+        if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
         vod.setVodPic(vpic);
         vod.setVodName(vname);
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
-        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod);
+        if (isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, sid);
         return vod;
     }
 
-    public static Vod getVodInfo(String key,Vod vod){
+    public static Vod getVodInfo(String key,Vod vod,int sid){
         try {
-            JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
-            if (response.optInt("code", 0) == 1) {
-                JSONArray jsonArray = response.getJSONArray("list");
-                if(jsonArray.length()>0){
-                    JSONObject o = (JSONObject) jsonArray.get(0);
-                    int id = o.optInt("id", 0);
-                    if (id > 0) {
-                        Document doc = Jsoup.parse(OkHttpUtil.string("https://www.voflix.com/detail/"+id+".html"));
-                        Elements em = doc.select(".module-main");
-                        Elements el = doc.select(".module-info-main");
-                        String tag = el.select(".module-info-tag").text();
-                        if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
-                        el = el.select(".module-info-items");
-                        String content = el.select(".module-info-introduction-content").text();
-                        content = Misc.trim(content);
-                        String director = el.select(".module-info-item-content a").eq(0).text();
-                        String actor = el.select(".module-info-item-content").eq(2).text();
-                        String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
-                        String yearText = el.select(".module-info-item-content").eq(3).text();
-                        String year = yearText.replaceAll("(.*)\\(.*", "$1");
-                        String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
-                        actor = actor.substring(0, actor.length() - 1);
-                        vod.setVodTag(tag);
-                        vod.setVodContent(content);
-                        vod.setVodDirector(director);
-                        vod.setVodActor(actor);
-                        vod.setVodYear(year);
-                        vod.setVodArea(area);
-                        vod.setVodPic(pic);
+            if (sid == 0) {
+                JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
+                if (response.optInt("code", 0) == 1) {
+                    JSONArray jsonArray = response.getJSONArray("list");
+                    if(jsonArray.length()>0){
+                        JSONObject o = (JSONObject) jsonArray.get(0);
+                        sid = o.optInt("id", 0);
+
                     }
                 }
+            }
+            if (sid > 0) {
+                Document doc = Jsoup.parse(OkHttpUtil.string("https://www.voflix.com/detail/"+sid+".html"));
+                Elements em = doc.select(".module-main");
+                Elements el = doc.select(".module-info-main");
+                String tag = el.select(".module-info-tag").text();
+                if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
+                el = el.select(".module-info-items");
+                String content = el.select(".module-info-introduction-content").text();
+                content = Misc.trim(content);
+                String director = el.select(".module-info-item-content a").eq(0).text();
+                String actor = el.select(".module-info-item-content").eq(2).text();
+                String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
+                String yearText = el.select(".module-info-item-content").eq(3).text();
+                String year = yearText.replaceAll("(.*)\\(.*", "$1");
+                String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
+                actor = actor.substring(0, actor.length() - 1);
+                vod.setVodTag(tag);
+                vod.setVodContent(content);
+                vod.setVodDirector(director);
+                vod.setVodActor(actor);
+                vod.setVodYear(year);
+                vod.setVodArea(area);
+                vod.setVodPic(pic);
             }
         } catch (Exception e) {
         }

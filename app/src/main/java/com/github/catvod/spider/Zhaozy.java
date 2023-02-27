@@ -1,5 +1,6 @@
 package com.github.catvod.spider;
 
+import android.text.TextUtils;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.SpiderDebug;
@@ -57,7 +58,8 @@ public class Zhaozy extends Ali {
                 String[] arr = id.split("\\$\\$\\$");
                 Matcher matcher = Misc.regexAli.matcher(OkHttpUtil.string(arr[0], getHeader()));
                 if (!matcher.find()) return "";
-                String uid = matcher.group(1) + "$$$" + arr[1] + "$$$" + arr[2];
+                arr[0] = matcher.group(1);
+                String uid = TextUtils.join("$$$",arr);
                 list.set(0, uid);
                 return super.detailContent(list);
             }

@@ -1,5 +1,6 @@
 package com.github.catvod.spider;
 
+import android.text.TextUtils;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.net.OkHttpUtil;
@@ -37,7 +38,8 @@ public class AliPS extends Ali {
             Map<String, List<String>> respHeaders = new HashMap<>();
             OkHttpUtil.stringNoRedirect(url, getHeaders(arr[0]), respHeaders);
             url = OkHttpUtil.getRedirectLocation(respHeaders);
-            String uid = url+"$$$" + arr[1] + "$$$" + arr[2];
+            arr[0] = url;
+            String uid = TextUtils.join("$$$",arr);
             return super.detailContent(Arrays.asList(uid));
         }
         return super.detailContent(ids);
