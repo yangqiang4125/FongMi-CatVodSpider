@@ -149,11 +149,11 @@ public class Ali extends Spider{
             String sub = getSub(shareId, shareToken, ids);
             if (System.currentTimeMillis() > expiresTime) refreshAccessToken();
             while (TextUtils.isEmpty(authorization)) SystemClock.sleep(250);
-            if (flag.contains("原画")) {
-                return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
+            return Result.get().url(getDownloadUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
+           /* if (flag.contains("原画")) {
             } else {
                 return Result.get().url(getPreviewUrl(shareId, shareToken, fileId)).sub(sub).header(getHeaders()).string();
-            }
+            }*/
         } catch (Exception e) {
             return "";
         }
@@ -188,13 +188,12 @@ public class Ali extends Spider{
             } catch (Exception e) {
             }
         }
+        boolean fp = playUrls.isEmpty();
+        if (fp) playUrls.add("无数据$无数据");
+        String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new ArrayList<>();
         Vod vod = new Vod(); String type = "";
-        if (playUrls.isEmpty()) playUrls.add("无数据$无数据");
-        else {
-            String s = TextUtils.join("#", playUrls);
-            sourceUrls.add(s);
-            sourceUrls.add(s);
+        if (!fp){
             if (s.contains("4K")) {
                 type = "4K";
             }else if (s.contains("4k")) {
@@ -203,6 +202,8 @@ public class Ali extends Spider{
                 if(!s.contains("1079"))type = "1080";
             }
         }
+        sourceUrls.add(s);
+        sourceUrls.add(s);
         String from = "原画%$$$普画%";
         from = from.replace("%", type);
         vod.setVodId(TextUtils.join("$$$",idInfo));
