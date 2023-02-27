@@ -228,9 +228,10 @@ public class Ali extends Spider{
 
     public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
         try {
-            int sid = 0;
+            int sid = -1;
             if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
-            if (sid == 0) {
+            if(sid==0)return vod;
+            if (sid == -1) {
                 JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1) {
                     JSONArray jsonArray = response.getJSONArray("list");
