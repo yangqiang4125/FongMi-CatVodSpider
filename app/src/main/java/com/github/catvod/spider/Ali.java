@@ -230,12 +230,12 @@ public class Ali extends Spider{
         try {
             int sid = -1;
             if(idInfo.length>3&&Misc.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
-            if(sid==0)return vod;
-            if (sid == -1) {
+            if(sid<1)return vod;
+            if (sid == 1) {
                 JSONObject response = new JSONObject(OkHttpUtil.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
-                if (response.optInt("code", 0) == 1) {
+                if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
                     JSONArray jsonArray = response.getJSONArray("list");
-                    if(jsonArray.length()>0){
+                    if (jsonArray.length() > 0) {
                         JSONObject o = (JSONObject) jsonArray.get(0);
                         sid = o.optInt("id", 0);
 
@@ -258,7 +258,6 @@ public class Ali extends Spider{
                 String year = yearText.replaceAll("(.*)\\(.*", "$1");
                 String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
                 actor = actor.substring(0, actor.length() - 1);
-                if (idInfo.length == 3)  vod.setVodId(TextUtils.join("$$$", idInfo) + "$$$" + sid);
                 vod.setVodTag(tag);
                 vod.setVodContent(content);
                 vod.setVodDirector(director);
