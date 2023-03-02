@@ -3,8 +3,8 @@ package com.github.catvod.spider;
 import android.text.TextUtils;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
-import com.github.catvod.net.OkHttpUtil;
-import com.github.catvod.utils.Misc;
+import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,7 +23,7 @@ public class AliPS extends Ali {
     private final String siteUrl = "https://www.alipansou.com";
     private Map<String, String> getHeaders(String id) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Misc.CHROME);
+        headers.put("User-Agent", Utils.CHROME);
         headers.put("Referer", siteUrl+id);
         headers.put("_bid", "6d14a5dd6c07980d9dc089a693805ad8");
         return headers;
@@ -36,8 +36,8 @@ public class AliPS extends Ali {
             String [] arr=id.split("\\$\\$\\$");
             String url = arr[0].replace("/s/", "/cv/");
             Map<String, List<String>> respHeaders = new HashMap<>();
-            OkHttpUtil.stringNoRedirect(url, getHeaders(arr[0]), respHeaders);
-            url = OkHttpUtil.getRedirectLocation(respHeaders);
+            OkHttp.stringNoRedirect(url, getHeaders(arr[0]), respHeaders);
+            url = OkHttp.getRedirectLocation(respHeaders);
             arr[0] = url;
             String uid = TextUtils.join("$$$",arr);
             return super.detailContent(Arrays.asList(uid));
@@ -57,7 +57,7 @@ public class AliPS extends Ali {
         while (entries.hasNext()) {
             Map.Entry entry = (Map.Entry) entries.next();
             String sb2 = siteUrl + "/search?k=" + URLEncoder.encode(key) + "&t=" + (String) entry.getKey();
-            Document doc = Jsoup.parse(OkHttpUtil.string(sb2));
+            Document doc = Jsoup.parse(OkHttp.string(sb2));
             Elements Data = doc.select("van-row a");
             for (int i = 0; i < Data.size(); i++) {
                 Element next = Data.get(i);

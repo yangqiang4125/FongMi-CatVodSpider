@@ -12,15 +12,24 @@ import android.webkit.WebViewClient;
 
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.spider.Init;
+import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
-
+    public static JSONObject siteRule = null;
+    public static String zzy=null;
+    public static Integer isPic=0;
+    public static String jsonUrl = "http://test.xinjun58.com/sp/d.json";
+    public static String apikey = "0ac44ae016490db2204ce0a042db2916";//豆瓣key
+    private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
+    public static final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
     public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
 
     public static boolean isVip(String url) {
@@ -37,7 +46,38 @@ public class Utils {
     public static boolean isSub(String ext) {
         return ext.equals("srt") || ext.equals("ass") || ext.equals("ssa");
     }
-
+    public static String getWebName(String url,int type){
+        if (url.contains("mgtv.com")) {
+            if(type==0) return "芒果TV";
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/mgtv.jpg";
+        }
+        if (url.contains("qq.com")) {
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/qq.jpg";
+            return "腾讯视频";
+        }
+        if (url.contains("iqiyi.com")) {
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/iqiyi.jpg";
+            return "爱奇艺";
+        }
+        if (url.contains("youku.com")) {
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/youku.jpg";
+            return "优酷";
+        }
+        if (url.contains("bilibili.com")) {
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/bili.jpg";
+            return "哗哩哔哩";
+        }
+        if (url.startsWith("magnet")) {
+            return "磁力";
+        }
+        if (url.contains("aliyundrive")) {
+            if(type==1) return "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
+            return "阿里云";
+        }
+        if(type==1)return "http://image.xinjun58.com/sp/pic/bg/zl.jpg";
+        String host = Uri.parse(url).getHost();
+        return host;
+    }
     public static String getSize(double size) {
         if (size == 0) return "";
         if (size > 1024 * 1024 * 1024 * 1024.0) {
@@ -80,6 +120,19 @@ public class Utils {
         } else {
             return text;
         }
+    }
+
+    public static Matcher matcher(String regx, String content) {
+        Pattern pattern = Pattern.compile(regx);
+        return pattern.matcher(content);
+    }
+
+    public static boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
+    public static String trim(String str) {
+        return str == null ? str : str.replaceAll("^[\\s　|\\s ]*|[\\s　|\\s ]*$", "");
     }
 
     public static String getVar(String data, String param) {

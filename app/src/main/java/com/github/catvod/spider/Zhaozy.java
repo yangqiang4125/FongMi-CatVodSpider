@@ -1,91 +1,109 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
-
+import android.text.TextUtils;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
+import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Utils;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Zhaozy extends Ali {
 
-    private final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
-    private final Pattern regexVid = Pattern.compile("(\\S+)");
-    private final String siteUrl = "https://zhaoziyuan.la/";
-    private String username;
-    private String password;
+public class Zhaozy extends Ali {
+    private static String b = "https://zhaoziyuan.la/";
+    private Pattern regexVid = Pattern.compile("(\\S+)");
 
     private Map<String, String> getHeader() {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
-        headers.put("Referer", siteUrl);
+        headers.put("Referer", b);
         headers.put("Cookie", getCookie());
         return headers;
     }
 
     private String getCookie() {
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-        Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Utils.CHROME);
-        headers.put("Referer", siteUrl + "login.html");
-        headers.put("Origin", siteUrl);
-        Map<String, List<String>> resp = new HashMap<>();
-        OkHttp.post(siteUrl + "logiu.html", params, headers, resp);
-        StringBuilder sb = new StringBuilder();
-        for (String item : resp.get("set-cookie")) sb.append(item.split(";")[0]).append(";");
-        return sb.toString();
+        if (Utils.zzy == null) {
+            Map<String, String> params = new HashMap<>();
+            params.put("username", "412594121@qq.com");
+            params.put("password", "qq@4125");
+            Map<String, String> headers = new HashMap<>();
+            headers.put("User-Agent", Utils.CHROME);
+            headers.put("Referer", b + "login.html");
+            headers.put("Origin", b);
+            Map<String, List<String>> resp = new HashMap<>();
+            OkHttp.post(b + "logiu.html", params, headers, resp);
+            StringBuilder sb = new StringBuilder();
+            for (String item : resp.get("set-cookie")) sb.append(item.split(";")[0]).append(";");
+            Utils.zzy = sb.toString();
+        }
+        return Utils.zzy;
     }
 
     @Override
-    public void init(Context context, String extend) {
-        String[] split = extend.split("\\$\\$\\$");
-        super.init(context, split[0]);
-        username = split[1];
-        password = split[2];
-    }
-
-    @Override
-    public String detailContent(List<String> ids) throws Exception {
-        if (pattern.matcher(ids.get(0)).find()) return super.detailContent(ids);
-        Matcher matcher = regexAli.matcher(OkHttp.string(siteUrl + ids.get(0), getHeader()));
-        if (matcher.find()) return super.detailContent(Arrays.asList(matcher.group(1)));
+    public String detailContent(List<String> list) {
+        try {
+            String id =list.get(0);
+            if (!id.contains("aliyundrive.com")) {
+                String[] arr = id.split("\\$\\$\\$");
+                Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
+                if (!matcher.find()) return "";
+                arr[0] = matcher.group(1);
+                String uid = TextUtils.join("$$$",arr);
+                list.set(0, uid);
+                return super.detailContent(list);
+            }
+            return super.detailContent(list);
+        } catch (Exception e) {
+            Utils.zzy = null;
+            SpiderDebug.log(e);
+        }
         return "";
     }
 
     @Override
-    public String searchContent(String key, boolean quick) throws Exception {
-        String url = siteUrl + "so?filename=" + URLEncoder.encode(key);
-        Document doc = Jsoup.parse(OkHttp.string(url, getHeader()));
-        List<Vod> list = new ArrayList<>();
-        for (Element element : doc.select("div.li_con div.news_text")) {
-            String href = element.select("div.news_text a").attr("href");
-            Matcher matcher = regexVid.matcher(href);
-            if (!matcher.find()) continue;
-            String name = element.select("div.news_text a h3").text();
-            if (!name.contains(key)) continue;
-            String remark = element.select("div.news_text a p").text().split("\\|")[1].split("：")[1];
-            Vod vod = new Vod();
-            vod.setVodPic("https://inews.gtimg.com/newsapp_bt/0/13263837859/1000");
-            vod.setVodId(matcher.group(1));
-            vod.setVodRemarks(remark);
-            vod.setVodName(name);
-            list.add(vod);
+    public String searchContent(String key, boolean quick) {
+        try {
+            String url = b + "so?filename=" + URLEncoder.encode(key);
+            Document docs = Jsoup.parse(OkHttp.string(url, getHeader()));
+            Elements list = docs.select("div.li_con div.news_text");
+            String pic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
+            List<Vod> items = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                Element doc = list.get(i);
+                String title = doc.select("div.news_text a h3").text();
+                if (title.contains(key)) {
+                    String list1 = doc.select("div.news_text a").attr("href");
+                    Matcher matcher = regexVid.matcher(list1);
+                    if (matcher.find()) {
+                        String id = b + matcher.group(1);
+                        String remark = doc.select("div.news_text a p").text();
+                        //类别：文件夹 | 收录时间：2022-10-08 22:51
+                        remark = remark.replaceAll(".*收录时间：(.*)", "$1");
+                        Vod vod = new Vod();
+                        vod.setVodId(id + "$$$" + pic + "$$$" + title);
+                        vod.setVodName(title);
+                        vod.setVodPic(pic);
+                        vod.setVodRemarks(remark);
+                        items.add(vod);
+                    }
+                }
+            }
+            return Result.string(items);
+        } catch (Exception e) {
+            Utils.zzy = null;
+            SpiderDebug.log(e);
         }
-        return Result.string(list);
+        return "";
     }
 }

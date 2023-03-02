@@ -1,7 +1,6 @@
 package com.github.catvod.spider;
 
 import android.content.Context;
-
 import com.github.catvod.bean.Class;
 import com.github.catvod.bean.Filter;
 import com.github.catvod.bean.Result;
@@ -9,29 +8,22 @@ import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.paper.Data;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Utils;
-
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ColaMint & FongMi
  */
-public class Paper extends Ali {
+public class Gitcafe extends Ali {
 
     private final String url = "https://gitcafe.net/alipaper/";
     private final String api = "https://gitcafe.net/tool/alipaper/";
     private List<String> types;
-
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
@@ -40,8 +32,8 @@ public class Paper extends Ali {
 
     @Override
     public void init(Context context, String extend) {
-        super.init(context, extend);
         types = Arrays.asList("hyds", "rhds", "omds", "qtds", "hydy", "rhdy", "omdy", "qtdy", "hydm", "rhdm", "omdm", "jlp", "zyp", "jypx", "qtsp");
+        super.init(context, extend);
     }
 
     @Override
@@ -57,7 +49,7 @@ public class Paper extends Ali {
                     String typeId = td.select("a").attr("href").replace("#", "");
                     if (!types.contains(typeId)) continue;
                     classes.add(new Class(typeId, td.text()));
-                    filters.put(typeId, Arrays.asList(new Filter("type", "類型", values)));
+                    filters.put(typeId, Arrays.asList(new Filter("type", "类型", values)));
                 } else {
                     String value = td.select("a").attr("onclick").split("'")[1];
                     values.add(new Filter.Value(td.text(), value));
@@ -88,7 +80,6 @@ public class Paper extends Ali {
         for (Data item : Data.arrayFrom(result)) list.add(item.getVod());
         return Result.string(list);
     }
-
     @Override
     public String searchContent(String key, boolean quick) {
         List<Vod> list = new ArrayList<>();

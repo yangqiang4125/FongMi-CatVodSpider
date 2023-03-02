@@ -30,6 +30,9 @@ import com.starkbank.ellipticcurve.utils.BinaryAscii;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -63,7 +66,9 @@ public class API {
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
     }
-
+    public String getRefreshToken() {
+        return auth.getRefreshToken();
+    }
     public void setRefreshToken(String token) {
         auth.setRefreshToken(Prefers.getString("token", token));
     }
@@ -160,7 +165,7 @@ public class API {
             auth.setShareToken(object.getString("share_token"));
             return true;
         } catch (Exception e) {
-            Init.show("來晚啦，該分享已失效。");
+            Init.show("来晚啦，该分享已失效。");
             e.printStackTrace();
             return false;
         }
@@ -190,6 +195,7 @@ public class API {
     }
 
     public Vod getVod(String url, String fileId) throws Exception {
+        String[] idInfo = url.split("\\$\\$\\$");
         JSONObject body = new JSONObject();
         body.put("share_id", auth.getShareId());
         String json = API.get().post("adrive/v3/share_link/get_share_by_anonymous", body);
@@ -199,17 +205,83 @@ public class API {
         listFiles(new Item(getParentFileId(fileId, object)), files, subMap);
         List<String> playUrls = new ArrayList<>();
         for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + file.getFileId() + findSubs(file.getName(), subMap));
+        boolean fp = playUrls.isEmpty();
+        if (fp) playUrls.add("无数据$无数据");
+        String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new ArrayList<>();
-        sourceUrls.add(TextUtils.join("#", playUrls));
-        sourceUrls.add(TextUtils.join("#", playUrls));
-        Vod vod = new Vod();
-        vod.setVodId(url);
-        vod.setVodContent(url);
-        vod.setVodPic(object.getString("avatar"));
-        vod.setVodName(object.getString("share_name"));
+        Vod vod = new Vod(); String type = "";
+        if (!fp){
+            if (s.contains("4K")) {
+                type = "4K";
+            }else if (s.contains("4k")) {
+                type = "4K";
+            }else if (s.contains("1080")) {
+                if(!s.contains("1079"))type = "1080";
+            }
+        }
+        sourceUrls.add(s);
+        sourceUrls.add(s);
+        String from = "普画%$$$原画%";
+        from = from.replace("%", type);
+        vod.setVodId(TextUtils.join("$$$",idInfo));
+        vod.setVodContent(idInfo[0]);
+        String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
+        String vname=object!=null?object.getString("share_name"):"无名称";
+        if (idInfo != null) {
+            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
+        }
+        vod.setVodPic(vpic);
+        vod.setVodName(vname);
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
-        vod.setVodPlayFrom("原畫$$$普畫");
-        vod.setTypeName("阿里雲盤");
+        vod.setVodPlayFrom(from);
+        vod.setTypeName("阿里云盘");
+        if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
+        return vod;
+    }
+
+    public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
+        try {
+            int sid = -1;
+            if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
+            if(sid<1)return vod;
+            if (sid == 1) {
+                JSONObject response = new JSONObject(OkHttp.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
+                if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
+                    JSONArray jsonArray = response.getJSONArray("list");
+                    if (jsonArray.length() > 0) {
+                        JSONObject o = (JSONObject) jsonArray.get(0);
+                        sid = o.optInt("id", 0);
+
+                    }
+                }
+            }
+            if (sid > 0) {
+                Document doc = Jsoup.parse(OkHttp.string("https://www.voflix.com/detail/"+sid+".html"));
+                Elements em = doc.select(".module-main");
+                Elements el = doc.select(".module-info-main");
+                String tag = el.select(".module-info-tag").text();
+                if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
+                el = el.select(".module-info-items");
+                String content = el.select(".module-info-introduction-content").text();
+                content = Utils.trim(content);
+                String director = el.select(".module-info-item-content a").eq(0).text();
+                String actor = el.select(".module-info-item-content").eq(2).text();
+                String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
+                String yearText = el.select(".module-info-item-content").eq(3).text();
+                String year = yearText.replaceAll("(.*)\\(.*", "$1");
+                String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
+                actor = actor.substring(0, actor.length() - 1);
+                vod.setVodTag(tag);
+                vod.setVodContent(content);
+                vod.setVodDirector(director);
+                vod.setVodActor(actor);
+                vod.setVodYear(year);
+                vod.setVodArea(area);
+                vod.setVodPic(pic);
+            }
+        } catch (Exception e) {
+        }
         return vod;
     }
 
@@ -408,7 +480,7 @@ public class API {
             dialog = new AlertDialog.Builder(Init.getActivity()).setView(frame).setOnDismissListener(this::dismiss).show();
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             Init.execute(() -> startService(data.getParams()));
-            Init.show("請使用阿里雲盤 App 掃描二維碼");
+            Init.show("请使用阿里云盘 App 扫描二维码");
         } catch (Exception ignored) {
         }
     }
@@ -423,7 +495,7 @@ public class API {
 
     private void setToken(String value) {
         Prefers.put("token", value);
-        Init.show("請重新進入播放頁");
+        Init.show("请重新进入播放页");
         auth.setRefreshToken(value);
         stopService();
     }

@@ -2,8 +2,8 @@ package com.github.catvod.spider;
 
 import com.github.catvod.bean.Result;
 import com.github.catvod.crawler.SpiderDebug;
-import com.github.catvod.net.OkHttpUtil;
-import com.github.catvod.utils.Misc;
+import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,8 +93,8 @@ public class PushAgentQQ extends Ali {
         if(sort==null)sort="U";
         if(count ==null) count =120;
         JSONObject ju = getUrls();
-        String url = douban_api_host + ju.getString(key)+"?sort="+sort+"&start=0&count="+count+"&apikey=" + Misc.apikey + "&channel=Douban";
-        String json = OkHttpUtil.string(url, getHeaderDB());
+        String url = douban_api_host + ju.getString(key)+"?sort="+sort+"&start=0&count="+count+"&apikey=" + Utils.apikey + "&channel=Douban";
+        String json = OkHttp.string(url, getHeaderDB());
         JSONArray jSONArray = new JSONArray();
         JSONObject jo = new JSONObject(json),o1 = null,op1=null,vo=null;
 
@@ -138,7 +138,7 @@ public class PushAgentQQ extends Ali {
         try {
             JSONObject jo = Ali.fetchRule(true,1);
             JSONArray classes = new JSONArray();
-            String[] fenleis = Ali.getRuleVal(Misc.siteRule,"fenlei", "").split("#");
+            String[] fenleis = Ali.getRuleVal(Utils.siteRule,"fenlei", "").split("#");
             for (String fenlei : fenleis) {
                 String[] info = fenlei.split("\\$");
                 JSONObject jsonObject = new JSONObject();
@@ -166,7 +166,7 @@ public class PushAgentQQ extends Ali {
             String url=null,name=null,pic=null;
             JSONObject jsonObject = null, v = null;
             if (tid.equals("bili")) {
-                String json = OkHttpUtil.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
+                String json = OkHttp.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
                 JSONObject j = new JSONObject(json);
                 JSONObject o = j.getJSONObject("data");
                 JSONArray array = o.getJSONArray("list");
@@ -198,12 +198,12 @@ public class PushAgentQQ extends Ali {
                     url = Ali.getRuleVal(jsonObject, "url");
                     name = Ali.getRuleVal(jsonObject, "name");
                     pic = Ali.getRuleVal(jsonObject, "pic");
-                    if(pic.equals("")) pic = Misc.getWebName(url, 1);
+                    if(pic.equals("")) pic = Utils.getWebName(url, 1);
                     v = new JSONObject();
                     v.put("vod_id", url + "$$$" + pic + "$$$" + name);
                     v.put("vod_name", name);
                     v.put("vod_pic", pic);
-                    v.put("vod_remarks", Misc.getWebName(url,0));
+                    v.put("vod_remarks", Utils.getWebName(url,0));
                     videos.put(v);
                 }
             }
@@ -230,14 +230,14 @@ public class PushAgentQQ extends Ali {
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();
         if (url.contains("aliyundrive")) return super.detailContent(ids);
-        if (Misc.isVip(url)) return Result.string(vod(url, "官源"));
-        if (Misc.isVideoFormat(url)) return Result.string(vod(url, "直连"));
+        if (Utils.isVip(url)) return Result.string(vod(url, "官源"));
+        if (Utils.isVideoFormat(url)) return Result.string(vod(url, "直连"));
         return Result.string(vod(url, "网页"));
     }
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        if (flag.contains("画")) return playerContent(flag, id);
+        if (flag.contains("画")) return super.playerContent(flag, id,vipFlags);
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
         return Result.get().url(id).string();
