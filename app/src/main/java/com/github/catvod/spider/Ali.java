@@ -84,8 +84,10 @@ public class Ali extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        String url = ids.get(0).trim();
-        Matcher matcher = pattern.matcher(url);
+        String url = ids.get(0).trim();String url2=null;
+        String[] idInfo = url.split("\\$\\$\\$");
+        if (idInfo.length > 0)  url2 = idInfo[0].trim();
+        Matcher matcher = pattern.matcher(url2);
         if (!matcher.find()) return "";
         String shareId = matcher.group(1);
         String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
