@@ -53,7 +53,7 @@ public class Ali extends Spider {
                     }
                     Utils.siteRule = jo;
                     String tk = Utils.siteRule.optString("token","");
-                    if(!tk.equals("")&&tk.equals(API.get().getRefreshToken())){
+                    if(!tk.equals("")&&!tk.equals(API.get().getRefreshToken())){
                         API.get().setRefreshToken(tk);
                     }
                     Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");

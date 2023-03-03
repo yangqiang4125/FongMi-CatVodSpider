@@ -163,7 +163,7 @@ public class PushAgentQQ extends Ali {
     private JSONObject category(String tid, String pg, boolean filter, HashMap<String, String> extend,JSONObject jo) {
         try {
             JSONArray videos = new JSONArray();
-            String url=null,name=null,pic=null;
+            String url=null,name=null,pic=null,skey=null,sid=null;
             JSONObject jsonObject = null, v = null;
             if (tid.equals("bili")) {
                 String json = OkHttp.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
@@ -198,9 +198,14 @@ public class PushAgentQQ extends Ali {
                     url = Ali.getRuleVal(jsonObject, "url");
                     name = Ali.getRuleVal(jsonObject, "name");
                     pic = Ali.getRuleVal(jsonObject, "pic");
+                    skey = Ali.getRuleVal(jsonObject, "key");
+                    sid = url + "$$$" + pic + "$$$" + name;
+                    if (tid.equals("t3")&&!sid.isEmpty()) {
+                        sid = sid +","+skey;
+                    }
                     if(pic.equals("")) pic = Utils.getWebName(url, 1);
                     v = new JSONObject();
-                    v.put("vod_id", url + "$$$" + pic + "$$$" + name);
+                    v.put("vod_id", sid);
                     v.put("vod_name", name);
                     v.put("vod_pic", pic);
                     v.put("vod_remarks", Utils.getWebName(url,0));
