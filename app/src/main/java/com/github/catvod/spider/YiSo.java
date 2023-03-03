@@ -19,11 +19,6 @@ import java.util.Objects;
 public class YiSo extends Ali {
 
     @Override
-    public void init(Context context, String extend) {
-        super.init(context, extend);
-    }
-
-    @Override
     public String searchContent(String key, boolean quick) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) return "";
         String url = "https://yiso.fun/api/search?name=" + URLEncoder.encode(key) + "&from=ali";
