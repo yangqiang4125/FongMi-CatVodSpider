@@ -35,7 +35,7 @@ public class Ali extends Spider {
     public void init(Context context, String extend) {
         if (!TextUtils.isEmpty(extend)) {
             if (extend.startsWith("http")) extend = OkHttp.string(extend);
-            API.get().setRefreshToken(extend);
+            else API.get().setRefreshToken(extend);
         }
         fetchRule(false,0);
     }
