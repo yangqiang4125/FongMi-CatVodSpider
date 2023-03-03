@@ -120,7 +120,7 @@ public class MyQQ extends Spider {
             String url = ids.get(0);
             String[] info = url.split("\\$\\$\\$");
             url = info[0];
-            String ibox = getVal("elbox");
+            String ibox = getVal("ibox");
             String iname = getVal("iname");
             String ipic = getVal("ipic");
             String icontent = getVal("icontent");
@@ -129,7 +129,7 @@ public class MyQQ extends Spider {
             String idirector=getVal("idirector");
             String iactor=getVal("iactor");
             String iyear=getVal("iyear");
-            String iremark = getVal("iremark");
+            String iremark = getVal("iremarks");
             String iform = getVal("iform");
             String iurls = getVal("iurls");
             if (!ibox.isEmpty()) {
