@@ -197,7 +197,8 @@ public class QQTV extends Spider {
         return Result.string(list);
     }
 
+    @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        return Result.get().url(siteUrl + id).parse().header(getHeaders()).string();
+        return Result.get().url(id).parse().header(getHeaders()).string();
     }
 }
