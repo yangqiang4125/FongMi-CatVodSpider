@@ -70,7 +70,7 @@ public class API {
         return auth.getRefreshToken();
     }
     public void setRefreshToken(String token) {
-        auth.setRefreshToken(Prefers.getString("token", token));
+        auth.setRefreshToken(token);
     }
 
     public void setShareId(String shareId) {
