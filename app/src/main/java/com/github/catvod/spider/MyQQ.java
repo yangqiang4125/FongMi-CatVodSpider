@@ -114,11 +114,11 @@ public class MyQQ extends Spider {
         String furl = siteUrl + tid +pg+ wUrl;
         if(tid.contains("%")) furl = siteUrl + tid.replace("%", pg);
         Document doc2 = Jsoup.parse(OkHttp.string(furl, getHeaders()));
-        String elbox = "div.module-items a";
-        String elurl = "@href";
-        String elname = "@title";
-        String elpic = "img@src";
-        String elremarks = ".module-item-note";
+        String elbox = getVal("elbox");
+        String elurl = getVal("elurl");
+        String elname = getVal("elname");
+        String elpic = getVal("elpic");
+        String elremarks = getVal("elremarks");
         String pageText = getVal("page");
         String page = getText(doc2, pageText);
         page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
@@ -217,6 +217,7 @@ public class MyQQ extends Spider {
                     Elements els = element.select(k[0]);
                     if(els.size()==0) return "";
                     Element el = els.last();
+                    if(k.length>1)el = el.selectFirst(k[1]);
                     if (type.equals("text")) {
                         value = el.text();
                     } else value = el.attr(type);
