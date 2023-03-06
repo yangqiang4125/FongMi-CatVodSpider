@@ -106,6 +106,7 @@ public class MyQQ extends Spider {
     public Result getVods(String tid, String pg) {
         List<Vod> list = new ArrayList<>();
         String furl = siteUrl + tid +pg+ wUrl;
+        if(tid.contains("%")) furl = siteUrl + tid.replace("%", pg);
         Document doc2 = Jsoup.parse(OkHttp.string(furl, getHeaders()));
         String elbox = "div.module-items a";
         String elurl = "@href";
