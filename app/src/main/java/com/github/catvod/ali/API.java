@@ -258,7 +258,8 @@ public class API {
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
             if (sid == 1) {
-                JSONObject response = new JSONObject(OkHttp.string("https://www.voflix.com/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
+                String picUrl = get().getVal("picUrl", "https://tv.886fz.cn");
+                JSONObject response = new JSONObject(OkHttp.string(picUrl+"/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
                     JSONArray jsonArray = response.getJSONArray("list");
                     if (jsonArray.length() > 0) {

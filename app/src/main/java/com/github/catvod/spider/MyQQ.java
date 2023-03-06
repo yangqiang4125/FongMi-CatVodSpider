@@ -9,6 +9,7 @@ import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -54,6 +55,11 @@ public class MyQQ extends Spider {
     public String getVal(String key){
         if(ext==null)fetchRule();
         return ext.optString(key, "");
+    }
+
+    public String getVal(String key,String dval){
+        if(ext==null)fetchRule();
+        return ext.optString(key, dval);
     }
 
     @Override
@@ -221,25 +227,46 @@ public class MyQQ extends Spider {
     @Override
     public String searchContent(String key, boolean quick) {
         try {
-
             List<Vod> list = new ArrayList<>();
             String search = getVal("search");
-            String target = siteUrl + search + URLEncoder.encode(key);
-            Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
-            String sbox= getVal("sbox");
-            String sname=getVal("sname");
-            String surl = getVal("surl");
-            String spic = getVal("spic");
-            String sremarks = getVal("sremarks");
-            for (Element element : doc.select(sbox)) {
-                String id = element.select(surl).attr("href");
-                if(id!=null) id = getUrl(siteUrl, id);
-                String name = getText(element, sname);
-                String pic = getText(element, spic);
-                if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
-                String remarks = null;
-                if(sremarks!=null&&!sremarks.isEmpty()) remarks = getText(element, sremarks);
-                list.add(new Vod(id, name, pic, remarks));
+            key = URLEncoder.encode(key);
+            String sname=null,surl=null,spic = null;
+            if (search.isEmpty()) {
+                String durl = getVal("idetail","/detail/%.html");
+                String result = OkHttp.string(siteUrl+"/ajax/suggest?mid=1&wd="+key);
+                JSONObject response = new JSONObject(result);
+                if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
+                    JSONArray jsonArray = response.getJSONArray("list");
+                    for (int i=0;i<jsonArray.length();i++) {
+                        JSONObject o = (JSONObject) jsonArray.get(i);
+                        sname = o.optString("name", "");
+                        spic = o.optString("pic", "");
+                        if(spic!=null) spic = Utils.fixUrl(siteUrl, spic);
+                        surl = o.optString("id", "");
+                        surl = durl.replace("%", surl);
+                        if(surl!=null) surl = getUrl(siteUrl, surl);
+                        list.add(new Vod(surl, sname, spic));
+                    }
+                }
+            }else {
+                String target = siteUrl + search + key;
+                Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
+                String sbox= getVal("sbox");
+                sname=getVal("sname");
+                surl = getVal("surl");
+                spic = getVal("spic");
+                String sremarks = getVal("sremarks");
+
+                for (Element element : doc.select(sbox)) {
+                    String id = element.select(surl).attr("href");
+                    if(id!=null) id = getUrl(siteUrl, id);
+                    String name = getText(element, sname);
+                    String pic = getText(element, spic);
+                    if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
+                    String remarks = null;
+                    if(sremarks!=null&&!sremarks.isEmpty()) remarks = getText(element, sremarks);
+                    list.add(new Vod(id, name, pic, remarks));
+                }
             }
             return Result.string(list);
         } catch (Exception e) {
