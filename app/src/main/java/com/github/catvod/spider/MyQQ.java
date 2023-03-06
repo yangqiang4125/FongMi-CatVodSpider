@@ -188,23 +188,34 @@ public class MyQQ extends Spider {
         return "";
     }
 
-    public String getText(Element element, String key){
+    public String getText(Element element,String key){
         if(key.isEmpty()) return "";
         String value = null;
         String type = "text";
-        String[] arr = key.split("@");
+        String [] arr = key.split("@");
         if (arr.length>1) type = arr[1];
         if (!key.startsWith("@")) {
-            Elements el = element.select(arr[0]);
-            if (type.equals("text")) {
-                value = el.text();
-            } else value = el.attr(type);
+            String kv = arr[0];
+            if (kv.contains(":last")) {
+                String[] k = kv.split(":last");
+                Elements els = element.select(k[0]);
+                if(els.size()==0) return "";
+                Element el = els.last();
+                if (type.equals("text")) {
+                    value = el.text();
+                } else value = el.attr(type);
+            }else {
+                Elements el = element.select(arr[0]);
+                if (type.equals("text")) {
+                    value = el.text();
+                } else value = el.attr(type);
+            }
         }else {
             if (type.equals("text")) {
                 value = element.text();
             } else value = element.attr(type);
         }
-        if(value!=null&&value.endsWith("/")) value = value.substring(0, value.length()-1);
+        if(value!=null&&value.endsWith("/")) value = value.substring(0, value.length());
         return value == null ? "" : value;
     }
 
