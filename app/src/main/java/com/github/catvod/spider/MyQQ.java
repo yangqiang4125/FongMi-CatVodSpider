@@ -214,7 +214,7 @@ public class MyQQ extends Spider {
                 value = element.text();
             } else value = element.attr(type);
         }
-        if(value!=null&&value.endsWith("/")) value = value.substring(0, value.length());
+        if(value!=null&&value.endsWith("/")) value = value.substring(0, value.length()-1);
         return value == null ? "" : value;
     }
 
