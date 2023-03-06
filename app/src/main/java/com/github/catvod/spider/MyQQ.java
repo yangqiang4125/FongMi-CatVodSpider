@@ -31,6 +31,11 @@ public class MyQQ extends Spider {
 
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", Utils.CHROME);
+        return headers;
+    }
+    private HashMap<String, String> getHeadersUa() {
+        HashMap<String, String> headers = new HashMap<>();
         String mtype = Utils.CHROME;
         String m = getVal("ua");
         if (!m.isEmpty()) if(m.equals("0")||m.equals("mobile"))mtype=Utils.MOBILE;
@@ -292,6 +297,6 @@ public class MyQQ extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        return Result.get().url(id).parse().header(getHeaders()).string();
+        return Result.get().url(id).parse().header(getHeadersUa()).string();
     }
 }
