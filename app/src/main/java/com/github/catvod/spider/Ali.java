@@ -1,14 +1,12 @@
 package com.github.catvod.spider;
 
 import android.content.Context;
-
 import android.text.TextUtils;
 import com.github.catvod.ali.API;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,6 +82,7 @@ public class Ali extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
+        fetchRule(false,0);
         String url = ids.get(0).trim();String url2=null;
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url2 = idInfo[0].trim();

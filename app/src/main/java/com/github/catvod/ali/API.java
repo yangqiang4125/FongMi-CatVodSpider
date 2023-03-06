@@ -54,6 +54,14 @@ public class API {
     private AlertDialog dialog;
     private final Auth auth;
 
+    public String getVal(String key,String dval){
+        String tk = Utils.siteRule.optString(key,dval);
+        return tk;
+    }
+    public String getVal(String key){
+        String tk = Utils.siteRule.optString(key,"");
+        return tk;
+    }
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -196,15 +204,19 @@ public class API {
 
     public Vod getVod(String url, String fileId) throws Exception {
         String[] idInfo = url.split("\\$\\$\\$");
-        JSONObject body = new JSONObject();
-        body.put("share_id", auth.getShareId());
-        String json = API.get().post("adrive/v3/share_link/get_share_by_anonymous", body);
-        JSONObject object = new JSONObject(json);
-        List<Item> files = new ArrayList<>();
-        LinkedHashMap<String, List<String>> subMap = new LinkedHashMap<>();
-        listFiles(new Item(getParentFileId(fileId, object)), files, subMap);
         List<String> playUrls = new ArrayList<>();
-        for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + file.getFileId() + findSubs(file.getName(), subMap));
+        JSONObject object = null;
+        try {
+            JSONObject body = new JSONObject();
+            body.put("share_id", auth.getShareId());
+            String json = API.get().post("adrive/v3/share_link/get_share_by_anonymous", body);
+            object = new JSONObject(json);
+            List<Item> files = new ArrayList<>();
+            LinkedHashMap<String, List<String>> subMap = new LinkedHashMap<>();
+            listFiles(new Item(getParentFileId(fileId, object)), files, subMap);
+            for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + file.getFileId() + findSubs(file.getName(), subMap));
+        } catch (Exception e) {
+        }
         boolean fp = playUrls.isEmpty();
         if (fp) playUrls.add("无数据$无数据");
         String s = TextUtils.join("#", playUrls);
@@ -221,7 +233,7 @@ public class API {
         }
         sourceUrls.add(s);
         sourceUrls.add(s);
-        String from = "普画%$$$原画%";
+        String from = getVal("aliFrom","普画%$$$原画%");
         from = from.replace("%", type);
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);

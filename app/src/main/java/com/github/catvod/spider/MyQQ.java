@@ -9,6 +9,7 @@ import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,31 +23,38 @@ public class MyQQ extends Spider {
     private JSONObject ext;
     private String extend;
     private static String siteUrl = "https://www.voflix.com";
-    private static String listUrl = siteUrl + "/show/";
     private static String wUrl = "---.html";
     private String[] types;
+    private Integer total=0;
 
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Utils.CHROME);
+        String mtype = Utils.CHROME;
+        String m = getVal("ua");
+        if (!m.isEmpty()) if(m.equals("0")||m.equals("mobile"))mtype=Utils.MOBILE;
+        headers.put("User-Agent", mtype);
         return headers;
     }
 
-    private void fetchRule() throws Exception {
-        if(extend.startsWith("http")){
-            String result = OkHttp.string(extend);
-            if (!TextUtils.isEmpty(result)) extend = result;
+    private void fetchRule() {
+        try {
+            if(extend.startsWith("http")){
+                String result = OkHttp.string(extend);
+                if (!TextUtils.isEmpty(result)) extend = result;
+            }
+            ext = new JSONObject(extend);
+            siteUrl = getVal("siteUrl");
+            wUrl = getVal("end");
+            String fl = getVal("types");
+            types = fl.split("#");
+            String page = getVal("page");
+        } catch (JSONException e) {
         }
-        ext = new JSONObject(extend);
-        siteUrl = getVal("siteUrl");
-        listUrl = siteUrl + "/"+getVal("catePrefix")+"/";
-        wUrl = getVal("end");
-        String fl = getVal("types");
-        types = fl.split("#");
     }
 
     public String getVal(String key){
-        return Ali.getRuleVal(ext, key);
+        if(ext==null)fetchRule();
+        return ext.optString(key, "");
     }
 
     @Override
@@ -72,8 +80,9 @@ public class MyQQ extends Spider {
                 Class c = new Class(info[1],info[0]);
                 classes.add(c);
             }
-            List<Vod> list = getVods(classes.get(0).getTypeId(), "1");
-            return Result.string(classes, list);
+            Result result = getVods(classes.get(0).getTypeId(), "1");
+            result.classes(classes);
+            return result.string();
         } catch (Exception e) {
 
         }
@@ -82,37 +91,37 @@ public class MyQQ extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         try {
-            pg = String.valueOf(Integer.parseInt(pg) + 1);
-            List<Vod> list = getVods(tid, pg);
-            return Result.string(list);
+            Result result = getVods(tid, pg);
+            return result.string();
         } catch (NumberFormatException e) {
         }
         return "";
     }
 
-    public List<Vod> getVods(String tid, String pg) {
+    public Result getVods(String tid, String pg) {
         List<Vod> list = new ArrayList<>();
-        try {
-            String furl = listUrl + tid +pg+ wUrl;
-            Document doc2 = Jsoup.parse(OkHttp.string(furl, getHeaders()));
-            String elbox = getVal("elbox");
-            String elurl = getVal("elurl");
-            String elname = getVal("elname");
-            String elpic = getVal("elpic");
-            String elremarks = getVal("elremarks");
-            for (Element element : doc2.select(elbox)) {
-                String id = getText(element,elurl);
-                if(id!=null) id = getUrl(siteUrl, id);
-                String name = getText(element,elname);
-                String pic = getText(element, elpic);
-                if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
-                String remarks = null;
-                if(elremarks!=null&&!elremarks.isEmpty()) remarks = getText(element, elremarks);
-                list.add(new Vod(id, name, pic, remarks));
-            }
-        } catch (Exception e) {
+        String furl = siteUrl + tid +pg+ wUrl;
+        Document doc2 = Jsoup.parse(OkHttp.string(furl, getHeaders()));
+        String elbox = "div.module-items a";
+        String elurl = "@href";
+        String elname = "@title";
+        String elpic = "img@src";
+        String elremarks = ".module-item-note";
+        String pageText = getVal("page");
+        String page = getText(doc2, pageText);
+        page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
+        if(Utils.isNumeric(page)) total = Integer.parseInt(page);
+        for (Element element : doc2.select(elbox)) {
+            String id = getText(element,elurl);
+            if(id!=null) id = getUrl(siteUrl, id);
+            String name = getText(element,elname);
+            String pic = getText(element, elpic);
+            if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
+            String remarks = null;
+            if(elremarks!=null&&!elremarks.isEmpty()) remarks = getText(element, elremarks);
+            list.add(new Vod(id, name, pic, remarks));
         }
-        return list;
+        return Result.get().page(pg, list.size(), total).vod(list);
     }
     @Override
     public String detailContent(List<String> ids) {
@@ -202,6 +211,7 @@ public class MyQQ extends Spider {
     @Override
     public String searchContent(String key, boolean quick) {
         try {
+
             List<Vod> list = new ArrayList<>();
             String search = getVal("search");
             String target = siteUrl + search + URLEncoder.encode(key);

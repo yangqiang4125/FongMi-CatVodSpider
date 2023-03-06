@@ -2,6 +2,7 @@ package com.github.catvod.bean;
 
 import androidx.annotation.NonNull;
 
+import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -139,6 +140,19 @@ public class Result {
         return page(1, 1, 0, 1);
     }
 
+    public Result page(String pg, int limit, int total) {
+        int p = 0;
+        try {
+            if(Utils.isNumeric(pg)) p = Integer.parseInt(pg);
+            this.page = p;
+            this.limit = limit;
+            this.total = total;
+            this.pagecount = total * limit;
+        } catch (Exception e) {
+            page();
+        }
+        return this;
+    }
     public Result page(int page, int count, int limit, int total) {
         this.page = page > 0 ? page : Integer.MAX_VALUE;
         this.limit = limit > 0 ? limit : Integer.MAX_VALUE;
