@@ -19,6 +19,7 @@ import org.jsoup.select.Elements;
 
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.regex.Matcher;
 
 public class MyQQ extends Spider {
     private JSONObject ext;
@@ -152,6 +153,9 @@ public class MyQQ extends Spider {
                 iactor=ibox.replace("%", iactor);
                 iyear=ibox.replace("%", iyear);
                 iremark = ibox.replace("%", iremark);
+                if(Utils.isNumeric(icontent))icontent = ibox.replace("%", icontent);
+                if(Utils.isNumeric(iname))iname = ibox.replace("%", iname);
+                if(Utils.isNumeric(itag))itag = ibox.replace("%", itag);
             }
             Document doc = Jsoup.parse(OkHttp.string(url, getHeaders()));
             String name = getText(doc,iname);
@@ -197,31 +201,42 @@ public class MyQQ extends Spider {
     public String getText(Element element,String key){
         if(key.isEmpty()) return "";
         String value = null;
-        String type = "text";
-        String [] arr = key.split("@");
-        if (arr.length>1) type = arr[1];
-        if (!key.startsWith("@")) {
-            String kv = arr[0];
-            if (kv.contains(":last")) {
-                String[] k = kv.split(":last");
-                Elements els = element.select(k[0]);
-                if(els.size()==0) return "";
-                Element el = els.last();
-                if (type.equals("text")) {
-                    value = el.text();
-                } else value = el.attr(type);
+        try {
+            String type = "text";
+            String [] arr = key.split("@");
+            if (arr.length>1) type = arr[1];
+            if (!key.startsWith("@")) {
+                String kv = arr[0];
+                if (kv.contains(":last")) {
+                    String[] k = kv.split(":last");
+                    Elements els = element.select(k[0]);
+                    if(els.size()==0) return "";
+                    Element el = els.last();
+                    if (type.equals("text")) {
+                        value = el.text();
+                    } else value = el.attr(type);
+                }else {
+                    Elements el = element.select(arr[0]);
+                    if (type.equals("text")) {
+                        value = el.text();
+                    } else value = el.attr(type);
+                }
             }else {
-                Elements el = element.select(arr[0]);
                 if (type.equals("text")) {
-                    value = el.text();
-                } else value = el.attr(type);
+                    value = element.text();
+                } else value = element.attr(type);
             }
-        }else {
-            if (type.equals("text")) {
-                value = element.text();
-            } else value = element.attr(type);
+            if(value!=null){
+                if(value.endsWith("/"))value = value.substring(0, value.length()-1);
+                value = value.replace("&nbsp;", " ");
+                value = value.replace("详情", "");
+                Matcher m = Utils.matcher(".*(:|：)(.*)",value);
+                if (m.matches()) {
+                    value = m.group(2);
+                }
+            }
+        } catch (Exception e) {
         }
-        if(value!=null&&value.endsWith("/")) value = value.substring(0, value.length()-1);
         return value == null ? "" : value;
     }
 
