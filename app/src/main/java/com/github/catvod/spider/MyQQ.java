@@ -39,6 +39,7 @@ public class MyQQ extends Spider {
         String mtype = Utils.CHROME;
         String m = getVal("ua");
         if (!m.isEmpty()) if(m.equals("0")||m.equals("mobile"))mtype=Utils.MOBILE;
+        if(m.length()>12)mtype = m;
         headers.put("User-Agent", mtype);
         return headers;
     }
@@ -153,30 +154,36 @@ public class MyQQ extends Spider {
             String iremark = getVal("iremarks");
             String iform = getVal("iform");
             String iurls = getVal("iurls");
+            Document doc = Jsoup.parse(OkHttp.string(url, getHeaders()));
+
+            Vod vod = new Vod();
             if (!ibox.isEmpty()) {
-                idirector=ibox.replace("%", idirector);
-                iactor=ibox.replace("%", iactor);
-                iyear=ibox.replace("%", iyear);
-                iremark = ibox.replace("%", iremark);
+                String rbox = ibox.replace(":eq(%)", "");
+                Elements els = doc.select(rbox);
+                for (Element el : els) {
+                    getValue(el.text(),vod);
+                }
+                if(Utils.isNumeric(idirector))idirector = ibox.replace("%", idirector);
+                if(Utils.isNumeric(iactor))iactor = ibox.replace("%", iactor);
+                if(Utils.isNumeric(iyear))iyear = ibox.replace("%", iyear);
+                if(Utils.isNumeric(iremark))iremark = ibox.replace("%", iremark);
                 if(Utils.isNumeric(icontent))icontent = ibox.replace("%", icontent);
                 if(Utils.isNumeric(iname))iname = ibox.replace("%", iname);
                 if(Utils.isNumeric(itag))itag = ibox.replace("%", itag);
             }
-            Document doc = Jsoup.parse(OkHttp.string(url, getHeaders()));
+
             String name = getText(doc,iname);
             String pic = getText(doc, ipic);
             String content = getText(doc, icontent);
-
-            Vod vod = new Vod();
             vod.setVodId(ids.get(0));
-            vod.setVodName(name);
-            vod.setVodPic(pic);
-            vod.setVodContent(content);
+            if(!name.isEmpty())vod.setVodName(name);
+            if(!pic.isEmpty())vod.setVodPic(pic);
+            if(!content.isEmpty())vod.setVodContent(content);
             vod.setVodTag(getText(doc, itag));
-            vod.setVodDirector(getText(doc, idirector));
-            vod.setVodActor(getText(doc, iactor));
+            if(!idirector.isEmpty())vod.setVodDirector(getText(doc, idirector));
+            if(!iactor.isEmpty())vod.setVodActor(getText(doc, iactor));
             vod.setVodYear(getText(doc, iyear));
-            vod.setVodRemarks(getText(doc,iremark));
+            if(!iremark.isEmpty())vod.setVodRemarks(getText(doc,iremark));
             Map<String, String> sites = new LinkedHashMap<>();
             Elements sources = doc.select(iform);
             Elements sourceList = doc.select(iurls);
@@ -204,6 +211,9 @@ public class MyQQ extends Spider {
     }
 
     public String getText(Element element,String key){
+        return getText(element, key, null);
+    }
+    public String getText(Element element,String key,Vod vod){
         if(key.isEmpty()) return "";
         String value = null;
         try {
@@ -232,18 +242,32 @@ public class MyQQ extends Spider {
                     value = element.text();
                 } else value = element.attr(type);
             }
-            if(value!=null){
-                if(value.endsWith("/"))value = value.substring(0, value.length()-1);
-                value = value.replace("&nbsp;", " ");
-                value = value.replace("详情", "");
-                Matcher m = Utils.matcher(".*(:|：)(.*)",value);
-                if (m.matches()) {
-                    value = m.group(2);
-                }
-            }
+            value = getValue(value,vod);
         } catch (Exception e) {
         }
         return value == null ? "" : value;
+    }
+
+    public String getValue(String value,Vod vod){
+        if(value!=null) {
+            if (!value.startsWith("http")) {
+                if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
+                value = value.replace("&nbsp;", " ");
+                value = value.replace("详情", "");
+                Matcher m = Utils.matcher("(.*)(:|：)(.*)", value);
+                if (m.matches()) {
+                    value = m.group(3);
+                    if (vod != null) {
+                        String k = m.group(1);
+                        if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
+                        else if (k.contains("导演")) vod.setVodDirector(value);
+                        else if (k.contains("状态")) vod.setVodRemarks(value);
+                        else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
+                    }
+                }
+            }
+        }
+        return value;
     }
 
     @Override
