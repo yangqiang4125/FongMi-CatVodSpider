@@ -141,9 +141,9 @@ public class PushAgentQQ extends Ali {
     @Override
     public String homeContent(boolean filter) {
         try {
-            JSONObject jo = Ali.fetchRule(true,1);
+            JSONObject jo = fetchRule(true,1);
             JSONArray classes = new JSONArray();
-            String[] fenleis = Ali.getRuleVal(Utils.siteRule,"fenlei", "").split("#");
+            String[] fenleis = getRuleVal(Utils.siteRule,"fenlei", "").split("#");
             for (String fenlei : fenleis) {
                 String[] info = fenlei.split("\\$");
                 JSONObject jsonObject = new JSONObject();
@@ -196,14 +196,14 @@ public class PushAgentQQ extends Ali {
                 if(arr.length>3)count = Integer.parseInt(arr[3]);
                 videos = getDouban(key, sort, count);
             }else{
-                if (jo == null) jo = Ali.fetchRule(true,1);
+                if (jo == null) jo = fetchRule(true,1);
                 JSONArray array = jo.getJSONArray(tid);
                 for (int i = 0; i < array.length(); i++) {
                     jsonObject = array.getJSONObject(i);
-                    url = Ali.getRuleVal(jsonObject, "url");
-                    name = Ali.getRuleVal(jsonObject, "name");
-                    pic = Ali.getRuleVal(jsonObject, "pic");
-                    skey = Ali.getRuleVal(jsonObject, "key");
+                    url = getRuleVal(jsonObject, "url");
+                    name = getRuleVal(jsonObject, "name");
+                    pic = getRuleVal(jsonObject, "pic");
+                    skey = getRuleVal(jsonObject, "key");
                     sid = url + "$$$" + pic + "$$$" + name;
                     if (tid.equals("t3")&&!sid.isEmpty()) {
                         sid = sid +","+skey;

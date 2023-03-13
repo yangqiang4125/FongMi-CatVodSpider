@@ -75,6 +75,9 @@ public class API {
         auth.setRefreshToken(token);
     }
 
+    public String getRefreshToken() {
+        return auth.getRefreshToken();
+    }
     public void setShareId(String shareId) {
         auth.setShareId(shareId);
         refreshShareToken();
@@ -186,7 +189,7 @@ public class API {
             body.put("modelName", "SM-G9810");
             body.put("nonce", 0);
             body.put("pubKey", pubKey);
-            body.put("refreshToken", Utils.refreshToken);
+            body.put("refreshToken", auth.getRefreshToken());
             JSONObject object = new JSONObject(sign("users/v1/users/device/create_session", body, false));
             if (!object.getBoolean("success")) throw new Exception(object.toString());
             return true;

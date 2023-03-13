@@ -24,11 +24,6 @@ import java.util.regex.Pattern;
 public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
-
-    public Ali(){}
-    public Ali(String extend){
-        init(null,extend);
-    }
     @Override
     public void init(Context context, String extend) {
         fetchRule(false,0);
@@ -36,7 +31,7 @@ public class Ali extends Spider {
 
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
-            String rs = Utils.refreshToken;
+            String rs = API.get().getRefreshToken();
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
