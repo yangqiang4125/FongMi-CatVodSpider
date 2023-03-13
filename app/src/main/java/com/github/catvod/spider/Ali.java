@@ -35,6 +35,7 @@ public class Ali extends Spider {
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
+                Utils.siteRule = jo;
                 if(t==1) {
                     String[] fenleis = getRuleVal(jo,"fenlei", "").split("#");
                     for (String fenlei : fenleis) {
@@ -45,7 +46,6 @@ public class Ali extends Spider {
                     szRegx =  Utils.siteRule.optString("szRegx", szRegx);
                     Utils.isPic = Utils.siteRule.optInt("isPic", 0);
                 }
-                Utils.siteRule = jo;
                 if (rs == null || rs.isEmpty()) {
                     Utils.refreshToken = Utils.siteRule.optString("token", "");
                     API.get().setRefreshToken(Utils.refreshToken);
