@@ -31,13 +31,13 @@ public class Ali extends Spider {
     }
     @Override
     public void init(Context context, String extend) {
-        API.get().setRefreshToken(extend);
         fetchRule(false,0);
     }
 
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
-            if (flag || Utils.siteRule == null) {
+            String rs = Utils.refreshToken;
+            if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
                 if(t==0) {
@@ -51,7 +51,6 @@ public class Ali extends Spider {
                     Utils.isPic = Utils.siteRule.optInt("isPic", 0);
                 }
                 Utils.siteRule = jo;
-                String rs = API.get().getRefreshToken();
                 if (rs == null || rs.isEmpty()) {
                     Utils.refreshToken = Utils.siteRule.optString("token", "");
                     API.get().setRefreshToken(Utils.refreshToken);
