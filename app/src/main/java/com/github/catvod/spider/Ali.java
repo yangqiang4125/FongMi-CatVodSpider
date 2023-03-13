@@ -24,15 +24,14 @@ import java.util.regex.Pattern;
 public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
+
     public Ali(){}
     public Ali(String extend){
         init(null,extend);
     }
     @Override
     public void init(Context context, String extend) {
-        if (!TextUtils.isEmpty(extend)) {
-            if (!extend.startsWith("http")) API.get().setRefreshToken(extend);
-        }
+        API.get().setRefreshToken(extend);
         fetchRule(false,0);
     }
 
@@ -47,14 +46,15 @@ public class Ali extends Spider {
                         String[] info = fenlei.split("\\$");
                         jo.remove(info[1]);
                     }
-                    Utils.siteRule = jo;
-                    String tk = Utils.siteRule.optString("token","");
-                    if(!tk.equals("")&&!tk.equals(API.get().getRefreshToken())){
-                        API.get().setRefreshToken(tk);
-                    }
                     Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                     szRegx =  Utils.siteRule.optString("szRegx", szRegx);
                     Utils.isPic = Utils.siteRule.optInt("isPic", 0);
+                }
+                Utils.siteRule = jo;
+                String rs = API.get().getRefreshToken();
+                if (rs == null || rs.isEmpty()) {
+                    Utils.refreshToken = Utils.siteRule.optString("token", "");
+                    API.get().setRefreshToken(Utils.refreshToken);
                 }
                 return jo;
             }
@@ -80,6 +80,7 @@ public class Ali extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
+        fetchRule(false,0);
         String url = ids.get(0).trim();String url2=null;
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url2 = idInfo[0].trim();
@@ -95,8 +96,11 @@ public class Ali extends Spider {
     public String playerContent(String flag, String id, List<String> vipFlags) {
         API.get().checkAccessToken();
         String[] ids = id.split("\\+");
-        String url = flag.contains("原画") ? API.get().getDownloadUrl(ids[0]) : API.get().getPreviewUrl(ids[0], flag);
-        return Result.get().url(url).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
+        if (flag.contains("原画")) {
+            return Result.get().url(API.get().getDownloadUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
+        } else {
+            return Result.get().url(API.get().getPreviewUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
+        }
     }
 
     public static Object[] vod(Map<String, String> params) {
