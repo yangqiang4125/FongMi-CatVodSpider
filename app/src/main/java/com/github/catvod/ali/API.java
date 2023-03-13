@@ -74,9 +74,6 @@ public class API {
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
     }
-    public String getRefreshToken() {
-        return auth.getRefreshToken();
-    }
     public void setRefreshToken(String token) {
         auth.setRefreshToken(token);
     }
@@ -494,7 +491,6 @@ public class API {
             Init.execute(() -> startService(data.getParams()));
             Init.show("请使用阿里云盘 App 扫描二维码");
         } catch (Exception ignored) {
-            auth.setRefreshToken("");
         }
     }
 

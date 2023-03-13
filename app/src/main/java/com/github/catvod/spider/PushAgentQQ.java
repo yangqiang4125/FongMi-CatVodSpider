@@ -1,5 +1,6 @@
 package com.github.catvod.spider;
 
+import android.content.Context;
 import com.github.catvod.bean.Result;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
@@ -12,6 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PushAgentQQ extends Ali {
+    @Override
+    public void init(Context context, String extend) {
+        fetchRule(true,1);
+    }
     private static String douban_api_host = "https://frodo.douban.com/api/v2";
     public static JSONObject getUrls(){
         String _urls = "{" +

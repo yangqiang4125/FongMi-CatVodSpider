@@ -8,7 +8,6 @@ import java.net.URLEncoder;
 
 
 public class Upyunso extends Ali {
-    private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
     private static String b = "https://www.upyunso.com/";
     private String pic = "http://image.xinjun58.com/image/tv/ups.jpg";
     @Override
