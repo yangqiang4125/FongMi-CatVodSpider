@@ -40,7 +40,7 @@ public class Ali extends Spider {
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
-                if(t==0) {
+                if(t==1) {
                     String[] fenleis = getRuleVal(jo,"fenlei", "").split("#");
                     for (String fenlei : fenleis) {
                         String[] info = fenlei.split("\\$");
