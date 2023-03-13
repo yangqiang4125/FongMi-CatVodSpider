@@ -18,6 +18,7 @@ import com.github.catvod.bean.ali.Auth;
 import com.github.catvod.bean.ali.Data;
 import com.github.catvod.bean.ali.Item;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.spider.Ali;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.utils.Prefers;
@@ -56,10 +57,6 @@ public class API {
 
     public String getVal(String key,String dval){
         String tk = Utils.siteRule.optString(key,dval);
-        return tk;
-    }
-    public String getVal(String key){
-        String tk = Utils.siteRule.optString(key,"");
         return tk;
     }
     private static class Loader {
@@ -154,6 +151,7 @@ public class API {
         } catch (Exception e) {
             stopService();
             auth.clean();
+            Ali.fetchRule(true, 0);
             getQRCode();
             return true;
         } finally {
@@ -170,7 +168,7 @@ public class API {
             auth.setShareToken(object.getString("share_token"));
             return true;
         } catch (Exception e) {
-            Init.show("来晚啦，该分享已失效。");
+            Init.show("来晚啦，该分享已失效");
             e.printStackTrace();
             return false;
         }
