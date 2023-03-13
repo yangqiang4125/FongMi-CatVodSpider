@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
-
     public Ali(){}
     public Ali(String extend){
         init(null,extend);
@@ -32,8 +31,7 @@ public class Ali extends Spider {
     @Override
     public void init(Context context, String extend) {
         if (!TextUtils.isEmpty(extend)) {
-            if (extend.startsWith("http")) extend = OkHttp.string(extend);
-            else API.get().setRefreshToken(extend);
+            if (!extend.startsWith("http")) API.get().setRefreshToken(extend);
         }
         fetchRule(false,0);
     }
@@ -97,11 +95,8 @@ public class Ali extends Spider {
     public String playerContent(String flag, String id, List<String> vipFlags) {
         API.get().checkAccessToken();
         String[] ids = id.split("\\+");
-        if (flag.contains("原画")) {
-            return Result.get().url(API.get().getDownloadUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
-        } else {
-            return Result.get().url(API.get().getPreviewUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
-        }
+        String url = flag.contains("原画") ? API.get().getDownloadUrl(ids[0]) : API.get().getPreviewUrl(ids[0], flag);
+        return Result.get().url(url).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
     }
 
     public static Object[] vod(Map<String, String> params) {

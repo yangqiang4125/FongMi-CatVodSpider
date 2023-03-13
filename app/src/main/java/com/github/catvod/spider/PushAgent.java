@@ -18,9 +18,9 @@ public class PushAgent extends Ali {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        if (flag.contains("画")) return super.playerContent(flag, id, vipFlags);
-        if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
+        if (flag.equals("直连")) return Result.get().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
-        return Result.get().url(id).string();
+        if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
+        return super.playerContent(flag, id, vipFlags);
     }
 }
