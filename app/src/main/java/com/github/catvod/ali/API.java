@@ -71,9 +71,17 @@ public class API {
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
     }
+    public void setRefreshToken(String token) {
+        auth.setRefreshToken(token);
+    }
+
     public void setShareId(String shareId) {
         auth.setShareId(shareId);
         refreshShareToken();
+    }
+
+    public String getRefreshToken() {
+        return auth.getRefreshToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -134,7 +142,7 @@ public class API {
     private boolean refreshAccessToken() {
         try {
             JSONObject body = new JSONObject();
-            String token = Utils.refreshToken;
+            String token = auth.getRefreshToken();
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
