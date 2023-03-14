@@ -1,7 +1,6 @@
 package com.github.catvod.spider;
 
 import android.content.Context;
-import android.text.TextUtils;
 import com.github.catvod.ali.API;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
@@ -48,7 +47,6 @@ public class Ali extends Spider {
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
                 if (rs == null || rs.isEmpty()) {
                     Utils.refreshToken = Utils.siteRule.optString("token", "");
-                    API.get().setRefreshToken(Utils.refreshToken);
                 }
                 return jo;
             }
