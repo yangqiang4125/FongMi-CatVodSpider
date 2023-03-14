@@ -141,7 +141,7 @@ public class PushAgentQQ extends Ali {
     @Override
     public String homeContent(boolean filter) {
         try {
-            JSONObject jo = Utils.siteRule;
+            JSONObject jo = fetchRule(true,1);
             JSONArray classes = new JSONArray();
             String[] fenleis = getRuleVal(Utils.siteRule,"fenlei", "").split("#");
             for (String fenlei : fenleis) {
