@@ -257,14 +257,13 @@ public class API {
         String from = getVal("aliFrom","原画%$$$超清%$$$高清%"),fromkey="";
         String [] fromArr = from.split("\\$\\$\\$");
         String jxStr = Utils.getBx(s);
-
+        from = from.replace("%", type);
         for (int i=0; i < fromArr.length; i++) {
             fromkey = fromArr[i];
-            if(i==0||fromkey.endsWith("%%"))sourceUrls.add(jxStr);
+            if(i==0||fromkey.endsWith("。"))sourceUrls.add(jxStr);
             else sourceUrls.add(s);
         }
-        from = from.replace("%%", "%");
-        from = from.replace("%", type);
+        from = from.replace("。", type);
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
         String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
