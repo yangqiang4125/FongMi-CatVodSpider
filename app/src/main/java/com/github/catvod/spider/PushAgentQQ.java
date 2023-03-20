@@ -2,9 +2,11 @@ package com.github.catvod.spider;
 
 import android.content.Context;
 import com.github.catvod.bean.Result;
+import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Utils;
+import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -170,6 +172,7 @@ public class PushAgentQQ extends Ali {
             JSONArray videos = new JSONArray();
             String url=null,name=null,pic=null,skey=null,sid=null;
             JSONObject jsonObject = null, v = null;
+            int total = Integer.MAX_VALUE;
             if (tid.equals("bili")) {
                 String json = OkHttp.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
                 JSONObject j = new JSONObject(json);
@@ -216,12 +219,13 @@ public class PushAgentQQ extends Ali {
                     v.put("vod_remarks", Utils.getWebName(url,0));
                     videos.put(v);
                 }
+                total = 1;
             }
             JSONObject result = new JSONObject();
             result.put("page", pg);
-            result.put("pagecount", 1);
+            result.put("pagecount", Integer.MAX_VALUE);
             result.put("limit", Integer.MAX_VALUE);
-            result.put("total", Integer.MAX_VALUE);
+            result.put("total", total);
             result.put("list", videos);
             return result;
         } catch (Exception e) {
