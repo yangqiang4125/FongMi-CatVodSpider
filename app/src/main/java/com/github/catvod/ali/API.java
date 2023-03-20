@@ -33,18 +33,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class API {
 
-    private final Map<String, String> quality;
+    private final List<String> quality;
     private ScheduledExecutorService service;
     private AlertDialog dialog;
     private String shareToken;
@@ -61,13 +57,7 @@ public class API {
 
     private API() {
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
-        quality = new HashMap<>();
-        quality.put("4K", "UHD");
-        quality.put("2k", "QHD");
-        quality.put("超清", "FHD");
-        quality.put("高清", "HD");
-        quality.put("标清", "SD");
-        quality.put("流畅", "LD");
+        quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
     }
     public String getVal(String key,String dval){
         String tk = Utils.siteRule.optString(key,dval);
@@ -254,7 +244,7 @@ public class API {
                 if(!s.contains("1079"))type = "1080";
             }
         }
-        String from = getVal("aliFrom","原画%$$$超清%$$$高清%"),fromkey="";
+        String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
         String [] fromArr = from.split("\\$\\$\\$");
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
@@ -414,7 +404,7 @@ public class API {
         }
     }
 
-    public String getPreviewUrl(String fileId, String flag) {
+    public String getPreviewUrl(String fileId) {
         try {
             String tempId = copy(fileId);
             JSONObject body = new JSONObject();
@@ -425,22 +415,26 @@ public class API {
             String json = oauth("openFile/getVideoPreviewPlayInfo", body.toString(), true);
             JSONArray taskList = new JSONObject(json).getJSONObject("video_preview_play_info").getJSONArray("live_transcoding_task_list");
             Init.execute(() -> delete(tempId));
-            return getPreviewQuality(taskList, flag);
+            return getPreviewQuality(taskList);
         } catch (Exception e) {
             e.printStackTrace();
             return "";
         }
     }
 
-    private String getPreviewQuality(JSONArray taskList, String flag) throws Exception {
-        for (int i = 0; i < taskList.length(); ++i) {
-            JSONObject task = taskList.getJSONObject(i);
-            if (task.getString("template_id").equals(quality.get(flag))) {
-                return task.getString("url");
+    private String getPreviewQuality(JSONArray taskList) throws Exception {
+        for (String templateId : quality) {
+            for (int i = 0; i < taskList.length(); ++i) {
+                JSONObject task = taskList.getJSONObject(i);
+                if (task.getString("template_id").equals(templateId)) {
+                    return task.getString("url");
+                }
             }
         }
         return taskList.getJSONObject(0).getString("url");
     }
+
+
 
     private String copy(String fileId) throws Exception {
         String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"root\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
