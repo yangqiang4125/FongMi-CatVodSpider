@@ -54,6 +54,7 @@ public class API {
     private final ReentrantLock lock;
     private AlertDialog dialog;
     private final Auth auth;
+    private final List<String> quality;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -63,6 +64,7 @@ public class API {
     }
 
     private API() {
+        quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
     }
@@ -459,7 +461,7 @@ public class API {
     }
 
     private String getPreviewQuality(JSONArray taskList) throws Exception {
-        for (String templateId : Arrays.asList("FHD", "HD", "SD", "LD")) {
+        for (String templateId : quality) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
                 if (task.getString("template_id").equals(templateId)) {
