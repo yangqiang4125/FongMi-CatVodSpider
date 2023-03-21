@@ -139,7 +139,7 @@ public class API {
     private boolean refreshAccessToken() {
         try {
             JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
+            String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
@@ -149,7 +149,6 @@ public class API {
             auth.setDeviceId(object.getString("device_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             auth.setRefreshToken(Utils.refreshToken);
-            Init.show("newtoken:"+Utils.refreshToken+" old:"+token);
             return true;
         } catch (Exception e) {
             stopService();

@@ -18,7 +18,7 @@ public class Auth {
     }
 
     public void setRefreshToken(String refreshToken) {
-        if(getAccessToken().isEmpty()||refreshToken.isEmpty()) Prefers.put("token", refreshToken);
+        Prefers.put("token", refreshToken);
     }
 
     public String getAccessToken() {
