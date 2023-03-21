@@ -227,7 +227,8 @@ public class API {
         }
         sourceUrls.add(Utils.getBx(s));
         sourceUrls.add(s);
-        String from = "普画%$$$原画%";
+        sourceUrls.add(s);
+        String from = "普画%$$$普画i%$$$原画%";
         from = from.replace("%", type);
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
