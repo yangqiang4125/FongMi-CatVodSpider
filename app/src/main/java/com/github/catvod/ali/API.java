@@ -57,7 +57,7 @@ public class API {
     }
 
     private API() {
-        quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
+        quality = Arrays.asList("FHD", "HD", "SD", "LD");
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
     }
