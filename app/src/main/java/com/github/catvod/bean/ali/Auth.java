@@ -1,6 +1,7 @@
 package com.github.catvod.bean.ali;
 
 import android.text.TextUtils;
+import com.github.catvod.utils.Prefers;
 
 public class Auth {
 
@@ -17,11 +18,11 @@ public class Auth {
     }
 
     public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+        if(getAccessToken().isEmpty()||refreshToken.isEmpty()) Prefers.put("token", refreshToken);
     }
 
     public String getAccessToken() {
-        return TextUtils.isEmpty(accessToken) ? "" : accessToken;
+        return Prefers.getString("token");
     }
 
     public void setAccessToken(String accessToken) {

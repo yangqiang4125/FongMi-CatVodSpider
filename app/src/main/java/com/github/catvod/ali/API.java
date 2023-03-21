@@ -149,11 +149,11 @@ public class API {
             auth.setDeviceId(object.getString("device_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             auth.setRefreshToken(Utils.refreshToken);
+            Init.show("newtoken:"+Utils.refreshToken+" old:"+token);
             return true;
         } catch (Exception e) {
             stopService();
             auth.clean();
-            Utils.refreshToken = null;
             Ali.fetchRule(true, 1);
             getQRCode();
             return true;
@@ -508,6 +508,7 @@ public class API {
         Prefers.put("token", value);
         Init.show("请重新进入播放页");
         auth.setRefreshToken(value);
+        refreshAccessToken();
         stopService();
     }
 

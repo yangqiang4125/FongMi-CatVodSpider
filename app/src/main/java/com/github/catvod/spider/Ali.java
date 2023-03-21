@@ -25,14 +25,13 @@ public class Ali extends Spider {
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     @Override
     public void init(Context context, String extend) {
-        if(Utils.refreshToken==null)API.get().setRefreshToken(extend);
-        else API.get().setRefreshToken(Utils.refreshToken);
+        if(extend!=null&&!extend.isEmpty())API.get().setRefreshToken(extend);
         fetchRule(false,0);
     }
 
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
-            String rs = Utils.refreshToken;
+            String rs = API.get().getRefreshToken();
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
@@ -47,9 +46,9 @@ public class Ali extends Spider {
                 Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                 Utils.spRegx =  Utils.siteRule.optString("szRegx", szRegx);
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
-                if (rs == null || API.get().getRefreshToken().isEmpty()) {
-                    String token = Utils.siteRule.optString("token", "");
-                    API.get().setRefreshToken(token);
+                if (rs == null || rs.isEmpty()) {
+                    Utils.refreshToken = Utils.siteRule.optString("token", "");
+                    API.get().setRefreshToken(Utils.refreshToken);
                 }
                 return jo;
             }
