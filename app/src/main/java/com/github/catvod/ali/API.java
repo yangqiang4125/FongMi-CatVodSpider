@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
 import com.github.catvod.BuildConfig;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
@@ -27,6 +28,7 @@ import com.github.catvod.utils.Utils;
 import com.starkbank.ellipticcurve.Ecdsa;
 import com.starkbank.ellipticcurve.PrivateKey;
 import com.starkbank.ellipticcurve.utils.BinaryAscii;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -34,7 +36,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +54,6 @@ public class API {
     private final ReentrantLock lock;
     private AlertDialog dialog;
     private final Auth auth;
-    private final List<String> quality;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -57,12 +63,8 @@ public class API {
     }
 
     private API() {
-        quality = Arrays.asList("FHD", "HD", "SD", "LD");
         this.auth = new Auth();
         this.lock = new ReentrantLock(true);
-    }
-    public String getRefreshToken() {
-        return auth.getRefreshToken();
     }
     public void setRefreshToken(String token) {
         auth.setRefreshToken(token);
@@ -71,6 +73,10 @@ public class API {
     public void setShareId(String shareId) {
         auth.setShareId(shareId);
         refreshShareToken();
+    }
+
+    public String getRefreshToken() {
+        return auth.getRefreshToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -144,7 +150,7 @@ public class API {
         } catch (Exception e) {
             stopService();
             auth.clean();
-            Ali.fetchRule(true, 0);
+            Ali.fetchRule(true, 1);
             getQRCode();
             return true;
         } finally {
@@ -206,6 +212,7 @@ public class API {
         } catch (Exception e) {
         }
         boolean fp = playUrls.isEmpty();
+
         String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new ArrayList<>();
         Vod vod = new Vod(); String type = "";
@@ -452,7 +459,7 @@ public class API {
     }
 
     private String getPreviewQuality(JSONArray taskList) throws Exception {
-        for (String templateId : quality) {
+        for (String templateId : Arrays.asList("FHD", "HD", "SD", "LD")) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
                 if (task.getString("template_id").equals(templateId)) {
