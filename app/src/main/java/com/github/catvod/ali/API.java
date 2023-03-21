@@ -144,14 +144,16 @@ public class API {
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
             JSONObject object = new JSONObject(post("https://auth.aliyundrive.com/v2/account/token", body));
+            Utils.refreshToken = object.getString("refresh_token");
             auth.setUserId(object.getString("user_id"));
             auth.setDeviceId(object.getString("device_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            auth.setRefreshToken(object.getString("refresh_token"));
+            auth.setRefreshToken(Utils.refreshToken);
             return true;
         } catch (Exception e) {
             stopService();
             auth.clean();
+            Utils.refreshToken = null;
             Ali.fetchRule(true, 1);
             getQRCode();
             return true;
