@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
 import com.github.catvod.BuildConfig;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
@@ -28,7 +27,6 @@ import com.github.catvod.utils.Utils;
 import com.starkbank.ellipticcurve.Ecdsa;
 import com.starkbank.ellipticcurve.PrivateKey;
 import com.starkbank.ellipticcurve.utils.BinaryAscii;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -36,12 +34,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +131,7 @@ public class API {
     private boolean refreshAccessToken() {
         try {
             JSONObject body = new JSONObject();
-            String token = Utils.refreshToken;
+            String token = auth.getRefreshToken();
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
@@ -186,7 +179,7 @@ public class API {
             body.put("modelName", "SM-G9810");
             body.put("nonce", 0);
             body.put("pubKey", pubKey);
-            body.put("refreshToken", Utils.refreshToken);
+            body.put("refreshToken", auth.getRefreshToken());
             JSONObject object = new JSONObject(sign("users/v1/users/device/create_session", body, false));
             if (!object.getBoolean("success")) throw new Exception(object.toString());
             return true;
