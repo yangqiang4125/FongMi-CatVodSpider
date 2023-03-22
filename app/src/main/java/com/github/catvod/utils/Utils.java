@@ -206,7 +206,7 @@ public class Utils {
                 iname = name.replaceAll(regx, "$2");
             }else {
                 if (name.startsWith("[")) {
-                    name = name.replaceAll("\\[.*\\](.*)", "$1");
+                    name = name.replaceAll("\\[.*?\\](.*)", "$1");
                 }
                 if (!f && list.size() < 200) {
                     name = name.replaceAll("\\d{4,8}", "");
