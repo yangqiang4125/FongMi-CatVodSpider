@@ -102,7 +102,7 @@ public class Auth {
     public void clean() {
         setRefreshTokenOpen("");
         setAccessTokenOpen("");
-        setRefreshToken(Utils.refreshToken);
+        setRefreshToken("");
         setAccessToken("");
         setSignature("");
     }

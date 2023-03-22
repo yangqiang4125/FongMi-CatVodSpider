@@ -150,38 +150,15 @@ public class API {
             auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             oauthRequest();
+            String tokenMsg = "new:%s  old:%s";
+            tokenMsg = String.format(tokenMsg,auth.getRefreshToken(), token);
+            Init.show(tokenMsg);
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
             stopService();
             auth.clean();
-            //getQRCode();
-            return refreshAccessToken2();
-        } finally {
-            while (auth.isEmpty()) SystemClock.sleep(250);
-        }
-    }
-    private boolean refreshAccessToken2() {
-        try {
-            SpiderDebug.log("refreshAccessToken...");
-            JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
-            if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
-            body.put("refresh_token", token);
-            body.put("grant_type", "refresh_token");
-            JSONObject object = new JSONObject(post("https://auth.aliyundrive.com/v2/account/token", body));
-            Log.e("DDD", object.toString());
-            auth.setUserId(object.getString("user_id"));
-            auth.setDriveId(object.getString("default_drive_id"));
-            auth.setRefreshToken(object.getString("refresh_token"));
-            auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();
-            return true;
-        } catch (Exception e) {
-            SpiderDebug.log(e);
-            stopService();
-            auth.clean();
-            //getQRCode();
+            getQRCode();
             return true;
         } finally {
             while (auth.isEmpty()) SystemClock.sleep(250);
@@ -236,7 +213,7 @@ public class API {
             shareToken = object.getString("share_token");
             return true;
         } catch (Exception e) {
-            Init.show("來晚啦，該分享已失效。");
+            Init.show("来晚啦，该分享已失效");
             e.printStackTrace();
             return false;
         }
