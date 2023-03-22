@@ -63,6 +63,10 @@ public class API {
         String tk = Utils.siteRule.optString(key,dval);
         return tk;
     }
+    public void cleanToken() {
+        Prefers.put("aliyundrive", "");
+        Init.show("Token缓存已清空,请重启软件");
+    }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
     }

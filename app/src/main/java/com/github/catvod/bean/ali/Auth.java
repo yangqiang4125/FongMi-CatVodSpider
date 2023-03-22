@@ -98,6 +98,14 @@ public class Auth {
         return getAccessToken().isEmpty();
     }
 
+    public void clean() {
+        setRefreshTokenOpen("");
+        setAccessTokenOpen("");
+        setRefreshToken("");
+        setAccessToken("");
+        setSignature("");
+    }
+
     public void save() {
         Prefers.put("aliyundrive", new Gson().toJson(this));
     }
