@@ -2,9 +2,9 @@ package com.github.catvod.spider;
 
 import android.content.Context;
 import com.github.catvod.bean.Result;
-import com.github.catvod.bean.Vod;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
 import org.json.JSONArray;
@@ -218,6 +218,9 @@ public class PushAgentQQ extends Ali {
                     v.put("vod_pic", pic);
                     v.put("vod_remarks", Utils.getWebName(url,0));
                     videos.put(v);
+                }
+                if (tid.equals("t4")) {
+                    Prefers.put("aliyundrive", "");
                 }
                 total = 1;
             }

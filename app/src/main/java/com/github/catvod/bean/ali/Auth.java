@@ -1,9 +1,7 @@
 package com.github.catvod.bean.ali;
 
 import android.text.TextUtils;
-
 import com.github.catvod.utils.Prefers;
-import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -27,6 +25,7 @@ public class Auth {
     private String driveId;
 
     public static Auth objectFrom(String str) {
+        if(str.isEmpty())return new Auth();
         Auth item = new Gson().fromJson(str, Auth.class);
         return item == null ? new Auth() : item;
     }
@@ -97,14 +96,6 @@ public class Auth {
 
     public boolean isEmpty() {
         return getAccessToken().isEmpty();
-    }
-
-    public void clean() {
-        setRefreshTokenOpen("");
-        setAccessTokenOpen("");
-        setRefreshToken("");
-        setAccessToken("");
-        setSignature("");
     }
 
     public void save() {
