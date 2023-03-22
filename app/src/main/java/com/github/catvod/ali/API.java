@@ -160,6 +160,7 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            cleanToken();
             stopService();
             auth.clean();
             getQRCode();
