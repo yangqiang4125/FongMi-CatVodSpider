@@ -25,7 +25,7 @@ public class Ali extends Spider {
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     @Override
     public void init(Context context, String extend) {
-        if(extend!=null&&!extend.isEmpty())API.get().setRefreshToken(extend);
+        API.get().setRefreshToken(extend);
         fetchRule(false,0);
     }
 
@@ -88,7 +88,7 @@ public class Ali extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        //API.get().checkAccessToken();
+        if(Utils.refreshToken==null)fetchRule(false,0);
         API.get().setRefreshToken(Utils.refreshToken);
         String[] ids = id.split("\\+");
         if (flag.contains("原画")) {
