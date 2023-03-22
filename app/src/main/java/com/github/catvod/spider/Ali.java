@@ -74,7 +74,6 @@ public class Ali extends Spider {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        fetchRule(false,0);
         String url = ids.get(0).trim();String url2=null;
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url2 = idInfo[0].trim();
@@ -88,7 +87,7 @@ public class Ali extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        if(Utils.refreshToken!=null) API.get().setRefreshToken(Utils.refreshToken);
+        API.get().checkAccessToken();
         String[] ids = id.split("\\+");
         if (flag.contains("原画")) {
             return Result.get().url(API.get().getDownloadUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
