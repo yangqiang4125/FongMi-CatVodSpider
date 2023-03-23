@@ -2,48 +2,24 @@ package com.github.catvod.bean.ali;
 
 import android.text.TextUtils;
 import com.github.catvod.utils.Prefers;
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 public class Auth {
 
-    @SerializedName("refreshToken")
     private String refreshToken;
-    @SerializedName("refreshTokenOpen")
-    private String refreshTokenOpen;
-    @SerializedName("accessToken")
     private String accessToken;
-    @SerializedName("accessTokenOpen")
-    private String accessTokenOpen;
-    @SerializedName("signature")
+    private String shareToken;
     private String signature;
-    @SerializedName("deviceId")
     private String deviceId;
-    @SerializedName("userId")
+    private String shareId;
     private String userId;
-    @SerializedName("driveId")
-    private String driveId;
-
-    public static Auth objectFrom(String str) {
-        if(str.isEmpty())return new Auth();
-        Auth item = new Gson().fromJson(str, Auth.class);
-        return item == null ? new Auth() : item;
-    }
 
     public String getRefreshToken() {
-        return TextUtils.isEmpty(refreshToken) ? "" : refreshToken;
+        return TextUtils.isEmpty(Prefers.getString("refreshToken")) ? "" : refreshToken;
     }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public String getRefreshTokenOpen() {
-        return TextUtils.isEmpty(refreshTokenOpen) ? "" : refreshTokenOpen;
-    }
-
-    public void setRefreshTokenOpen(String refreshTokenOpen) {
-        this.refreshTokenOpen = refreshTokenOpen;
+        Prefers.put("refreshToken", refreshToken);
     }
 
     public String getAccessToken() {
@@ -54,12 +30,12 @@ public class Auth {
         this.accessToken = accessToken;
     }
 
-    public String getAccessTokenOpen() {
-        return TextUtils.isEmpty(accessTokenOpen) ? "" : accessTokenOpen;
+    public String getShareToken() {
+        return TextUtils.isEmpty(shareToken) ? "" : shareToken;
     }
 
-    public void setAccessTokenOpen(String accessTokenOpen) {
-        this.accessTokenOpen = accessTokenOpen;
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 
     public String getSignature() {
@@ -78,12 +54,12 @@ public class Auth {
         this.deviceId = deviceId;
     }
 
-    public String getDriveId() {
-        return TextUtils.isEmpty(driveId) ? "" : driveId;
+    public String getShareId() {
+        return TextUtils.isEmpty(shareId) ? "" : shareId;
     }
 
-    public void setDriveId(String driveId) {
-        this.driveId = driveId;
+    public void setShareId(String shareId) {
+        this.shareId = shareId;
     }
 
     public String getUserId() {
@@ -99,14 +75,8 @@ public class Auth {
     }
 
     public void clean() {
-        setRefreshTokenOpen("");
-        setAccessTokenOpen("");
         setRefreshToken("");
         setAccessToken("");
-        setSignature("");
-    }
-
-    public void save() {
-        Prefers.put("aliyundrive", new Gson().toJson(this));
+        setShareId("");
     }
 }
