@@ -154,9 +154,6 @@ public class API {
             auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             oauthRequest();
-            String tokenMsg = "new:%s  old:%s";
-            tokenMsg = String.format(tokenMsg,auth.getRefreshToken(), token);
-            Init.show(tokenMsg);
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
@@ -204,6 +201,7 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            cleanToken();
             return false;
         }
     }
@@ -264,7 +262,7 @@ public class API {
         from = from.replace("。", type);
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
-        String vpic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
+        String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
         String vname=object!=null?object.getString("share_name"):"无名称";
         if (idInfo != null) {
             if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
@@ -276,6 +274,7 @@ public class API {
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
         if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
+        if(Utils.cleanToken.equals("1")) vod.setVodTag(auth.getRefreshToken());
         return vod;
     }
 
@@ -285,7 +284,7 @@ public class API {
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
             if (sid == 1) {
-                String picUrl = get().getVal("picUrl", "https://tv.886fz.cn");
+                String picUrl = get().getVal("picUrl", "https://www.gapi.vip/");
                 JSONObject response = new JSONObject(OkHttp.string(picUrl+"/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
                     JSONArray jsonArray = response.getJSONArray("list");
@@ -498,9 +497,14 @@ public class API {
     }
 
     private void setToken(String value) {
-        Init.show("请重新进入播放页");
+        //Init.show("请重新进入播放页");
         auth.setRefreshToken(value);
-        refreshAccessToken();
+        String tokenMsg = "new:%s";
+        tokenMsg = String.format(tokenMsg,value);
+        Init.show(tokenMsg);
+        auth.save();
+        //refreshAccessToken();
+        Init.show("请重启软件");
         stopService();
     }
 
