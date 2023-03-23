@@ -14,8 +14,7 @@ public class Auth {
     private String userId;
 
     public String getRefreshToken() {
-        String retoken = Prefers.getString("refreshToken");
-        return TextUtils.isEmpty(retoken) ? refreshToken : retoken;
+        return Prefers.getString("refreshToken");
     }
 
     public void setRefreshToken(String refreshToken) {

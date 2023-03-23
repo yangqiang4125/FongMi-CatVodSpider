@@ -218,9 +218,6 @@ public class PushAgentQQ extends Ali {
                     v.put("vod_remarks", Utils.getWebName(url,0));
                     videos.put(v);
                 }
-                if (tid.equals("t4")) {
-                    API.get().cleanToken();
-                }
                 total = 1;
             }
             JSONObject result = new JSONObject();
