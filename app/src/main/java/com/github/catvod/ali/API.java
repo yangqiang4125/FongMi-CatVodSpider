@@ -245,6 +245,7 @@ public class API {
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
         if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
+        if(Utils.cleanToken.equals("1")) vod.setVodTag(auth.getRefreshToken());
         return vod;
     }
 

@@ -46,6 +46,7 @@ public class Ali extends Spider {
                 Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                 Utils.spRegx =  Utils.siteRule.optString("szRegx", szRegx);
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
+                Utils.cleanToken = Utils.siteRule.optString("cleanToken", "0");
                 String token = Utils.siteRule.optString("token", "");
                 API.get().setRefreshToken(token);
                 return jo;
