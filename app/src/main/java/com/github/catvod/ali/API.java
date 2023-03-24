@@ -26,6 +26,7 @@ import com.github.catvod.utils.QRCode;
 import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
 
+import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -44,7 +45,7 @@ public class API {
     private ScheduledExecutorService service;
     private AlertDialog dialog;
     private String shareToken;
-    private final Auth auth;
+    private Auth auth;
     private String shareId;
 
     private static class Loader {
@@ -58,6 +59,15 @@ public class API {
     private API() {
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
+    }
+
+    public void setAuth(boolean flag){
+        if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
+        if (Utils.tokenInfo.length()>10) {
+            auth = Auth.objectFrom(Utils.tokenInfo);
+            auth.save();
+            Init.show("已设置默认token");
+        }
     }
     public String getVal(String key,String dval){
         String tk = Utils.siteRule.optString(key,dval);
@@ -157,10 +167,11 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
-            cleanToken();
+            setAuth(false);
+            /*cleanToken();
             stopService();
             auth.clean();
-            getQRCode();
+            getQRCode();*/
             return true;
         } finally {
             while (auth.isEmpty()) SystemClock.sleep(250);
@@ -274,7 +285,10 @@ public class API {
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
         if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
-        if(Utils.cleanToken.equals("1")) vod.setVodTag(auth.getRefreshToken());
+        String tag = vod.vodTag;
+        if(tag==null||tag.isEmpty()) tag = "推荐";
+        tag = tag + ";" + new Gson().toJson(vod);
+        vod.setVodTag(tag);
         return vod;
     }
 

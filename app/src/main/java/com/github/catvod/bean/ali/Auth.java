@@ -22,7 +22,7 @@ public class Auth {
     @SerializedName("userId")
     private String userId;
     @SerializedName("driveId")
-    private String driveId;
+    public String driveId;
 
     public static Auth objectFrom(String str) {
         if(str.isEmpty())return new Auth();

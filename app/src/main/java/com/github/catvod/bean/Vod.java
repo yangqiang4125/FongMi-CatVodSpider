@@ -30,7 +30,7 @@ public class Vod {
     @SerializedName("vod_play_url")
     private String vodPlayUrl;
     @SerializedName("vod_tag")
-    private String vodTag;
+    public String vodTag;
 
     public Vod() {
     }
