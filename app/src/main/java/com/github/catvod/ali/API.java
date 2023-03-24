@@ -1,31 +1,21 @@
 package com.github.catvod.ali;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-
 import com.github.catvod.BuildConfig;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.ali.Auth;
-import com.github.catvod.bean.ali.Data;
 import com.github.catvod.bean.ali.Item;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.utils.Prefers;
-import com.github.catvod.utils.QRCode;
 import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
-
 import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,15 +25,9 @@ import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class API {
 
     private final List<String> quality;
-    private ScheduledExecutorService service;
-    private AlertDialog dialog;
     private String shareToken;
     private Auth auth;
     private String shareId;
@@ -170,10 +154,6 @@ public class API {
             SpiderDebug.log(e);
             cleanToken();
             setAuth(false);
-            /*cleanToken();
-            stopService();
-            auth.clean();
-            getQRCode();*/
             return true;
         } finally {
             while (auth.isEmpty()) SystemClock.sleep(250);
@@ -481,63 +461,5 @@ public class API {
         result[1] = "application/octet-stream";
         result[2] = new ByteArrayInputStream(text.getBytes());
         return result;
-    }
-
-    private void getQRCode() {
-        Data data = Data.objectFrom(OkHttp.string("https://passport.aliyundrive.com/newlogin/qrcode/generate.do?appName=aliyun_drive&fromSite=52&appName=aliyun_drive&appEntrance=web&isMobile=false&lang=zh_CN&returnUrl=&bizParams=&_bx-v=2.2.3")).getContent().getData();
-        Init.run(() -> showQRCode(data));
-    }
-
-    private void showQRCode(Data data) {
-        try {
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(Utils.dp2px(240), Utils.dp2px(240));
-            ImageView image = new ImageView(Init.context());
-            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            image.setImageBitmap(QRCode.getBitmap(data.getCodeContent(), 240, 2));
-            FrameLayout frame = new FrameLayout(Init.context());
-            params.gravity = Gravity.CENTER;
-            frame.addView(image, params);
-            dialog = new AlertDialog.Builder(Init.getActivity()).setView(frame).setOnDismissListener(this::dismiss).show();
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            Init.execute(() -> startService(data.getParams()));
-            Init.show("请使用阿里云盘 App 扫描二维码");
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void startService(Map<String, String> params) {
-        service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(() -> {
-            Data result = Data.objectFrom(OkHttp.post("https://passport.aliyundrive.com/newlogin/qrcode/query.do?appName=aliyun_drive&fromSite=52&_bx-v=2.2.3", params)).getContent().getData();
-            if (result.hasToken()) setToken(result.getToken());
-        }, 1, 1, TimeUnit.SECONDS);
-    }
-
-    private void setToken(String value) {
-        //Init.show("请重新进入播放页");
-        auth.setRefreshToken(value);
-        String tokenMsg = "new:%s";
-        tokenMsg = String.format(tokenMsg,value);
-        Init.show(tokenMsg);
-        auth.save();
-        //refreshAccessToken();
-        Init.show("请重启软件");
-        stopService();
-    }
-
-    private void stopService() {
-        if (service != null) service.shutdownNow();
-        Init.run(this::dismiss);
-    }
-
-    private void dismiss(DialogInterface dialog) {
-        stopService();
-    }
-
-    private void dismiss() {
-        try {
-            if (dialog != null) dialog.dismiss();
-        } catch (Exception ignored) {
-        }
     }
 }
