@@ -76,8 +76,7 @@ public class API {
     public void cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
-        setAuth(false);
-        Init.show("Token缓存已清空并重置");
+        setAuth(true);
     }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
