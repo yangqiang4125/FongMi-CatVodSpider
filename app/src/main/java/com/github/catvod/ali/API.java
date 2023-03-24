@@ -215,6 +215,7 @@ public class API {
         } catch (Exception e) {
             SpiderDebug.log(e);
             cleanToken();
+            Init.show(e.getMessage());
             return false;
         }
     }
