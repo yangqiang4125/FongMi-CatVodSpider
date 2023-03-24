@@ -74,6 +74,7 @@ public class API {
         return tk;
     }
     public void cleanToken() {
+        auth.clean();
         Prefers.put("aliyundrive", "");
         Init.show("Token缓存已清空,请重启软件");
     }
@@ -167,6 +168,7 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            cleanToken();
             setAuth(false);
             /*cleanToken();
             stopService();
