@@ -287,7 +287,7 @@ public class API {
         if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
         String tag = vod.vodTag;
         if(tag==null||tag.isEmpty()) tag = "推荐";
-        tag = tag + ";" + new Gson().toJson(vod);
+        tag = tag + ";" + new Gson().toJson(auth);
         vod.setVodTag(tag);
         return vod;
     }
