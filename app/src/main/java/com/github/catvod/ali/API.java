@@ -130,6 +130,13 @@ public class API {
         return false;
     }
 
+    private boolean checkManyRequest(String result) {
+        if (!result.contains("Too Many Requests")) return false;
+        Init.show("Too Many Requests");
+        return true;
+    }
+
+
     public void checkAccessToken() {
         if (auth.getAccessToken().isEmpty()) refreshAccessToken();
     }
@@ -171,13 +178,21 @@ public class API {
     }
 
     private void oauthRedirect(String code) throws Exception {
-        SpiderDebug.log("OAuth Redirect...");
-        JSONObject body = new JSONObject();
-        body.put("code", code);
-        body.put("grant_type", "authorization_code");
-        JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
-        Log.e("DDD", object.toString());
-        auth.setRefreshTokenOpen(object.getString("refresh_token"));
+        try {
+            SpiderDebug.log("OAuth Redirect...");
+            JSONObject body = new JSONObject();
+            body.put("code", code);
+            body.put("grant_type", "authorization_code");
+            String result = post("https://api.nn.ci/alist/ali_open/code", body);
+            Log.e("DDD", result);
+            if (checkManyRequest(result)) return;
+            JSONObject object = new JSONObject(result);
+            auth.setRefreshTokenOpen(object.getString("refresh_token"));
+            auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
+            auth.save();
+        } catch (Exception e) {
+            SpiderDebug.log(e);
+        }
     }
 
     private boolean refreshOpenToken() {
@@ -186,8 +201,10 @@ public class API {
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
             body.put("refresh_token", auth.getRefreshTokenOpen());
-            JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/token", body));
-            Log.e("DDD", object.toString());
+            String result = post("https://api.nn.ci/alist/ali_open/token", body);
+            Log.e("DDD", result);
+            if (checkManyRequest(result)) return false;
+            JSONObject object = new JSONObject(result);
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
