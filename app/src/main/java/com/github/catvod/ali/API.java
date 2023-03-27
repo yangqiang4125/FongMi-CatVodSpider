@@ -133,6 +133,7 @@ public class API {
     private boolean checkManyRequest(String result) {
         if (!result.contains("Too Many Requests")) return false;
         Init.show("Too Many Requests");
+        cleanToken();
         return true;
     }
 
