@@ -87,4 +87,9 @@ public class AliPS extends Ali {
         }
         return Result.string(list);
     }
+
+    @Override
+    public String playerContent(String flag, String id, List<String> vipFlags) {
+        return super.playerContent(flag, id, vipFlags);
+    }
 }

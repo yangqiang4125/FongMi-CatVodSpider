@@ -106,4 +106,8 @@ public class Zhaozy extends Ali {
         }
         return "";
     }
+    @Override
+    public String playerContent(String flag, String id, List<String> vipFlags) {
+        return super.playerContent(flag, id, vipFlags);
+    }
 }
