@@ -47,7 +47,10 @@ public class API {
         this.lock = new ReentrantLock(true);
     }
     public void setRefreshToken(String token) {
-        if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
+        if (auth.getRefreshToken().isEmpty()) {
+            Utils.refreshToken = token;
+            refreshAccessToken();
+        }
     }
 
     public void setShareId(String shareId) {
@@ -119,7 +122,7 @@ public class API {
     private boolean refreshAccessToken() {
         try {
             JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
+            String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");

@@ -47,8 +47,8 @@ public class Ali extends Spider {
                 Utils.spRegx =  Utils.siteRule.optString("szRegx", szRegx);
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
                 Utils.cleanToken = Utils.siteRule.optString("cleanToken", "0");
-                String token = Utils.siteRule.optString("token", "");
-                API.get().setRefreshToken(token);
+                Utils.refreshToken = Utils.siteRule.optString("token", "");
+                API.get().setRefreshToken(Utils.refreshToken);
                 return jo;
             }
         } catch (JSONException e) {
