@@ -235,7 +235,7 @@ public class API {
             int sid = -1;
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
-            if(deUrl!=null) deUrl = Utils.siteRule.optString("deUrl","https://www.voflix.me");
+            if(deUrl==null) deUrl = Utils.siteRule.optString("deUrl","https://www.voflix.me");
             if (sid == 1) {
                 JSONObject response = new JSONObject(OkHttp.string(deUrl+"/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
