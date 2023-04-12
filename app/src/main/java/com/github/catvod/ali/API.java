@@ -31,6 +31,7 @@ public class API {
     private Map<String, String> mediaId2Url;
     private final ReentrantLock lock;
     private final Auth auth;
+    private static String deUrl;
     private final List<String> quality;
     private static class Loader {
         static volatile API INSTANCE = new API();
@@ -57,12 +58,9 @@ public class API {
     public String getRefreshToken() {
         return auth.getRefreshToken();
     }
-
     public void cleanToken() {
         auth.clean();
-        Init.show("Token缓存已清空,请重启软件");
     }
-
     public HashMap<String, String> getHeader() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
@@ -234,8 +232,9 @@ public class API {
             int sid = -1;
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
+            if(deUrl!=null) deUrl = Utils.siteRule.optString("deUrl","https://www.voflix.me");
             if (sid == 1) {
-                JSONObject response = new JSONObject(OkHttp.string("https://www.voflix.me/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
+                JSONObject response = new JSONObject(OkHttp.string(deUrl+"/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
                     JSONArray jsonArray = response.getJSONArray("list");
                     if (jsonArray.length() > 0) {
@@ -246,7 +245,7 @@ public class API {
                 }
             }
             if (sid > 0) {
-                Document doc = Jsoup.parse(OkHttp.string("https://www.voflix.me/detail/"+sid+".html"));
+                Document doc = Jsoup.parse(OkHttp.string(deUrl+"/detail/"+sid+".html"));
                 Elements em = doc.select(".module-main");
                 Elements el = doc.select(".module-info-main");
                 String tag = el.select(".module-info-tag").text();
