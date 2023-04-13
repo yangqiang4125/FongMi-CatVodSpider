@@ -138,7 +138,9 @@ public class API {
     }
 
     public void checkAccessToken() {
-        if (auth.getAccessToken().isEmpty()) refreshAccessToken();
+        if (auth.getAccessToken().isEmpty()||auth.getRefreshTokenOpen().isEmpty()) {
+            refreshAccessToken();
+        }
     }
 
     private boolean refreshAccessToken() {
