@@ -10,6 +10,7 @@ import com.github.catvod.bean.ali.Auth;
 import com.github.catvod.bean.ali.Item;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.spider.Ali;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.utils.Prefers;
@@ -61,7 +62,7 @@ public class API {
     }
     public void cleanToken() {
         auth.clean();
-        auth.setRefreshToken(Utils.refreshToken);
+        if(Utils.refreshToken==null||Utils.refreshToken.isEmpty()) Ali.fetchRule(false, 0);
         Prefers.put("aliyundrive", "");
         setAuth(false);
     }
@@ -145,7 +146,7 @@ public class API {
         try {
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
+            String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
