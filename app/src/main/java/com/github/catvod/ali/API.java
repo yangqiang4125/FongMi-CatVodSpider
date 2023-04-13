@@ -62,7 +62,6 @@ public class API {
     public void cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
-        setAuth(true);
     }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
@@ -133,7 +132,10 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshOpenToken();
+        if (result.contains("AccessTokenInvalid")){
+            Prefers.put("tokenInfo", "0");
+            return refreshOpenToken();
+        }
         return false;
     }
 
@@ -142,7 +144,8 @@ public class API {
             if (auth.getAccessToken().isEmpty()) {
                 refreshAccessToken();
             }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
-        } catch (Exception e) {
+         } catch (Exception e) {   
+            Prefers.put("tokenInfo", "0");
         }
     }
 
@@ -164,6 +167,7 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            Prefers.put("tokenInfo", "0");
             cleanToken();
             setAuth(false);
             return true;
@@ -208,6 +212,7 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            Prefers.put("tokenInfo", "0");
             cleanToken();
             Init.show(e.getMessage());
             return false;
