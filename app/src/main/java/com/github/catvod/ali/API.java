@@ -56,9 +56,13 @@ public class API {
         return tk;
     }
     public void cleanToken() {
-        auth.clean();
-        Prefers.put("aliyundrive", "");
-        auth.setRefreshToken(Utils.refreshToken);
+        try {
+            auth.clean();
+            Prefers.put("aliyundrive", "");
+            auth.setRefreshToken(Utils.refreshToken);
+        } catch (Exception e) {
+            Init.show("64:"+e.getMessage());
+        }
     }
 
     public void setRefreshToken(String token) {
@@ -119,7 +123,10 @@ public class API {
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
+        if (result.contains("AccessTokenInvalid")) {
+            Init.show("127:"+result);
+            return refreshAccessToken();
+        }
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
         return false;
@@ -150,6 +157,7 @@ public class API {
             oauthRequest();
             return true;
         } catch (Exception e) {
+            Init.show("157:"+e.getMessage());
             SpiderDebug.log(e);
             cleanToken();
             return true;
@@ -176,7 +184,6 @@ public class API {
         JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
-        auth.save();
     }
 
     private boolean refreshOpenToken() {
@@ -192,9 +199,9 @@ public class API {
             auth.save();
             return true;
         } catch (Exception e) {
+            Init.show("199:"+e.getMessage());
             SpiderDebug.log(e);
             cleanToken();
-            Init.show(e.getMessage());
             return false;
         }
     }
