@@ -10,7 +10,6 @@ import com.github.catvod.bean.ali.Auth;
 import com.github.catvod.bean.ali.Item;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
-import com.github.catvod.spider.Ali;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.utils.Prefers;
@@ -54,8 +53,6 @@ public class API {
                 auth.save();
                 Init.show("已设置默认token");
             }
-        }else {
-            refreshAccessToken();
         }
     }
     public String getVal(String key,String dval){
@@ -64,9 +61,8 @@ public class API {
     }
     public void cleanToken() {
         auth.clean();
-        if(Utils.refreshToken==null||Utils.refreshToken.isEmpty()) Ali.fetchRule(false, 0);
         Prefers.put("aliyundrive", "");
-        setAuth(false);
+        setAuth(true);
     }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
@@ -126,12 +122,8 @@ public class API {
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("AccessTokenInvalid")) {
-            Prefers.put("tokenInfo", "0");
-            return refreshAccessToken();
-        }
+        if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
-        if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
         return false;
     }
 
@@ -148,7 +140,7 @@ public class API {
         try {
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
-            String token = Utils.refreshToken;
+            String token = auth.getRefreshToken();
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
@@ -163,9 +155,10 @@ public class API {
         } catch (Exception e) {
             SpiderDebug.log(e);
             cleanToken();
+            setAuth(false);
             return true;
         } finally {
-            //while (auth.isEmpty()) SystemClock.sleep(250);
+            while (auth.isEmpty()) SystemClock.sleep(250);
         }
     }
 
