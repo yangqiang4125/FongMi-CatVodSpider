@@ -138,8 +138,11 @@ public class API {
     }
 
     public void checkAccessToken() {
-        if (auth.getAccessToken().isEmpty()||auth.getRefreshTokenOpen().isEmpty()) {
-            refreshAccessToken();
+        try {
+            if (auth.getAccessToken().isEmpty()) {
+                refreshAccessToken();
+            }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
+        } catch (Exception e) {
         }
     }
 
