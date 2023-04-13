@@ -54,6 +54,8 @@ public class API {
                 auth.save();
                 Init.show("已设置默认token");
             }
+        }else {
+            refreshAccessToken();
         }
     }
     public String getVal(String key,String dval){
@@ -185,6 +187,7 @@ public class API {
         JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
+        auth.save();
     }
 
     private boolean refreshOpenToken() {
