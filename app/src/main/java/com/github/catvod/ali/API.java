@@ -124,6 +124,10 @@ public class API {
     private boolean checkAuth(String result) {
         if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
+        if (result.contains("QuotaExhausted")) {
+            Init.show("账号容量不够啦");
+            return refreshAccessToken();
+        }
         return false;
     }
 
