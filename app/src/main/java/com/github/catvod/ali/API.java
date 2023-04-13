@@ -55,11 +55,11 @@ public class API {
         String tk = Utils.siteRule.optString(key,dval);
         return tk;
     }
-    public void cleanToken() {
+    public boolean cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
         auth.setRefreshToken(Utils.refreshToken);
-        refreshAccessToken();
+        return refreshAccessToken();
     }
 
     public void setRefreshToken(String token) {
@@ -120,7 +120,7 @@ public class API {
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
+        if (result.contains("AccessTokenInvalid")) return cleanToken();
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
         return false;
