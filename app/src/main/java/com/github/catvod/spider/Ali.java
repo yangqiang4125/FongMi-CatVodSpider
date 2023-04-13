@@ -36,13 +36,13 @@ public class Ali extends Spider {
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
                 Utils.siteRule = jo;
-                if(t==0) {
+                /*if(t==0) {
                     String[] fenleis = getRuleVal(jo,"fenlei", "").split("#");
                     for (String fenlei : fenleis) {
                         String[] info = fenlei.split("\\$");
                         jo.remove(info[1]);
                     }
-                }
+                }*/
                 Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                 Utils.spRegx =  Utils.siteRule.optString("szRegx", szRegx);
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
