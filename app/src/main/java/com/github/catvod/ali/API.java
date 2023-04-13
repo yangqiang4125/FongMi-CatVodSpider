@@ -61,6 +61,7 @@ public class API {
     }
     public void cleanToken() {
         auth.clean();
+        auth.setRefreshToken(Utils.refreshToken);
         Prefers.put("aliyundrive", "");
         setAuth(false);
     }
@@ -159,10 +160,9 @@ public class API {
         } catch (Exception e) {
             SpiderDebug.log(e);
             cleanToken();
-            setAuth(false);
             return true;
         } finally {
-            while (auth.isEmpty()) SystemClock.sleep(250);
+            //while (auth.isEmpty()) SystemClock.sleep(250);
         }
     }
 
