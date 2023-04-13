@@ -46,9 +46,10 @@ public class Ali extends Spider {
                 Utils.apikey = Utils.siteRule.optString("apikey", "0ac44ae016490db2204ce0a042db2916");
                 Utils.spRegx =  Utils.siteRule.optString("szRegx", szRegx);
                 Utils.isPic = Utils.siteRule.optInt("isPic", 0);
-                Utils.cleanToken = Utils.siteRule.optString("cleanToken", "0");
                 Utils.refreshToken = Utils.siteRule.optString("token", "");
+                Utils.tokenInfo = Utils.siteRule.optString("tokenInfo", "0");
                 API.get().setRefreshToken(Utils.refreshToken);
+                API.get().setAuth(true);
                 return jo;
             }
         } catch (JSONException e) {
@@ -88,18 +89,13 @@ public class Ali extends Spider {
     public String playerContent(String flag, String id, List<String> vipFlags) {
         API.get().checkAccessToken();
         String[] ids = id.split("\\+");
-        if (flag.contains("原画")) {
-            return Result.get().url(API.get().getDownloadUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
-        } else {
-            return Result.get().url(API.get().getPreviewUrl(ids[0])).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
-        }
+        String url = flag.contains("原画") ? API.get().getDownloadUrl(ids[0]) : API.get().getPreviewUrl(ids[0]);
+        return Result.get().url(url).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
     }
 
     public static Object[] vod(Map<String, String> params) {
         String type = params.get("type");
         if (type.equals("sub")) return API.get().proxySub(params);
-        if (type.equals("m3u8")) return API.get().proxyM3U8(params);
-        if (type.equals("media")) return API.get().proxyMedia(params);
         return null;
     }
 
