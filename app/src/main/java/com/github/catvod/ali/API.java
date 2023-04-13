@@ -1,5 +1,6 @@
 package com.github.catvod.ali;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.catvod.BuildConfig;
@@ -48,9 +49,6 @@ public class API {
             auth = Auth.objectFrom(Utils.tokenInfo);
             auth.save();
             Init.show("已设置默认token");
-        }else {
-            setRefreshToken(Utils.refreshToken);
-            refreshAccessToken();
         }
     }
     public String getVal(String key,String dval){
@@ -60,9 +58,10 @@ public class API {
     public void cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
-        Utils.tokenInfo = "1";
-        setAuth(false);
+        auth.setRefreshToken(Utils.refreshToken);
+        refreshAccessToken();
     }
+
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
     }
@@ -156,7 +155,7 @@ public class API {
             cleanToken();
             return true;
         } finally {
-            //while (auth.isEmpty()) SystemClock.sleep(250);
+            while (auth.isEmpty()) SystemClock.sleep(250);
         }
     }
 
