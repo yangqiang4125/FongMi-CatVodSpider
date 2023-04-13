@@ -87,7 +87,6 @@ public class Ali extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        API.get().checkAccessToken();
         String[] ids = id.split("\\+");
         String url = flag.contains("原画") ? API.get().getDownloadUrl(ids[0]) : API.get().getPreviewUrl(ids[0]);
         return Result.get().url(url).subs(API.get().getSub(ids)).header(API.get().getHeader()).parse(0).string();
