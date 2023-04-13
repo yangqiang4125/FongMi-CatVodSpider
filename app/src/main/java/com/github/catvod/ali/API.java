@@ -25,6 +25,7 @@ import org.jsoup.select.Elements;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 public class API {
+
     private final List<String> quality;
     private String shareToken;
     private Auth auth;
@@ -44,11 +45,14 @@ public class API {
     }
 
     public void setAuth(boolean flag){
-        if(flag)if(!auth.getRefreshTokenOpen().isEmpty())return;
-        if (Utils.tokenInfo.length()>10) {
-            auth = Auth.objectFrom(Utils.tokenInfo);
-            auth.save();
-            Init.show("已设置默认token");
+        String tokenInfo = Prefers.getString("tokenInfo", "1");
+        if (tokenInfo.equals("1")) {
+            if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
+            if (Utils.tokenInfo.length()>10) {
+                auth = Auth.objectFrom(Utils.tokenInfo);
+                auth.save();
+                Init.show("已设置默认token");
+            }
         }
     }
     public String getVal(String key,String dval){
@@ -56,15 +60,10 @@ public class API {
         return tk;
     }
     public void cleanToken() {
-        try {
-            auth.clean();
-            Prefers.put("aliyundrive", "");
-            auth.setRefreshToken(Utils.refreshToken);
-        } catch (Exception e) {
-            Init.show("64:"+e.getMessage());
-        }
+        auth.clean();
+        Prefers.put("aliyundrive", "");
+        setAuth(false);
     }
-
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
     }
@@ -124,7 +123,7 @@ public class API {
 
     private boolean checkAuth(String result) {
         if (result.contains("AccessTokenInvalid")) {
-            Init.show("127:"+result);
+            Prefers.put("tokenInfo", "0");
             return refreshAccessToken();
         }
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
@@ -136,6 +135,7 @@ public class API {
         if (result.contains("AccessTokenInvalid")) return refreshOpenToken();
         return false;
     }
+
     public void checkAccessToken() {
         if (auth.getAccessToken().isEmpty()) refreshAccessToken();
     }
@@ -157,9 +157,9 @@ public class API {
             oauthRequest();
             return true;
         } catch (Exception e) {
-            Init.show("157:"+e.getMessage());
             SpiderDebug.log(e);
             cleanToken();
+            setAuth(false);
             return true;
         } finally {
             while (auth.isEmpty()) SystemClock.sleep(250);
@@ -197,11 +197,12 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
+            Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
-            Init.show("199:"+e.getMessage());
             SpiderDebug.log(e);
             cleanToken();
+            Init.show(e.getMessage());
             return false;
         }
     }
@@ -443,6 +444,8 @@ public class API {
         }
         return taskList.getJSONObject(0).getString("url");
     }
+
+
 
     private String copy(String fileId) throws Exception {
         String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"root\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
