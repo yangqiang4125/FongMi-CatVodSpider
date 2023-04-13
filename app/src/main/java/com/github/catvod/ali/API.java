@@ -124,6 +124,7 @@ public class API {
         if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
+        else Init.show(result);
         return false;
     }
 
@@ -438,8 +439,6 @@ public class API {
         }
         return taskList.getJSONObject(0).getString("url");
     }
-
-
 
     private String copy(String fileId) throws Exception {
         String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"root\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
