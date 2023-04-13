@@ -73,6 +73,7 @@ public class API {
     public void setShareId(String shareId) {
         this.shareId = shareId;
         refreshShareToken();
+        checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -144,7 +145,7 @@ public class API {
         try {
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
+            String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
