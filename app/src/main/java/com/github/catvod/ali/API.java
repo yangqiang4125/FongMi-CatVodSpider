@@ -124,7 +124,6 @@ public class API {
         if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
-        else Init.show(result);
         return false;
     }
 
