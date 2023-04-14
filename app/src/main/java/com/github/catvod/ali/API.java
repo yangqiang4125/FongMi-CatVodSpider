@@ -183,21 +183,24 @@ public class API {
             Init.show("173:"+e.getMessage());
             Prefers.put("tokenInfo", "0");
             cleanToken();
-            setAuth(false);
             return true;
         } finally {
             while (auth.isEmpty()) SystemClock.sleep(250);
         }
     }
 
-    private void oauthRequest() throws Exception {
-        SpiderDebug.log("OAuth Request...");
-        JSONObject body = new JSONObject();
-        body.put("authorize", 1);
-        body.put("scope", "user:base,file:all:read,file:all:write");
-        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + BuildConfig.CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
-        Log.e("DDD", object.toString());
-        oauthRedirect(object.getString("redirectUri").split("code=")[1]);
+    private void oauthRequest() {
+        try {
+            SpiderDebug.log("OAuth Request...");
+            JSONObject body = new JSONObject();
+            body.put("authorize", 1);
+            body.put("scope", "user:base,file:all:read,file:all:write");
+            JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + BuildConfig.CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
+            Init.show("199:"+object.toString());
+            Log.e("DDD", object.toString());
+            oauthRedirect(object.getString("redirectUri").split("code=")[1]);
+        } catch (Exception e) {
+        }
     }
 
     private void oauthRedirect(String code) throws Exception {
@@ -229,7 +232,6 @@ public class API {
             SpiderDebug.log(e);
             Prefers.put("tokenInfo", "0");
             cleanToken();
-            Init.show(e.getMessage());
             return false;
         }
     }
