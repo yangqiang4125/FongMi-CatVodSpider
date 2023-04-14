@@ -46,11 +46,11 @@ public class API {
     public void setAuth(boolean flag){
         String tokenInfo = Prefers.getString("tokenInfo", "1");
         if (tokenInfo.equals("1")) {
-            if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
+            //if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
             if (Utils.tokenInfo.length()>10) {
                 auth = Auth.objectFrom(Utils.tokenInfo);
                 auth.save();
-                Init.show("已设置默认token");
+                //Init.show("已设置默认token");
             }
         }
     }
