@@ -1,9 +1,7 @@
 package com.github.catvod.ali;
 
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
-import com.github.catvod.BuildConfig;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.ali.Auth;
@@ -31,6 +29,7 @@ public class API {
     private Auth auth;
     private String shareId;
     private static String deUrl;
+    private String CLIENT_ID;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -46,7 +45,6 @@ public class API {
 
     public void setAuth(boolean flag){
         String tokenInfo = Prefers.getString("tokenInfo", "1");
-        Init.show("tokenInfo49:"+tokenInfo);
         if (tokenInfo.equals("1")) {
             if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
             if (Utils.tokenInfo.length()>10) {
@@ -63,7 +61,7 @@ public class API {
     public void cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
-        setAuth(false);
+        setAuth(true);
     }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
@@ -108,28 +106,18 @@ public class API {
     }
 
     private String auth(String url, String json, boolean retry) {
-        String result = null;
-        try {
-            url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
-            result = OkHttp.postJson(url, json, getHeaderAuth());
-            Log.e("auth", result);
-            if (retry && checkAuth(result)) return auth(url, json, false);
-        } catch (Exception e) {
-            Init.show("118:"+e.getMessage());
-        }
+        url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
+        String result = OkHttp.postJson(url, json, getHeaderAuth());
+        Log.e("auth", result);
+        if (retry && checkAuth(result)) return auth(url, json, false);
         return result;
     }
 
     private String oauth(String url, String json, boolean retry) {
-        String result = null;
-        try {
-            url = url.startsWith("https") ? url : "https://open.aliyundrive.com/adrive/v1.0/" + url;
-            result = OkHttp.postJson(url, json, getHeaderOpen());
-            Log.e("oauth", result);
-            if (retry && checkOpen(result)) return oauth(url, json, false);
-        } catch (Exception e) {
-            Init.show("131:"+e.getMessage());
-        }
+        url = url.startsWith("https") ? url : "https://open.aliyundrive.com/adrive/v1.0/" + url;
+        String result = OkHttp.postJson(url, json, getHeaderOpen());
+        Log.e("oauth", result);
+        if (retry && checkOpen(result)) return oauth(url, json, false);
         return result;
     }
 
@@ -144,10 +132,7 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        if (result.contains("AccessTokenInvalid")){
-            Prefers.put("tokenInfo", "0");
-            return refreshOpenToken();
-        }
+        if (result.contains("AccessTokenInvalid")) return refreshOpenToken();
         return false;
     }
 
@@ -157,8 +142,6 @@ public class API {
                 refreshAccessToken();
             }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
         } catch (Exception e) {
-            Init.show("150:"+e.getMessage());
-            Prefers.put("tokenInfo", "0");
         }
     }
 
@@ -180,23 +163,22 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
-            Init.show("173:"+e.getMessage());
-            Prefers.put("tokenInfo", "0");
             cleanToken();
-            setAuth(false);
             return true;
         } finally {
-            while (auth.isEmpty()) SystemClock.sleep(250);
+            //while (auth.isEmpty()) SystemClock.sleep(250);
         }
     }
 
     private void oauthRequest() throws Exception {
         SpiderDebug.log("OAuth Request...");
+        if(CLIENT_ID==null) CLIENT_ID = getVal("CLIENT_ID", "76917ccccd4441c39457a04f6084fb2f");
         JSONObject body = new JSONObject();
         body.put("authorize", 1);
         body.put("scope", "user:base,file:all:read,file:all:write");
-        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + BuildConfig.CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
+        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
+        if(object.toString().contains("not")) Init.show(object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
     }
 
@@ -225,11 +207,8 @@ public class API {
             Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
-            Init.show("218:"+e.getMessage());
             SpiderDebug.log(e);
-            Prefers.put("tokenInfo", "0");
             cleanToken();
-            Init.show(e.getMessage());
             return false;
         }
     }
