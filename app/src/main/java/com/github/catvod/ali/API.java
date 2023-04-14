@@ -46,6 +46,7 @@ public class API {
 
     public void setAuth(boolean flag){
         String tokenInfo = Prefers.getString("tokenInfo", "1");
+        Init.show("tokenInfo49:"+tokenInfo);
         if (tokenInfo.equals("1")) {
             if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
             if (Utils.tokenInfo.length()>10) {
@@ -73,6 +74,7 @@ public class API {
     public void setShareId(String shareId) {
         this.shareId = shareId;
         refreshShareToken();
+        checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -106,45 +108,65 @@ public class API {
     }
 
     private String auth(String url, String json, boolean retry) {
-        url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
-        String result = OkHttp.postJson(url, json, getHeaderAuth());
-        Log.e("auth", result);
-        if (retry && checkAuth(result)) return auth(url, json, false);
+        String result = null;
+        try {
+            url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
+            result = OkHttp.postJson(url, json, getHeaderAuth());
+            Log.e("auth", result);
+            if (retry && checkAuth(result)) return auth(url, json, false);
+        } catch (Exception e) {
+            Init.show("118:"+e.getMessage());
+        }
         return result;
     }
 
     private String oauth(String url, String json, boolean retry) {
-        url = url.startsWith("https") ? url : "https://open.aliyundrive.com/adrive/v1.0/" + url;
-        String result = OkHttp.postJson(url, json, getHeaderOpen());
-        Log.e("oauth", result);
-        if (retry && checkOpen(result)) return oauth(url, json, false);
+        String result = null;
+        try {
+            url = url.startsWith("https") ? url : "https://open.aliyundrive.com/adrive/v1.0/" + url;
+            result = OkHttp.postJson(url, json, getHeaderOpen());
+            Log.e("oauth", result);
+            if (retry && checkOpen(result)) return oauth(url, json, false);
+        } catch (Exception e) {
+            Init.show("131:"+e.getMessage());
+        }
         return result;
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("AccessTokenInvalid")) {
-            Prefers.put("tokenInfo", "0");
+        if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
+        if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
+        if (result.contains("QuotaExhausted")) {
+            Init.show("账号容量不够啦");
             return refreshAccessToken();
         }
-        if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
-        if (result.contains("QuotaExhausted")) Init.show("账号容量不够啦");
         return false;
     }
 
     private boolean checkOpen(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshOpenToken();
+        if (result.contains("AccessTokenInvalid")){
+            Prefers.put("tokenInfo", "0");
+            return refreshOpenToken();
+        }
         return false;
     }
 
     public void checkAccessToken() {
-        if (auth.getAccessToken().isEmpty()) refreshAccessToken();
+        try {
+            if (auth.getAccessToken().isEmpty()) {
+                refreshAccessToken();
+            }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
+        } catch (Exception e) {
+            Init.show("150:"+e.getMessage());
+            Prefers.put("tokenInfo", "0");
+        }
     }
 
     private boolean refreshAccessToken() {
         try {
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
-            String token = auth.getRefreshToken();
+            String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
@@ -158,6 +180,8 @@ public class API {
             return true;
         } catch (Exception e) {
             SpiderDebug.log(e);
+            Init.show("173:"+e.getMessage());
+            Prefers.put("tokenInfo", "0");
             cleanToken();
             setAuth(false);
             return true;
@@ -184,6 +208,7 @@ public class API {
         JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
+        auth.save();
     }
 
     private boolean refreshOpenToken() {
@@ -200,7 +225,9 @@ public class API {
             Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
+            Init.show("218:"+e.getMessage());
             SpiderDebug.log(e);
+            Prefers.put("tokenInfo", "0");
             cleanToken();
             Init.show(e.getMessage());
             return false;
