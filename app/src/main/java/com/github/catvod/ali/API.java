@@ -266,7 +266,7 @@ public class API {
             if(i==0||fromkey.endsWith("。"))sourceUrls.add(jxStr);
             else sourceUrls.add(s);
         }
-        from = from.replace("。", type);
+        from = from.replace("。", "");
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
         String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
