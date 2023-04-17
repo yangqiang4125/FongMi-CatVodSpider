@@ -171,7 +171,7 @@ public class PushAgentQQ extends Ali {
             JSONArray videos = new JSONArray();
             String url=null,name=null,pic=null,skey=null,sid=null;
             JSONObject jsonObject = null, v = null;
-            int total = Integer.MAX_VALUE, pagecount = Integer.MAX_VALUE;
+            int total = Integer.MAX_VALUE, pagecount = 1;
             if (tid.equals("bili")) {
                 String json = OkHttp.string("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all");
                 JSONObject j = new JSONObject(json);
@@ -221,14 +221,12 @@ public class PushAgentQQ extends Ali {
                 if (tid.equals("t4")) {
                     API.get().cleanToken();
                 }
-                pagecount = videos.length();
-                total = 1;
             }
             JSONObject result = new JSONObject();
             result.put("page", pg);
             result.put("pagecount", pagecount);
             result.put("limit", Integer.MAX_VALUE);
-            result.put("total", total);
+            result.put("total", videos.length());
             result.put("list", videos);
             return result;
         } catch (Exception e) {
