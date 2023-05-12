@@ -208,7 +208,7 @@ public class API {
             Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
-            if(e.getMessage().contains("Too Many Requests"))Init.show("Too Many Requests");
+            if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封，明天再看");
             else{
                 SpiderDebug.log(e);
                 Init.show("refreshOpenToken："+e.getMessage());
