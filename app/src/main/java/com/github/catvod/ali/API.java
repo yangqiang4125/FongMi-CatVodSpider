@@ -163,6 +163,7 @@ public class API {
             oauthRequest();
             return true;
         } catch (Exception e) {
+            Init.show("refreshAccessToken："+e.getMessage());
             cleanToken();
             return true;
         } finally {
@@ -203,12 +204,14 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
+            Init.show("refreshOpenToken已更新");
             Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
-            if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封，明天再看");
+            if(e.getMessage().contains("Too Many Requests"))Init.show("Too Many Requests");
             else{
                 SpiderDebug.log(e);
+                Init.show("refreshOpenToken："+e.getMessage());
                 cleanToken();
             }
             return false;
