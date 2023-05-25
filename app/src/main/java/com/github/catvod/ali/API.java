@@ -322,6 +322,9 @@ public class API {
                 String yearText = el.select(".module-info-item-content").eq(3).text();
                 String year = yearText.replaceAll("(.*)\\(.*", "$1");
                 String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
+
+                String js = el.select(".module-info-item-content").eq(4).text();//集数
+                if(js!=null&&!js.isEmpty()) tag = tag +" "+js;
                 actor = actor.substring(0, actor.length() - 1);
                 vod.setVodTag(tag);
                 vod.setVodContent(content);
