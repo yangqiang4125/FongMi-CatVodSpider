@@ -5,6 +5,7 @@ import com.github.catvod.ali.API;
 import com.github.catvod.bean.Result;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -219,6 +220,11 @@ public class PushAgentQQ extends Ali {
                     videos.put(v);
                 }
                 if (tid.equals("t4")) {
+                    boolean aflag = Prefers.getBoolean("alert", false);
+                    String msg = "已关闭错误日志提醒";
+                    if(!aflag)msg = "已开启错误日志提醒";
+                    Init.show(msg);
+                    Prefers.put("alert", !aflag);
                     API.get().cleanToken();
                 }
             }

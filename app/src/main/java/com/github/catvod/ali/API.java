@@ -63,6 +63,10 @@ public class API {
         Prefers.put("aliyundrive", "");
         setAuth(true);
     }
+    public void alert(String msg) {
+        boolean aflag = Prefers.getBoolean("alert", false);
+        if(aflag) Init.show(msg);
+    }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
     }
@@ -178,7 +182,7 @@ public class API {
         body.put("scope", "user:base,file:all:read,file:all:write");
         JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
-        if(object.toString().contains("not")) Init.show(object.toString());
+        if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
     }
 
@@ -188,6 +192,7 @@ public class API {
         body.put("code", code);
         body.put("grant_type", "authorization_code");
         JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
+        if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
     }
@@ -208,6 +213,7 @@ public class API {
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");
             else{
+                alert(e.getMessage());
                 SpiderDebug.log(e);
                 cleanToken();
             }
@@ -324,7 +330,7 @@ public class API {
                 String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
 
                 String js = el.select(".module-info-item-content").eq(4).text();//集数
-                if(js!=null&&!js.isEmpty()) tag = tag +" "+js;
+                if(js!=null&&!js.isEmpty()&&js.contains("集")) tag = tag +" "+js;
                 actor = actor.substring(0, actor.length() - 1);
                 vod.setVodTag(tag);
                 vod.setVodContent(content);
