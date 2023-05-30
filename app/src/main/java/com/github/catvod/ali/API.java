@@ -10,18 +10,19 @@ import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
+import com.github.catvod.spider.PushAgentQQ;
 import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class API {
 
     private final List<String> quality;
@@ -296,46 +297,78 @@ public class API {
         return vod;
     }
 
+    /**
+     * @param string
+     * @return 转换之后的内容
+     * @Title: unicodeDecode
+     * @Description: unicode解码 将Unicode的编码转换为中文
+     */
+    public static String unicodeDecode(String string) {
+        Pattern pattern = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");
+        Matcher matcher = pattern.matcher(string);
+        char ch;
+        while (matcher.find()) {
+            ch = (char) Integer.parseInt(matcher.group(2), 16);
+            string = string.replace(matcher.group(1), ch + "");
+        }
+        return string;
+    }
+
     public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
         try {
             int sid = -1;
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
-            if(deUrl==null) deUrl = Utils.siteRule.optString("deUrl","https://www.voflix.me");
             if (sid == 1) {
-                JSONObject response = new JSONObject(OkHttp.string(deUrl+"/index.php/ajax/suggest?mid=1&limit=1&wd=" + key));
-                if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
-                    JSONArray jsonArray = response.getJSONArray("list");
-                    if (jsonArray.length() > 0) {
-                        JSONObject o = (JSONObject) jsonArray.get(0);
-                        sid = o.optInt("id", 0);
-
-                    }
+                String url = PushAgentQQ.douban_api_host+"/search/movie?q="+key+"&count=1&page_start=0&apikey=" + Utils.apikey + "&channel=Douban";
+                String json = OkHttp.string(url, PushAgentQQ.getHeaderDB());
+                JSONObject sp = new JSONObject(json);
+                JSONArray ao = sp.getJSONArray("items");
+                JSONObject jo = ao.getJSONObject(0);
+                String spId = jo.getString("target_id");
+                url =" https://frodo.douban.com/api/v2/movie/"+spId+"?count=1&page_start=0&apikey=" + Utils.apikey + "&channel=Douban";
+                json = OkHttp.string(url, PushAgentQQ.getHeaderDB());
+                String str = unicodeDecode(json);
+                sp = new JSONObject(str);
+                String card_subtitle= sp.optString("card_subtitle","");
+                String tag = "",rating,pic="",title="",intro="",actors="",episodes_info,directors="",area = "",year="";
+                if (!card_subtitle.isEmpty()) {
+                    String [] subs = card_subtitle.split(" / ",4);
+                    area = subs[1];
+                    tag = subs[1]+" / "+subs[2];
                 }
-            }
-            if (sid > 0) {
-                Document doc = Jsoup.parse(OkHttp.string(deUrl+"/detail/"+sid+".html"));
-                Elements em = doc.select(".module-main");
-                Elements el = doc.select(".module-info-main");
-                String tag = el.select(".module-info-tag").text();
-                if(tag.endsWith("/"))tag = tag.substring(5, tag.length() - 1);
-                el = el.select(".module-info-items");
-                String content = el.select(".module-info-introduction-content").text();
-                content = Utils.trim(content);
-                String director = el.select(".module-info-item-content a").eq(0).text();
-                String actor = el.select(".module-info-item-content").eq(2).text();
-                String pic = em.select(".module-info-poster .module-item-pic img").attr("data-original");
-                String yearText = el.select(".module-info-item-content").eq(3).text();
-                String year = yearText.replaceAll("(.*)\\(.*", "$1");
-                String area = yearText.replaceAll(".*\\((.*)\\)", "$1");
+                jo = sp.getJSONObject("pic");
+                pic = jo.getString("normal");
+                jo = sp.getJSONObject("rating");
+                rating = jo.optString("value","0")+"分";
+                title = sp.optString("title");
+                intro = sp.optString("intro");
+                episodes_info = sp.optString("episodes_count","0")+"集全";
+                String pubdate = sp.optString("pubdate","");
+                year = pubdate.replaceAll(".*?(\\d+-\\d+-\\d+).*","$1");
+                ao = sp.getJSONArray("actors");
+                for (int i = 0; i < ao.length(); i++) {
+                    jo = ao.getJSONObject(i);
+                    actors += jo.getString("name")+" / ";
+                }
+                if (!actors.isEmpty()) {
+                    actors = actors.substring(0, actors.length() - 3);
+                }
 
-                String js = el.select(".module-info-item-content").eq(4).text();//集数
-                if(js!=null&&!js.isEmpty()&&js.contains("集")) tag = tag +" "+js;
-                actor = actor.substring(0, actor.length() - 1);
+                ao = sp.getJSONArray("directors");
+                for (int i = 0; i < ao.length(); i++) {
+                    jo = ao.getJSONObject(i);
+                    directors += jo.getString("name")+" / ";
+                }
+                if (!directors.isEmpty()) {
+                    directors = directors.substring(0, directors.length() - 3);
+                }
+                tag = tag+" 评分："+rating+" "+episodes_info;
+                vod.setVodName(title);
                 vod.setVodTag(tag);
-                vod.setVodContent(content);
-                vod.setVodDirector(director);
-                vod.setVodActor(actor);
+                vod.setVodContent(intro);
+                vod.setVodDirector(directors);
+                vod.setVodActor(actors);
                 vod.setVodYear(year);
                 vod.setVodArea(area);
                 vod.setVodPic(pic);

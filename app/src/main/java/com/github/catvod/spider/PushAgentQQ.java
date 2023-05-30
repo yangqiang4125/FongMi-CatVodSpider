@@ -19,7 +19,7 @@ public class PushAgentQQ extends Ali {
     public void init(Context context, String extend) {
         fetchRule(true,1);
     }
-    private static String douban_api_host = "https://frodo.douban.com/api/v2";
+    public static String douban_api_host = "https://frodo.douban.com/api/v2";
     public static JSONObject getUrls(){
         String _urls = "{" +
                 "                \"search\": \"/search/weixin\"," +
@@ -130,7 +130,7 @@ public class PushAgentQQ extends Ali {
         return jSONArray;
     }
 
-    protected static HashMap<String, String> getHeaderDB() {
+    public static HashMap<String, String> getHeaderDB() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Host","frodo.douban.com");
         headers.put("Connection", "Keep-Alive");
