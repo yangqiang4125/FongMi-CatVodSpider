@@ -363,7 +363,7 @@ public class API {
                 if (!directors.isEmpty()) {
                     directors = directors.substring(0, directors.length() - 3);
                 }
-                tag = tag+" 评分："+rating+" "+episodes_info;
+                tag = tag+"   评分："+rating+" "+episodes_info;
                 vod.setVodName(title);
                 vod.setVodTag(tag);
                 vod.setVodContent(intro);
