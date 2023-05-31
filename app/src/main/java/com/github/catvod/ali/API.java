@@ -250,7 +250,7 @@ public class API {
             List<Item> files = new ArrayList<>();
             LinkedHashMap<String, List<String>> subMap = new LinkedHashMap<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subMap);
-            if(files.isEmpty())Init.show("来晚啦，该分享已失效");
+            if(files.isEmpty())Init.show("来晚啦，该分享已失效~");
             else for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + file.getFileId() + findSubs(file.getName(), subMap));
         } catch (Exception e) {
         }
