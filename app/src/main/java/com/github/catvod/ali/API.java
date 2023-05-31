@@ -289,7 +289,10 @@ public class API {
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
         vod.setTypeName("阿里云盘");
-        if (Utils.isPic==1&&!vname.equals("无名称")) vod = getVodInfo(vname, vod, idInfo);
+        if (Utils.isPic==1&&!vname.equals("无名称")) {
+            Vod vod2 = getVodInfo(vname, vod, idInfo);
+            if(vod2!=null) vod = vod2;
+        }
         String tag = vod.vodTag;
         if(tag==null||tag.isEmpty()) tag = "推荐";
         tag = tag + ";" + new Gson().toJson(auth);
@@ -324,6 +327,7 @@ public class API {
                 String json = OkHttp.string(url, PushAgentQQ.getHeaderDB());
                 JSONObject sp = new JSONObject(json);
                 JSONArray ao = sp.getJSONArray("items");
+                if(ao.length()==0)return null;
                 JSONObject jo = ao.getJSONObject(0);
                 String spId = jo.getString("target_id");
                 url =" https://frodo.douban.com/api/v2/movie/"+spId+"?count=1&page_start=0&apikey=" + Utils.apikey + "&channel=Douban";
@@ -364,7 +368,7 @@ public class API {
                     directors = directors.substring(0, directors.length() - 3);
                 }
                 tag = tag+"   评分："+rating+" "+episodes_info;
-                vod.setVodName(title);
+                vod.setVodName(key);
                 vod.setVodTag(tag);
                 vod.setVodContent(intro);
                 vod.setVodDirector(directors);
