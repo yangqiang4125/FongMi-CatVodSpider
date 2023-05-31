@@ -348,9 +348,7 @@ public class API {
                 rating = jo.optString("value","0")+"分";
                 title = sp.optString("title");
                 intro = sp.optString("intro");
-                String episodes_infos = sp.optString("episodes_info","");
                 episodes_info = sp.optString("episodes_count","0")+"集全";
-                if(!episodes_infos.isEmpty())episodes_info = episodes_infos+" / "+episodes_info;
                 String pubdate = sp.optString("pubdate","");
                 year = pubdate.replaceAll(".*?(\\d+-\\d+-\\d+).*","$1");
                 ao = sp.getJSONArray("actors");
