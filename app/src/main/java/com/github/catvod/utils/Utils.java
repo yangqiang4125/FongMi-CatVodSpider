@@ -1,5 +1,6 @@
 package com.github.catvod.utils;
 
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
@@ -16,6 +17,7 @@ import com.github.catvod.spider.Init;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -80,6 +82,27 @@ public class Utils {
         if(type==1)return "http://image.xinjun58.com/sp/pic/bg/zl.jpg";
         String host = Uri.parse(url).getHost();
         return host;
+    }
+
+    public static boolean isMobile() {
+        boolean hasCamera = Init.context().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+        boolean hasPhone = Init.context().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        boolean hasBT = Init.context().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH);
+        return hasCamera && hasPhone && hasBT;
+    }
+
+    public static boolean isGbk(byte[] bytes) {
+        Charset charset = Charset.forName("GBK");
+        String str = new String(bytes, charset);
+        byte[] newBytes = str.getBytes(charset);
+        return Arrays.equals(bytes, newBytes);
+    }
+
+    public static byte[] toUtf8(byte[] bytes) throws Exception {
+        return isGbk(bytes) ? new String(bytes, Charset.forName("GBK")).getBytes("UTF-8") : bytes;
+    }
+    public static String getExt(String name) {
+        return name.substring(name.lastIndexOf(".") + 1);
     }
     public static String getSize(double size) {
         if (size == 0) return "";
@@ -249,6 +272,16 @@ public class Utils {
 
     public static String getVar(String data, String param) {
         for (String var : data.split("var")) if (var.contains(param)) return var.split("'")[1];
+        return "";
+    }
+
+    public static String removeExt(String text) {
+        return text.contains(".") ? text.substring(0, text.lastIndexOf(".")) : text;
+    }
+
+    private static String checkVar(String var) {
+        if (var.contains("'")) return var.split("'")[1];
+        if (var.contains("\"")) return var.split("\"")[1];
         return "";
     }
 

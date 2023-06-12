@@ -2,6 +2,7 @@ package com.github.catvod.ali;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.ali.Auth;
@@ -12,9 +13,9 @@ import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.spider.PushAgentQQ;
 import com.github.catvod.utils.Prefers;
-import com.github.catvod.utils.Trans;
 import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class API {
-
+    private final List<String> tempIds;
     private final List<String> quality;
     private String shareToken;
     private Auth auth;
@@ -40,6 +41,7 @@ public class API {
     }
 
     private API() {
+        tempIds = new ArrayList<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
     }
@@ -90,7 +92,7 @@ public class API {
     private HashMap<String, String> getHeaderAuth() {
         HashMap<String, String> headers = getHeader();
         headers.put("authorization", auth.getAccessToken());
-        headers.put("x-canary", "client=web,app=share,version=v2.3.1");
+        headers.put("X-Canary", "client=Android,app=adrive,version=v4.3.1");
         headers.put("x-share-token", shareToken);
         return headers;
     }
@@ -248,10 +250,10 @@ public class API {
             String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
             object = new JSONObject(json);
             List<Item> files = new ArrayList<>();
-            LinkedHashMap<String, List<String>> subMap = new LinkedHashMap<>();
-            listFiles(new Item(getParentFileId(fileId, object)), files, subMap);
+            List<Item> subs = new ArrayList<>();
+            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
             if(files.isEmpty())Init.show("来晚啦，该分享已失效~");
-            else for (Item file : files) playUrls.add(Trans.get(file.getDisplayName()) + "$" + file.getFileId() + findSubs(file.getName(), subMap));
+            else for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
         }
         boolean fp = playUrls.isEmpty();
@@ -384,11 +386,11 @@ public class API {
     }
 
 
-    private void listFiles(Item folder, List<Item> files, LinkedHashMap<String, List<String>> subMap) throws Exception {
-        listFiles(folder, files, subMap, "");
+    private void listFiles(Item folder, List<Item> files, List<Item> subs) throws Exception {
+        listFiles(folder, files, subs, "");
     }
 
-    private void listFiles(Item parent, List<Item> files, LinkedHashMap<String, List<String>> subMap, String marker) throws Exception {
+    private void listFiles(Item parent, List<Item> files, List<Item> subs, String marker) throws Exception {
         JSONObject body = new JSONObject();
         List<Item> folders = new ArrayList<>();
         body.put("limit", 200);
@@ -397,23 +399,21 @@ public class API {
         body.put("order_by", "name");
         body.put("order_direction", "ASC");
         if (marker.length() > 0) body.put("marker", marker);
-        Item item = Item.objectFrom(auth("adrive/v3/file/list", body, true));
+        Item item = Item.objectFrom(auth("adrive/v3/file/list", body.toString(), true));
         for (Item file : item.getItems()) {
             if (file.getType().equals("folder")) {
                 folders.add(file);
             } else if (file.getCategory().equals("video") || file.getCategory().equals("audio")) {
                 files.add(file.parent(parent.getName()));
             } else if (Utils.isSub(file.getExt())) {
-                String key = file.removeExt();
-                if (!subMap.containsKey(key)) subMap.put(key, new ArrayList<>());
-                subMap.get(key).add(key + "@@@" + file.getExt() + "@@@" + file.getFileId());
+                subs.add(file);
             }
         }
         if (item.getNextMarker().length() > 0) {
-            listFiles(parent, files, subMap, item.getNextMarker());
+            listFiles(parent, files, subs, item.getNextMarker());
         }
         for (Item folder : folders) {
-            listFiles(folder, files, subMap);
+            listFiles(folder, files, subs);
         }
     }
 
@@ -427,22 +427,23 @@ public class API {
         return "";
     }
 
-    private String findSubs(String name, Map<String, List<String>> subMap) {
-        name = name.substring(0, name.lastIndexOf("."));
-        List<String> subs = subMap.get(name);
-        if (subs != null && subs.size() > 0) return combineSubs(subs);
+    private void pair(String name1, List<Item> items, List<Item> subs) {
+        for (Item item : items) {
+            String name2 = Utils.removeExt(item.getName()).toLowerCase();
+            if (name1.contains(name2) || name2.contains(name1)) subs.add(item);
+        }
+    }
+
+    private String findSubs(String name1, List<Item> items) {
+        List<Item> subs = new ArrayList<>();
+        pair(Utils.removeExt(name1).toLowerCase(), items, subs);
+        if (subs.isEmpty()) subs.addAll(items);
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, List<String>> entry : subMap.entrySet()) sb.append(combineSubs(entry.getValue()));
+        for (Item sub : subs) sb.append("+").append(Utils.removeExt(sub.getName())).append("@@@").append(sub.getExt()).append("@@@").append(sub.getFileId());
         return sb.toString();
     }
 
-    private String combineSubs(List<String> subs) {
-        StringBuilder sb = new StringBuilder();
-        for (String sub : subs) sb.append("+").append(sub);
-        return sb.toString();
-    }
-
-    public List<Sub> getSub(String[] ids) {
+    public List<Sub> getSubs(String[] ids) {
         List<Sub> sub = new ArrayList<>();
         for (String text : ids) {
             if (!text.contains("@@@")) continue;
@@ -457,36 +458,71 @@ public class API {
 
     public String getDownloadUrl(String fileId) {
         try {
-            String tempId = copy(fileId);
+            SpiderDebug.log("getDownloadUrl..." + fileId);
+            tempIds.add(0, copy(fileId));
             JSONObject body = new JSONObject();
-            body.put("file_id", tempId);
+            body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
-            String url = new JSONObject(oauth("openFile/getDownloadUrl", body.toString(), true)).getString("url");
-            Init.execute(() -> delete(tempId));
-            return url;
+            String json = oauth("openFile/getDownloadUrl", body.toString(), true);
+            return new JSONObject(json).getString("url");
         } catch (Exception e) {
             e.printStackTrace();
             return "";
+        } finally {
+            Init.execute(this::deleteAll);
         }
     }
 
-    public String getPreviewUrl(String fileId) {
+    public JSONObject getVideoPreviewPlayInfo(String fileId) {
         try {
-            String tempId = copy(fileId);
+            SpiderDebug.log("getVideoPreviewPlayInfo..." + fileId);
+            tempIds.add(0, copy(fileId));
             JSONObject body = new JSONObject();
-            body.put("file_id", tempId);
+            body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             body.put("category", "live_transcoding");
             body.put("url_expire_sec", "14400");
             String json = oauth("openFile/getVideoPreviewPlayInfo", body.toString(), true);
-            JSONArray taskList = new JSONObject(json).getJSONObject("video_preview_play_info").getJSONArray("live_transcoding_task_list");
-            Init.execute(() -> delete(tempId));
-            return getPreviewQuality(taskList);
+            return new JSONObject(json).getJSONObject("video_preview_play_info");
         } catch (Exception e) {
             e.printStackTrace();
-            return "";
+            return new JSONObject();
+        } finally {
+            Init.execute(this::deleteAll);
         }
     }
+
+    public String playerContent(String[] ids) {
+        return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
+    }
+
+    public String playerContent(String[] ids, String flag) {
+        try {
+            JSONObject playInfo = getVideoPreviewPlayInfo(ids[0]);
+            String url = getPreviewUrl(playInfo, flag);
+            List<Sub> subs = getSubs(ids);
+            subs.addAll(getSubs(playInfo));
+            return Result.get().url(url).subs(subs).header(getHeader()).string();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.get().url("").string();
+        }
+    }
+
+    private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
+        if (!playInfo.has("live_transcoding_task_list")) return "";
+        JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
+        for (String templateId : quality) {
+            for (int i = 0; i < taskList.length(); ++i) {
+                JSONObject task = taskList.getJSONObject(i);
+                if (task.getString("template_id").equals(templateId)) {
+                    return task.getString("url");
+                }
+            }
+        }
+        return taskList.getJSONObject(0).getString("url");
+    }
+
 
     private String getPreviewQuality(JSONArray taskList) throws Exception {
         for (String templateId : quality) {
@@ -501,27 +537,56 @@ public class API {
     }
 
 
+    private List<Sub> getSubs(JSONObject playInfo) throws Exception {
+        if (!playInfo.has("live_transcoding_subtitle_task_list")) return Collections.emptyList();
+        JSONArray taskList = playInfo.getJSONArray("live_transcoding_subtitle_task_list");
+        List<Sub> subs = new ArrayList<>();
+        for (int i = 0; i < taskList.length(); ++i) {
+            JSONObject task = taskList.getJSONObject(i);
+            String lang = task.getString("language");
+            String url = task.getString("url");
+            subs.add(Sub.create().url(url).name(lang).lang(lang).ext("vtt"));
+        }
+        return subs;
+    }
 
     private String copy(String fileId) throws Exception {
+        SpiderDebug.log("Copy..." + fileId);
         String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"root\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
         json = String.format(json, fileId, shareId, auth.getDriveId());
         String result = auth("adrive/v2/batch", json, true);
+        if (result.contains("ForbiddenNoPermission.File")) return copy(fileId);
         return new JSONObject(result).getJSONArray("responses").getJSONObject(0).getJSONObject("body").getString("file_id");
     }
 
-    private void delete(String fileId) {
-        String json = "{\"requests\":[{\"body\":{\"drive_id\":\"%s\",\"file_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"%s\",\"method\":\"POST\",\"url\":\"/file/delete\"}],\"resource\":\"file\"}";
-        json = String.format(json, auth.getDriveId(), fileId, fileId);
-        auth("adrive/v2/batch", json, true);
+    private void deleteAll() {
+        List<String> ids = new ArrayList<>(tempIds);
+        for (String id : ids) {
+            boolean deleted = delete(id);
+            if (deleted) tempIds.remove(id);
+        }
     }
 
-    public Object[] proxySub(Map<String, String> params) {
+    private boolean delete(String fileId) {
+        try {
+            SpiderDebug.log("Delete..." + fileId);
+            String json = "{\"requests\":[{\"body\":{\"drive_id\":\"%s\",\"file_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"%s\",\"method\":\"POST\",\"url\":\"/file/delete\"}],\"resource\":\"file\"}";
+            json = String.format(json, auth.getDriveId(), fileId, fileId);
+            String result = auth("adrive/v2/batch", json, true);
+            return result.length() == 211;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    public Object[] proxySub(Map<String, String> params) throws Exception {
         String fileId = params.get("file_id");
-        String text = OkHttp.string(getDownloadUrl(fileId), getHeaderAuth());
+        Response res = OkHttp.newCall(getDownloadUrl(fileId), getHeaderAuth());
+        byte[] body = Utils.toUtf8(res.body().bytes());
         Object[] result = new Object[3];
         result[0] = 200;
         result[1] = "application/octet-stream";
-        result[2] = new ByteArrayInputStream(text.getBytes());
+        result[2] = new ByteArrayInputStream(body);
         return result;
     }
 }

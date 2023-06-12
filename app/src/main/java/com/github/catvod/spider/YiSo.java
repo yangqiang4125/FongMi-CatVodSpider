@@ -1,11 +1,9 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.yiso.Item;
 import com.github.catvod.utils.Utils;
