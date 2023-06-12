@@ -88,7 +88,7 @@ public class Ali extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
         String[] ids = id.split("\\+");
-        return flag.equals("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
+        return flag.contains("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
     }
 
     public static Object[] proxy(Map<String, String> params) throws Exception {
