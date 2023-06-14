@@ -30,7 +30,7 @@ public class API {
     private String shareToken;
     private Auth auth;
     private String shareId;
-    private static String deUrl;
+    private String refreshUrl;
     private String CLIENT_ID;
     private static class Loader {
         static volatile API INSTANCE = new API();
@@ -56,6 +56,8 @@ public class API {
                 //Init.show("已设置默认token");
             }
         }
+        refreshUrl = getVal("refreshUrl", "");
+        if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
     public String getVal(String key,String dval){
         String tk = Utils.siteRule.optString(key,dval);
@@ -194,7 +196,8 @@ public class API {
         JSONObject body = new JSONObject();
         body.put("code", code);
         body.put("grant_type", "authorization_code");
-        JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/code", body));
+
+        JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
@@ -206,7 +209,7 @@ public class API {
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
             body.put("refresh_token", auth.getRefreshTokenOpen());
-            JSONObject object = new JSONObject(post("https://api.nn.ci/alist/ali_open/token", body));
+            JSONObject object = new JSONObject(post(refreshUrl + "alist/ali_open/token", body));
             Log.e("DDD", object.toString());
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
