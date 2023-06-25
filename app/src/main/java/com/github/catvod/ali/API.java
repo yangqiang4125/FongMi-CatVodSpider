@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 public class API {
     private final List<String> tempIds;
     private final List<String> quality;
+    private final Map<String,String> qmap;
     private String shareToken;
     private Auth auth;
     private String shareId;
@@ -42,8 +43,12 @@ public class API {
 
     private API() {
         tempIds = new ArrayList<>();
+        qmap = new HashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
+        qmap.put("2K","QHD");
+        qmap.put("超清","FHD");
+        qmap.put("高清","HD");
     }
 
     public void setAuth(boolean flag){
@@ -363,7 +368,7 @@ public class API {
                 }
                 if (!actors.isEmpty()) {
                     actors = actors.substring(0, actors.length() - 3);
-                }
+                } else actors = "无";
 
                 ao = sp.getJSONArray("directors");
                 for (int i = 0; i < ao.length(); i++) {
@@ -372,7 +377,7 @@ public class API {
                 }
                 if (!directors.isEmpty()) {
                     directors = directors.substring(0, directors.length() - 3);
-                }
+                } else directors = "无";
                 tag = tag+"   评分："+rating+" "+episodes_info;
                 vod.setVodName(key);
                 vod.setVodTag(tag);
@@ -515,6 +520,14 @@ public class API {
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
+        String temp = qmap.get(flag);
+        if(temp!=null)
+        for (int i = 0; i < taskList.length(); ++i) {
+            JSONObject task = taskList.getJSONObject(i);
+            if (task.getString("template_id").equals(temp)) {
+                return task.getString("url");
+            }
+        }
         for (String templateId : quality) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
@@ -525,20 +538,6 @@ public class API {
         }
         return taskList.getJSONObject(0).getString("url");
     }
-
-
-    private String getPreviewQuality(JSONArray taskList) throws Exception {
-        for (String templateId : quality) {
-            for (int i = 0; i < taskList.length(); ++i) {
-                JSONObject task = taskList.getJSONObject(i);
-                if (task.getString("template_id").equals(templateId)) {
-                    return task.getString("url");
-                }
-            }
-        }
-        return taskList.getJSONObject(0).getString("url");
-    }
-
 
     private List<Sub> getSubs(JSONObject playInfo) throws Exception {
         if (!playInfo.has("live_transcoding_subtitle_task_list")) return Collections.emptyList();
