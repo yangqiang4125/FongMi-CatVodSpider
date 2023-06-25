@@ -10,7 +10,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -43,22 +42,27 @@ public class Wogg extends Ali {
         Elements items = Jsoup.parse(html).select(".module-search-item");
         List<Vod> list = new ArrayList<>();
         for (Element item : items) {
-            String vodId = item.select(".video-serial").attr("href");
+            String vodId =  siteURL+item.select(".video-serial").attr("href");
             String name = item.select(".video-serial").attr("title");
             String pic = item.select(".module-item-pic > img").attr("data-src");
             String remark = item.select(".video-tag-icon").text();
-            list.add(new Vod(vodId, name, pic, remark));
+            list.add(new Vod(vodId + "$$$" + pic + "$$$" + name, name, pic, remark));
         }
         return Result.string(list);
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-        String id =ids.get(0);
+    public String detailContent(List<String> list) throws Exception {
+        String id =list.get(0);
         if (!id.contains("aliyundrive.com")) {
-            Matcher matcher = regexAli.matcher(OkHttp.string(siteURL + ids.get(0), getHeader()));
-            if (matcher.find()) return super.detailContent(Arrays.asList(matcher.group(1)));
+            String[] arr = id.split("\\$\\$\\$");
+            Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
+            if (!matcher.find()) return "";
+            arr[0] = matcher.group(1);
+            String uid = TextUtils.join("$$$",arr);
+            list.set(0, uid);
+            return super.detailContent(list);
         }
-        return super.detailContent(ids);
+        return super.detailContent(list);
     }
 }
