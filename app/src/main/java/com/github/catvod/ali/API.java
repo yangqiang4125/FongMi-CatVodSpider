@@ -368,7 +368,7 @@ public class API {
                 }
                 if (!actors.isEmpty()) {
                     actors = actors.substring(0, actors.length() - 3);
-                } else actors = "无";
+                } else actors = "未知";
 
                 ao = sp.getJSONArray("directors");
                 for (int i = 0; i < ao.length(); i++) {
@@ -377,7 +377,7 @@ public class API {
                 }
                 if (!directors.isEmpty()) {
                     directors = directors.substring(0, directors.length() - 3);
-                } else directors = "无";
+                } else directors = "未知";
                 tag = tag+"   评分："+rating+" "+episodes_info;
                 vod.setVodName(key);
                 vod.setVodTag(tag);

@@ -61,7 +61,6 @@ public class Wogg extends Ali {
             arr[0] = matcher.group(1);
             String uid = TextUtils.join("$$$",arr);
             list.set(0, uid);
-            return super.detailContent(list);
         }
         return super.detailContent(list);
     }

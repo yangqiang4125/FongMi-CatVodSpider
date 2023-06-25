@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 public class MyQQ extends Spider {
     private JSONObject ext;
     private String extend;
-    private static String siteUrl = "https://www.voflix.com";
+    private static String siteUrl = "https://www.voflix.me";
     private static String wUrl = "---.html";
     private String[] types;
     private Integer total=0;
@@ -322,6 +322,16 @@ public class MyQQ extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        return Result.get().url(id).parse().header(getHeadersUa()).string();
+        try {
+            JSONObject result = new JSONObject()
+                    .put("parse", 1) // 1 表示需要嗅探， 0表示可以直连
+                    .put("header", getHeadersUa())
+                    .put("playUrl", "")
+                    .put("url", id);
+            return result.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
