@@ -221,7 +221,7 @@ public class MyQQ extends Spider {
         if(key.contains("(.*?)")){
             rhtml = Utils.getStrByRegex(key, elBoxHtml!=null?elBoxHtml:element.html());
         }else rhtml = getText(element, key, null);
-        rhtml = rhtml.replaceAll("(.*?)\\/+", "$1");
+        if(rhtml.endsWith("/")) rhtml = rhtml.replaceAll("(.*?)\\/+$", "$1");
         return rhtml;
     }
     public String getText(Element element,String key,Vod vod){
@@ -333,16 +333,6 @@ public class MyQQ extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        try {
-            JSONObject result = new JSONObject()
-                    .put("parse", 1) // 1 表示需要嗅探， 0表示可以直连
-                    .put("header", getHeadersUa())
-                    .put("playUrl", "")
-                    .put("url", id);
-            return result.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
+        return Result.get().url(id).parse().header(getHeadersUa()).string();
     }
 }
