@@ -28,7 +28,7 @@ public class MyQQ extends Spider {
     private static String wUrl = "---.html";
     private String[] types;
     private Integer total=0;
-
+    private String elBoxHtml = null;
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
@@ -142,10 +142,12 @@ public class MyQQ extends Spider {
             String url = ids.get(0);
             String[] info = url.split("\\$\\$\\$");
             url = info[0];
+            String iboxHtml = getVal("iboxHtml");
             String ibox = getVal("ibox");
             String iname = getVal("iname");
             String ipic = getVal("ipic");
             String icontent = getVal("icontent");
+            String ijsnum = getVal("ijsnum");
             String itag = getVal("itag");
 
             String idirector=getVal("idirector");
@@ -155,7 +157,7 @@ public class MyQQ extends Spider {
             String iform = getVal("iform");
             String iurls = getVal("iurls");
             Document doc = Jsoup.parse(OkHttp.string(url, getHeaders()));
-
+            if (!iboxHtml.isEmpty()) elBoxHtml = doc.selectFirst(iboxHtml).html();
             Vod vod = new Vod();
             if (!ibox.isEmpty()) {
                 String rbox = ibox.replace(":eq(%)", "");
@@ -171,7 +173,6 @@ public class MyQQ extends Spider {
                 if(Utils.isNumeric(iname))iname = ibox.replace("%", iname);
                 if(Utils.isNumeric(itag))itag = ibox.replace("%", itag);
             }
-
             String name = getText(doc,iname);
             String pic = getText(doc, ipic);
             String content = getText(doc, icontent);
@@ -179,11 +180,16 @@ public class MyQQ extends Spider {
             if(!name.isEmpty())vod.setVodName(name);
             if(!pic.isEmpty())vod.setVodPic(pic);
             if(!content.isEmpty())vod.setVodContent(content);
-            vod.setVodTag(getText(doc, itag));
             if(!idirector.isEmpty())vod.setVodDirector(getText(doc, idirector));
             if(!iactor.isEmpty())vod.setVodActor(getText(doc, iactor));
             vod.setVodYear(getText(doc, iyear));
+
+            String tag = getText(doc, itag);
+            String jsnum = getText(doc, ijsnum);
+            tag = tag+"   评分：无 "+jsnum;
+            vod.setVodTag(tag);
             if(!iremark.isEmpty())vod.setVodRemarks(getText(doc,iremark));
+            if(vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
             Elements sources = doc.select(iform);
             Elements sourceList = doc.select(iurls);
@@ -211,7 +217,12 @@ public class MyQQ extends Spider {
     }
 
     public String getText(Element element,String key){
-        return getText(element, key, null);
+        String rhtml = null;
+        if(key.contains("(.*?)")){
+            rhtml = Utils.getStrByRegex(key, elBoxHtml!=null?elBoxHtml:element.html());
+        }else rhtml = getText(element, key, null);
+        rhtml = rhtml.replaceAll("(.*?)\\/+", "$1");
+        return rhtml;
     }
     public String getText(Element element,String key,Vod vod){
         if(key.isEmpty()) return "";

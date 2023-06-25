@@ -136,6 +136,32 @@ public class Utils {
         }
         return src;
     }
+    /**
+     * 正则获取字符串
+     * @param regexStr  正则字符串
+     * @param htmlStr   网页源码
+     * @return  返回正则获取的字符串结果
+     */
+    public static String getStrByRegex(String regexStr, String htmlStr) {
+        if (regexStr == null) {
+            return "";
+        }
+        try {
+            Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(htmlStr);
+            if (matcher.find()) {
+                return matcher.group(1)
+                        .trim()
+                        .replaceAll("</?[^>]+>", "")
+                        .replace("\n", "")
+                        .replace("\t", "")
+                        .trim();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     public static String substring(String text) {
         return substring(text, 1);

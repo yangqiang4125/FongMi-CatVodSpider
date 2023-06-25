@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.SSLSocketFactoryCompat;
+import com.github.catvod.utils.Utils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -270,9 +271,9 @@ public class Voflix extends Spider {
                 year = elements.get(0).select("a").text();
                 area = elements.get(1).select("a").text();
             }
-            String remark = getStrByRegex("备注：(.*?)</div>", html);
-            String actor = getStrByRegex("主演：(.*?)</div>", html);
-            String director = getStrByRegex("导演：(.*?)</div>", html);
+            String remark = Utils.getStrByRegex("备注：(.*?)</div>", html);
+            String actor = Utils.getStrByRegex("主演：(.*?)</div>", html);
+            String director = Utils.getStrByRegex("导演：(.*?)</div>", html);
             String description = doc.select(".module-info-introduction-content").text();
 
             // 线路 / 播放源标题拼接的字符串
@@ -299,34 +300,6 @@ public class Voflix extends Spider {
             JSONObject result = new JSONObject()
                     .put("list", listInfo);
             return result.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-
-    /**
-     * 正则获取字符串
-     * @param regexStr  正则字符串
-     * @param htmlStr   网页源码
-     * @return  返回正则获取的字符串结果
-     */
-    private String getStrByRegex(String regexStr, String htmlStr) {
-        if (regexStr == null) {
-            return "";
-        }
-        try {
-            Pattern pattern = Pattern.compile(regexStr, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(htmlStr);
-            if (matcher.find()) {
-                return matcher.group(1)
-                        .trim()
-                        .replaceAll("</?[^>]+>", "")
-                        .replace("\n", "")
-                        .replace("\t", "")
-                        .trim();
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

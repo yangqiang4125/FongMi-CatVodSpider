@@ -14,7 +14,7 @@ public class Vod {
     @SerializedName("vod_pic")
     private String vodPic;
     @SerializedName("vod_remarks")
-    private String vodRemarks;
+    public String vodRemarks;
     @SerializedName("vod_year")
     private String vodYear;
     @SerializedName("vod_area")
