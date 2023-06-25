@@ -14,6 +14,7 @@ import android.webkit.WebViewClient;
 
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.spider.Init;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
@@ -264,6 +265,64 @@ public class Utils {
         }
         if (!type.isEmpty() && index > 0 && m.size() != index && list.size() == index) return getBx(list, map, "", f);
         return m;
+    }
+    public static JSONObject jsonParse(String input, String json) throws JSONException {
+        JSONObject jsonPlayData = new JSONObject(json);
+        String url;
+        if (jsonPlayData.has("data")) {
+            url = jsonPlayData.getJSONObject("data").getString("url");
+        } else {
+            url = jsonPlayData.getString("url");
+        }
+        if (url.startsWith("//")) {
+            url = "https:" + url;
+        }
+        if (!url.startsWith("http")) {
+            return null;
+        }
+        if (url.equals(input)) {
+            if (isVip(url) || !isVideoFormat(url)) {
+                return null;
+            }
+        }
+        if (isBlackVodUrl(input, url)) {
+            return null;
+        }
+        JSONObject headers = new JSONObject();
+        String ua = jsonPlayData.optString("user-agent", "");
+        if (ua.trim().length() > 0) {
+            headers.put("User-Agent", " " + ua);
+        }
+        String referer = jsonPlayData.optString("referer", "");
+        if (referer.trim().length() > 0) {
+            headers.put("Referer", " " + referer);
+        }
+
+        headers = fixJsonVodHeader(headers, input, url);
+        JSONObject taskResult = new JSONObject();
+        taskResult.put("header", headers);
+        taskResult.put("url", url);
+        return taskResult;
+    }
+    public static JSONObject fixJsonVodHeader(JSONObject headers, String input, String url) throws JSONException {
+        if (headers == null)
+            headers = new JSONObject();
+        if (input.contains("www.mgtv.com")) {
+            headers.put("Referer", " ");
+            headers.put("User-Agent", " Mozilla/5.0");
+        } else if (url.contains("titan.mgtv")) {
+            headers.put("Referer", " ");
+            headers.put("User-Agent", " Mozilla/5.0");
+        } else if (input.contains("bilibili")) {
+            headers.put("Referer", " https://www.bilibili.com/");
+            headers.put("User-Agent", " " + CHROME);
+        }
+        return headers;
+    }
+    public static boolean isBlackVodUrl(String input, String url) {
+        if (url.contains("973973.xyz") || url.contains(".fit:"))
+            return true;
+        return false;
     }
 
     public static String trim(String str) {
