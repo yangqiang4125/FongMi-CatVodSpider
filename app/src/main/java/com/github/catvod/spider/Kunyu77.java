@@ -184,6 +184,7 @@ public class Kunyu77 extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         try {
+            if(Integer.parseInt(tid)>99) tid = "2";
             if (pg.equals("1")) {
                 hasNextPageMap.put(tid, true);
             }
