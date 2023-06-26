@@ -5,13 +5,12 @@ import android.text.TextUtils;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.SSLSocketFactoryCompat;
 import com.github.catvod.utils.Utils;
-
+import com.github.catvod.utils.VmenuUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -33,12 +32,15 @@ public class Kunyu77 extends Spider {
             JSONObject jsonObject = new JSONObject(decryptResponse(content)).getJSONObject("data");
             Iterator<String> keys = jsonObject.keys();
             JSONArray classes = new JSONArray();
-            JSONObject filterConfig = new JSONObject();
-            JSONArray extendsAll = null;
+            JSONObject filterConfig = new JSONObject(),newCls = null;
+            JSONArray extendsAll = null,extendsAll2 = null;
+
+            String pname = "国产剧,韩剧,日剧,港剧,美剧";
+            extendsAll2 = VmenuUtil.getMenuArray(classes, filterConfig,pname);
             while (keys.hasNext()) {
                 String typeId = keys.next();
                 String typeName = jsonObject.getJSONArray(typeId).getJSONObject(0).getString("cat");
-                JSONObject newCls = new JSONObject();
+                newCls = new JSONObject();
                 newCls.put("type_id", typeId);
                 newCls.put("type_name", typeName);
                 classes.put(newCls);
@@ -57,21 +59,11 @@ public class Kunyu77 extends Spider {
                         kv.put("n", "全部");
                         kv.put("v", "");
                         newTypeExtendKV.put(kv);
-                        kv = new JSONObject();
-                        kv.put("n", "2022");
-                        kv.put("v", "2022");
-                        newTypeExtendKV.put(kv);
-                        kv = new JSONObject();
-                        kv.put("n", "2021");
-                        kv.put("v", "2021");
-                        newTypeExtendKV.put(kv);
-                        JSONArray years = filterObj.getJSONArray("y");
-                        for (int j = 0; j < years.length(); j++) {
-                            JSONObject child = years.getJSONObject(j);
-                            kv = new JSONObject();
-                            kv.put("n", child.getString("name"));
-                            kv.put("v", child.getString("value"));
-                            newTypeExtendKV.put(kv);
+
+                        if(extendsAll2!=null){
+                            JSONObject myYearSono = extendsAll2.getJSONObject(0);
+                            JSONArray myCatSon = myYearSono.getJSONArray("value");
+                            newTypeExtendKV.put(myCatSon);
                         }
                         newTypeExtend.put("value", newTypeExtendKV);
                         extendsAll.put(newTypeExtend);

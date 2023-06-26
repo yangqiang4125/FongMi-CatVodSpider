@@ -11,19 +11,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 /**
  * @author zhixc
  */
 public class Wogg extends Ali {
-
     private final String siteURL = "https://tvfan.xxooo.cf";
-
-    private final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
+    private MyQQ qq;
     private Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
         header.put("User-Agent", Utils.CHROME);
@@ -33,6 +30,37 @@ public class Wogg extends Ali {
     @Override
     public void init(Context context, String extend) {
         super.init(context, extend);
+        String extJson = extend;
+        if(extend==null||extend.isEmpty()||!extend.endsWith(".json"))extJson ="{\n" +
+                "  \"ua\":1,\n" +
+                "  \"name\": \"Wogg\",\n" +
+                "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
+                "  \"types\": \"国产剧$/index.php/vodshow/21--------#韩剧$/index.php/vodshow/23-韩国-------#港台剧$/index.php/vodshow/31--------#电影$/index.php/vodshow/1--------#综艺$/index.php/vodshow/28--------#动漫$/index.php/vodshow/24--------#音乐MV$/index.php/vodshow/32--------\", \n" +
+                "  \"end\": \"---.html\", \n" +
+                "  \n" +
+                "  \"search\":\"\",\n" +
+                "  \"sbox\":\"\",\n" +
+                "  \"idetail\":\"/index.php/voddetail/%.html\",\n" +
+                "  \n" +
+                "  \"page\":\"#page a:last@href\",\n" +
+                "  \"elbox\": \".module-items .module-item\",\n" +
+                "  \"elurl\": \".module-item-cover .module-item-pic a@href\", \n" +
+                "  \"elname\": \".module-item-cover .module-item-pic a@title\",\n" +
+                "  \"elpic\": \".module-item-cover .module-item-pic img@src\",\n" +
+                "  \"elremarks\": \".module-item-text\"\n" +
+                "} ";
+                qq = new MyQQ(extJson);
+    }
+
+
+    @Override
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+        try {
+            Result result = qq.getVods(tid, pg);
+            return result.string();
+        } catch (NumberFormatException e) {
+        }
+        return "";
     }
 
     @Override

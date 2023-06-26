@@ -29,6 +29,11 @@ public class MyQQ extends Spider {
     private String[] types;
     private Integer total=0;
     private String elBoxHtml = null;
+    public MyQQ(String ext){
+        extend = ext;
+        fetchRule();
+    }
+    public MyQQ() { }
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
@@ -189,7 +194,7 @@ public class MyQQ extends Spider {
             tag = tag+"   评分：无 "+jsnum;
             vod.setVodTag(tag);
             if(!iremark.isEmpty())vod.setVodRemarks(getText(doc,iremark));
-            if(vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
+            if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
             Elements sources = doc.select(iform);
             Elements sourceList = doc.select(iurls);

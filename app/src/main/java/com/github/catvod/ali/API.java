@@ -78,7 +78,7 @@ public class API {
         if(aflag) Init.show(msg);
     }
     public void setRefreshToken(String token) {
-        if (auth.getRefreshToken().isEmpty()) auth.setRefreshToken(token);
+        if (auth.getRefreshToken().isEmpty()&&!token.endsWith(".json")) auth.setRefreshToken(token);
     }
     public String getRefreshToken() {
         return auth.getRefreshToken();
