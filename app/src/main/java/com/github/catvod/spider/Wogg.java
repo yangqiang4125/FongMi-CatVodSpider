@@ -44,7 +44,7 @@ public class Wogg extends Ali {
                 "  \"elbox\": \".module-items .module-item\",\n" +
                 "  \"elurl\": \".module-item-cover .module-item-pic a@href\", \n" +
                 "  \"elname\": \".module-item-cover .module-item-pic a@title\",\n" +
-                "  \"elpic\": \".module-item-cover .module-item-pic img@src\",\n" +
+                "  \"elpic\": \".module-item-cover .module-item-pic img@data-src\",\n" +
                 "  \"elremarks\": \".module-item-text\"\n" +
                 "} ";
                 qq = new MyQQ(extJson);
