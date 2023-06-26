@@ -36,7 +36,7 @@ public class Kunyu77 extends Spider {
             JSONArray extendsAll = null,extendsAll2 = null;
 
             String pname = "国产剧,韩剧,日剧,港剧,美剧";
-            extendsAll2 = VmenuUtil.getMenuArray(classes, filterConfig,pname);
+            extendsAll2 = VmenuUtil.getMenus(classes, filterConfig,pname);
             while (keys.hasNext()) {
                 String typeId = keys.next();
                 String typeName = jsonObject.getJSONArray(typeId).getJSONObject(0).getString("cat");
@@ -184,7 +184,6 @@ public class Kunyu77 extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         try {
-            if(Integer.parseInt(tid)>99) tid = "2";
             if (pg.equals("1")) {
                 hasNextPageMap.put(tid, true);
             }
@@ -192,16 +191,20 @@ public class Kunyu77 extends Spider {
                 Boolean hasNextPage = hasNextPageMap.get(tid);
                 if (!hasNextPage) return "";
             }
-
-
             String url = siteUrl + "/api.php/provide/searchFilter?type_id=" + tid + "&pagenum=" + pg + "&pagesize=24";
-            Set<String> keys = extend.keySet();
-            for (String key : keys) {
-                String val = extend.get(key).trim();
-                if (val.length() == 0)
-                    continue;
-                url += "&" + key + "=" + URLEncoder.encode(val);
+            if(!Utils.isNumeric(tid)){
+                url = siteUrl + "/api.php/provide/searchFilter?type_id=%&pagenum=" + pg + "&pagesize=24";
+                url = url.replace("%", tid);
+            }else {
+                Set<String> keys = extend.keySet();
+                for (String key : keys) {
+                    String val = extend.get(key).trim();
+                    if (val.length() == 0)
+                        continue;
+                    url += "&" + key + "=" + URLEncoder.encode(val);
+                }
             }
+
             String content = getWebContent(url);
             JSONObject dataObject = new JSONObject(decryptResponse(content)).getJSONObject("data");
             JSONArray jsonArray = dataObject.getJSONArray("result");

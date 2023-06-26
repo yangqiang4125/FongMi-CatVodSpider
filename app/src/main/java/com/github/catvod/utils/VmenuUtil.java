@@ -1,9 +1,9 @@
 package com.github.catvod.utils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,23 @@ import java.util.Map;
  * Description:视频一级菜单
  */
 public class VmenuUtil {
+
+    public static JSONArray getMenus(JSONArray classes, JSONObject filterConfig, String pname) throws JSONException {
+        JSONObject newCls;
+        JSONArray extendsAll2=null;
+        String[] arr=pname.split(",");
+        Map<String, String> map = getMapArea();
+        for (String s : arr) {
+            String key = map.get(s);
+            String typeId = "2&area=" + URLEncoder.encode(key);
+            newCls = new JSONObject();
+            newCls.put("type_id", typeId);
+            newCls.put("type_name", s);
+            classes.put(newCls);
+        }
+        extendsAll2 = myCat("国产剧");
+        return extendsAll2;
+    }
     public static JSONArray getMenuArray(JSONArray classes, JSONObject filterConfig, String pname) throws JSONException {
         JSONObject newCls;
         JSONArray extendsAll2=null;
@@ -61,6 +78,15 @@ public class VmenuUtil {
 
         JSONObject myCatSono = myCat.getJSONObject(1);
         JSONArray myCatSon = myCatSono.getJSONArray("value");
+        Map<String, String> map = getMapArea();
+        Map<String, String> amap = new HashMap<>();
+        amap.put("n", catName);
+        amap.put("v", map.get(catName));
+        myCatSon.put(amap);
+        return myCat;
+    }
+
+    public static Map<String, String> getMapArea() {
         Map<String, String> map = new HashMap<>();
         map.put("国产剧", "中国大陆");
         map.put("韩剧", "韩国");
@@ -68,10 +94,6 @@ public class VmenuUtil {
         map.put("台剧", "中国台湾");
         map.put("港剧", "中国香港");
         map.put("日剧", "日本");
-        Map<String, String> amap = new HashMap<>();
-        amap.put("n", catName);
-        amap.put("v", map.get(catName));
-        myCatSon.put(amap);
-        return myCat;
+        return map;
     }
 }

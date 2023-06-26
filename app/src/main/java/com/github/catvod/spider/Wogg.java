@@ -37,11 +37,9 @@ public class Wogg extends Ali {
                 "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
                 "  \"types\": \"国产剧$/index.php/vodshow/21--------#韩剧$/index.php/vodshow/23-韩国-------#港台剧$/index.php/vodshow/31--------#电影$/index.php/vodshow/1--------#综艺$/index.php/vodshow/28--------#动漫$/index.php/vodshow/24--------#音乐MV$/index.php/vodshow/32--------\", \n" +
                 "  \"end\": \"---.html\", \n" +
-                "  \n" +
                 "  \"search\":\"\",\n" +
                 "  \"sbox\":\"\",\n" +
                 "  \"idetail\":\"/index.php/voddetail/%.html\",\n" +
-                "  \n" +
                 "  \"page\":\"#page a:last@href\",\n" +
                 "  \"elbox\": \".module-items .module-item\",\n" +
                 "  \"elurl\": \".module-item-cover .module-item-pic a@href\", \n" +
@@ -51,7 +49,10 @@ public class Wogg extends Ali {
                 "} ";
                 qq = new MyQQ(extJson);
     }
-
+    @Override
+    public String homeContent(boolean filter) {
+        return qq.homeContent(filter);
+    }
 
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
