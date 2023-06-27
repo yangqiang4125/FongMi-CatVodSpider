@@ -278,9 +278,11 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        String [] fromArr = from.split("\\$\\$\\$");
-        String jxStr = Utils.getBx(s);
+        boolean xflag = true;
+        String jxStr = Utils.getBx(s,xflag);
+        if (!xflag) from ="原画%$$$普话%$$$超清%";
         from = from.replace("%", type);
+        String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
             fromkey = fromArr[i];
             if(i==0||fromkey.endsWith("。"))sourceUrls.add(jxStr);
