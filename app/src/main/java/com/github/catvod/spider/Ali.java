@@ -126,4 +126,26 @@ public class Ali extends Spider {
         vod.setVodPic(vpic);
         return vod;
     }
+
+    //修复软件不支持的格式无法嗅探的问题
+    @Override
+    public boolean manualVideoCheck() {
+        return true;
+    }
+
+    private String[] videoFormatList = new String[]{".m3u8", ".mp4", ".mpeg", ".flv", ".m4a",".mp3",".wma",".wmv"};
+
+    @Override
+    public boolean isVideoFormat(String url) {
+        url = url.toLowerCase();
+        if (url.contains("=http") || url.contains("=https%3a%2f") || url.contains("=http%3a%2f")) {
+            return false;
+        }
+        for (String format : videoFormatList) {
+            if (url.contains(format)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
