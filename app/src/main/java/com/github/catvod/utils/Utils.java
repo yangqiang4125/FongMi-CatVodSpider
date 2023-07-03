@@ -202,7 +202,7 @@ public class Utils {
         return s;
     }
 
-    public static String getBx(String vod_play_url,boolean xflag){
+    public static String getBx(String vod_play_url){
         int z = 0;//更换第一个
         String[] playUrls = vod_play_url.split("\\$\\$\\$");
         String s = playUrls[z];
@@ -224,7 +224,7 @@ public class Utils {
             hashMap.put(arr[0], arr[1]);
         }
         ArrayList<String> arrayList2 = new ArrayList<>(hashMap.keySet());
-        hashMap =getBx(arrayList2, hashMap, type,f,xflag);
+        hashMap =getBx(arrayList2, hashMap, type,f);
 
         List<String> zlist = new ArrayList<>();
         for (String k : hashMap.keySet()) {
@@ -242,7 +242,7 @@ public class Utils {
         return zs;
     }
 
-    public static  Map<String, String> getBx(List<String> list,Map<String, String> map,String type,boolean f,boolean xflag){
+    public static  Map<String, String> getBx(List<String> list,Map<String, String> map,String type,boolean f){
         String iname="",rname="",zname="";
         String regx = spRegx;//".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";
         Matcher ma = null;
@@ -277,7 +277,6 @@ public class Utils {
                 }else if(matcher("(\\d+).*", name).find()){
                     iname = name.replaceAll(".*?(\\d+).*", "$1");
                 }else {
-                    xflag = false;
                     iname = name;
                 }
             }
@@ -291,7 +290,7 @@ public class Utils {
                 m.put(iname, map.get(zname));
             }
         }
-        if (!type.isEmpty() && index > 0 && m.size() != index && list.size() == index) return getBx(list, map, "", f,xflag);
+        if (!type.isEmpty() && index > 0 && m.size() != index && list.size() == index) return getBx(list, map, "", f);
         return m;
     }
     public static JSONObject jsonParse(String input, String json) throws JSONException {

@@ -266,7 +266,7 @@ public class API {
         }
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
-        List<String> sourceUrls = new ArrayList<>();
+        List<String> sourceUrls = new LinkedList<>();
         Vod vod = new Vod(); String type = "";
         if (!fp){
             if (s.contains("4K")) {
@@ -278,14 +278,12 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        boolean xflag = true;
-        String jxStr = Utils.getBx(s,xflag);
-        if (!xflag) from ="原画%$$$普话%$$$超清。$$$高清。";
+        String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
             fromkey = fromArr[i];
-            if(i==0||fromkey.endsWith("。"))sourceUrls.add(jxStr);
+            if(i==0||fromkey.contains("。"))sourceUrls.add(jxStr);
             else sourceUrls.add(s);
         }
         from = from.replace("。", "");
@@ -523,7 +521,6 @@ public class API {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
         String temp = qmap.get(flag);
-        alert("temp:"+temp);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
