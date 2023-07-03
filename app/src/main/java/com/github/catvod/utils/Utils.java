@@ -257,7 +257,7 @@ public class Utils {
             if (matcher(regx, name).find()) {
                 iname = name.replaceAll(regx, "$2");
             }else {
-                name = name.replaceAll("(.*)?\\[.*?\\]", "$1");
+                name = name.replaceAll("(.*)?\\[\\d+.*?\\]", "$1");
                 if (name.startsWith("[")) {
                     name = name.replaceAll("\\[.*?\\](.*)", "$1");
                 }

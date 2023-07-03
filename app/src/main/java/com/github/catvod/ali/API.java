@@ -280,7 +280,7 @@ public class API {
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
         boolean xflag = true;
         String jxStr = Utils.getBx(s,xflag);
-        if (!xflag) from ="原画%$$$普话%$$$超清%";
+        if (!xflag) from ="原画%$$$普话%$$$超清。$$$高清。";
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
@@ -523,11 +523,13 @@ public class API {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
         String temp = qmap.get(flag);
-        if(temp!=null)
-        for (int i = 0; i < taskList.length(); ++i) {
-            JSONObject task = taskList.getJSONObject(i);
-            if (task.getString("template_id").equals(temp)) {
-                return task.getString("url");
+        alert("temp:"+temp);
+        if(temp!=null){
+            for (int i = 0; i < taskList.length(); ++i) {
+                JSONObject task = taskList.getJSONObject(i);
+                if (task.getString("template_id").equals(temp)) {
+                    return task.getString("url");
+                }
             }
         }
         for (String templateId : quality) {
