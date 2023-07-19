@@ -41,7 +41,7 @@ public class API {
         return Loader.INSTANCE;
     }
 
-    private API() {
+    public API() {
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
@@ -513,7 +513,7 @@ public class API {
             subs.addAll(getSubs(playInfo));
             return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
-            e.printStackTrace();
+            alert("player:"+e.getMessage());
             return Result.get().url("").string();
         }
     }
@@ -522,7 +522,7 @@ public class API {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
         if (flag.length() > 2)  flag = flag.substring(0, 2);
-        String temp = qmap.get(flag);
+        String temp = get().qmap.get(flag);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
