@@ -255,12 +255,4 @@ public class PushAgentQQ extends Ali {
         if (Utils.isVideoFormat(url)) return Result.string(vod(url, "直连"));
         return Result.string(vod(url, "网页"));
     }
-
-    @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) {
-        if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
-        if (flag.equals("网页")) return Result.get().parse().url(id).string();
-        if(id.contains("aliyundrive"))return super.playerContent(flag, id,vipFlags);
-        return Result.get().url(id).string();
-    }
 }
