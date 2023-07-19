@@ -280,7 +280,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "超清%。$$$高清%。$$$原画%。$$$普话%";
+        //from = "超清%。$$$高清%。$$$原画%。$$$普话%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
