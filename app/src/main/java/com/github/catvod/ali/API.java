@@ -43,7 +43,7 @@ public class API {
 
     private API() {
         tempIds = new ArrayList<>();
-        qmap = new HashMap<>();
+        qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         qmap.put("2K","QHD");
@@ -278,6 +278,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
+        from = "2K%$$$超清%。$$$高清%。$$$原画%。$$$普话%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -520,6 +521,7 @@ public class API {
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
+        if (flag.length() > 2)  flag = flag.substring(0, 2);
         String temp = qmap.get(flag);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
