@@ -534,6 +534,7 @@ public class API {
                 }
             }
         }
+        alert("quality:" + quality.size());
         for (String templateId : quality) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
