@@ -278,7 +278,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        //from = "2K%$$$超清%。$$$高清%。$$$原画%。$$$普话%";
+        from = "2K%$$$超清%。$$$高清%。$$$原画%。$$$普话%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -519,10 +519,13 @@ public class API {
     }
 
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
+        alert("flag:"+flag);
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
+        alert("site:"+qmap.size());
         if (flag.length() > 2)  flag = flag.substring(0, 2);
         String temp = get().qmap.get(flag);
+        alert("temp:" + temp);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
