@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class API {
     private final List<String> tempIds;
     private final List<String> quality;
-    private final Map<String,String> qmap;
+    public final Map<String,String> qmap;
     private String shareToken;
     private Auth auth;
     private String shareId;
@@ -49,6 +49,8 @@ public class API {
         qmap.put("2K","QHD");
         qmap.put("超清","FHD");
         qmap.put("高清","HD");
+        qmap.put("标清", "SD");
+        qmap.put("流畅", "LD");
     }
 
     public void setAuth(boolean flag){
@@ -278,7 +280,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "2K%$$$超清%。$$$高清%。$$$原画%。$$$普话%";
+        from = "超清%。$$$高清%。$$$原画%。$$$普话%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -513,19 +515,16 @@ public class API {
             subs.addAll(getSubs(playInfo));
             return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
-            Init.show("player:"+e.getMessage());
+            e.printStackTrace();
             return Result.get().url("").string();
         }
     }
 
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
-        Init.show("flag:"+flag);
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
-        Init.show("site:"+qmap.size());
         if (flag.length() > 2)  flag = flag.substring(0, 2);
         String temp = get().qmap.get(flag);
-        Init.show("temp:" + temp);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
@@ -534,7 +533,6 @@ public class API {
                 }
             }
         }
-        Init.show("quality:" + quality.size());
         for (String templateId : quality) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
