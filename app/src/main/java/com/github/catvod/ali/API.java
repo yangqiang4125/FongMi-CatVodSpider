@@ -513,19 +513,19 @@ public class API {
             subs.addAll(getSubs(playInfo));
             return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
-            alert("player:"+e.getMessage());
+            Init.show("player:"+e.getMessage());
             return Result.get().url("").string();
         }
     }
 
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
-        alert("flag:"+flag);
+        Init.show("flag:"+flag);
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
-        alert("site:"+qmap.size());
+        Init.show("site:"+qmap.size());
         if (flag.length() > 2)  flag = flag.substring(0, 2);
         String temp = get().qmap.get(flag);
-        alert("temp:" + temp);
+        Init.show("temp:" + temp);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
@@ -534,7 +534,7 @@ public class API {
                 }
             }
         }
-        alert("quality:" + quality.size());
+        Init.show("quality:" + quality.size());
         for (String templateId : quality) {
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
