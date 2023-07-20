@@ -47,6 +47,7 @@ public class API {
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         qmap.put("2K","QHD");
+        qmap.put("极清","QHD");
         qmap.put("超清","FHD");
         qmap.put("高清","HD");
         qmap.put("标清", "SD");
@@ -280,7 +281,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
+        //from = "超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -524,7 +525,7 @@ public class API {
         if (!playInfo.has("live_transcoding_task_list")) return "";
         JSONArray taskList = playInfo.getJSONArray("live_transcoding_task_list");
         if (flag.length() > 2)  flag = flag.substring(0, 2);
-        String temp = get().qmap.get(flag);
+        String temp = qmap.get(flag);
         if(temp!=null){
             for (int i = 0; i < taskList.length(); ++i) {
                 JSONObject task = taskList.getJSONObject(i);
