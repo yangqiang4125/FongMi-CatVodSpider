@@ -126,8 +126,21 @@ public class MyQQ extends Spider {
         String elpic = getVal("elpic");
         String elremarks = getVal("elremarks");
         String pageText = getVal("page");
-        String page = getText(doc2, pageText);
-        page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
+        String page = "0";
+        if (pageText.contains("@")) {
+            page = getText(doc2, pageText);
+            page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
+        }else {
+            if(Utils.isNumeric(pageText))page = pageText;
+            else {
+                String html = doc2.html();
+                Matcher matcher = Utils.matcher(pageText, html);
+                while (matcher.find()) {
+                    page = matcher.group(1);
+                    break;
+                }
+            }
+        }
         if(Utils.isNumeric(page)) total = Integer.parseInt(page);
         for (Element element : doc2.select(elbox)) {
             String id = getText(element,elurl);
