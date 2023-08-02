@@ -1,40 +1,45 @@
 package com.github.catvod.spider;
 
-import com.github.catvod.parser.Base64Utils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.github.catvod.bean.Result;
+import com.github.catvod.bean.Vod;
+import com.github.catvod.bean.upyun.Data;
+import com.github.catvod.bean.upyun.Item;
+import com.github.catvod.net.OkHttp;
+import com.google.common.io.BaseEncoding;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class Upyunso extends Ali {
     private static String b = "https://www.upyunso.com/";
     private String pic = "http://image.xinjun58.com/image/tv/ups.jpg";
     @Override
-    public String searchContent(String key, boolean z) {
-        try {
-            JSONArray jSONArray = new JSONArray();
-            key = URLEncoder.encode(key);
-            JSONArray arr = Base64Utils.getJSONByUrl("https://api.upyunso1.com/search?keyword=" + key+"&page=1");
-            if (arr.length() > 0) {
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject v = arr.getJSONObject(i);
-                    String id = v.getString("url");
-                    String title = v.getString("title");
-                    String remark = v.optString("remark","");
-                    v.put("vod_id", id + "$$$" + pic + "$$$" + title);
-                    v.put("vod_name", title);
-                    v.put("vod_remarks", remark);
-                    v.put("vod_pic", pic);
-                    jSONArray.put(v);
-                }
-                JSONObject jSONObject2 = new JSONObject();
-                jSONObject2.put("list", jSONArray);
-                return jSONObject2.toString();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String searchContent(String key, boolean z) throws Exception {
+        return searchContent(key, "1");
+    }
+
+    private String searchContent(String key, String pg) throws Exception {
+        String res = decode(OkHttp.string("https://zyb.upyunso.com/v15/search?keyword=" + URLEncoder.encode(key) + "&page=" + pg + "&s_type=2"));
+        List<Vod> list = new ArrayList<>();
+        for (Item item : Data.objectFrom(res).getResult().getItems()) {
+            String url = decode(item.getPageUrl());
+            if (!url.contains("www.aliyundrive.com")) continue;
+            if (item.getTitle().contains(key)) list.add(item.url(url).getVod());
         }
-        return "";
+        return Result.string(list);
+    }
+
+    private String decode(String data) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec("qq1920520460qqzz".getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec("qq1920520460qqzz".getBytes());
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] encryptDataBytes = BaseEncoding.base16().decode(data.toUpperCase());
+        byte[] decryptData = cipher.doFinal(encryptDataBytes);
+        return new String(decryptData, "UTF-8");
     }
 }
