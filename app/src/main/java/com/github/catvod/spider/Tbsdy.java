@@ -73,12 +73,18 @@ public class Tbsdy extends Ali{
     public String searchContent(String key, boolean quick) throws Exception{
         String searchURL = siteURL + "/search.html?keyword=" + URLEncoder.encode(key);
         String html = OkHttp.string(searchURL, getHeader());
-        Element it = Jsoup.parse(html).selectFirst(".search_result_list .search_result_item");
+        Elements its = Jsoup.parse(html).select(".search_result_list .search_result_item");
         List<Vod> list = new ArrayList<>();
-        Element el = null;
-        String id=null,vodId=null,vodName=null,pic = null,remark="";
-        el = it.selectFirst("a.search_result_item_left");
-        id = siteURL + qq.getText(el, "@href");
+        Element el = null;String id=null,name = null,vodId=null,vodName=null,pic = null,remark="";
+        for (Element it : its) {
+            el = it.selectFirst("a.search_result_item_left");
+            name = qq.getText(el, "img@alt");
+            if (name.contains(key)) {
+                id = siteURL + qq.getText(el, "@href");
+                break;
+            }
+        }
+        if(id==null) return "";
         pic = qq.getText(el, "img@src");
         remark = qq.getText(el, ".search_video_img_point@text");
         id = getUrl(id);

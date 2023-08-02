@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
  * @author zhixc
  */
 public class Wogg extends Ali {
-    private final String siteURL = "https://tvfan.xxooo.cf";
+    private final String siteURL = "http://tvfan.xxooo.cf";
     private MyQQ qq;
     private Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
