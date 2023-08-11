@@ -124,7 +124,7 @@ public class PushAgentQQ extends Ali {
             vo.put("vod_id", "");
             vo.put("vod_name", title);
             vo.put("vod_remarks", remark);
-            vo.put("vod_pic", pic);
+            vo.put("vod_pic", getPicAgent(pic));
             jSONArray.put(vo);
         }
         return jSONArray;
@@ -206,6 +206,7 @@ public class PushAgentQQ extends Ali {
                     url = getRuleVal(jsonObject, "url");
                     name = getRuleVal(jsonObject, "name");
                     pic = getRuleVal(jsonObject, "pic");
+                    pic = getPicAgent(pic);
                     skey = getRuleVal(jsonObject, "key");
                     sid = url + "$$$" + pic + "$$$" + name;
                     if (tid.equals("t3")&&!sid.isEmpty()) {

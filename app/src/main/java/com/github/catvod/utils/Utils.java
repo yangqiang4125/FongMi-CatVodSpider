@@ -32,6 +32,7 @@ public class Utils {
     public static String refreshToken=null;
     public static String tokenInfo=null;
     public static String cleanToken=null;
+    public static String userAgent="";
     public static String jsonUrl = "http://test.xinjun58.com/sp/d.json";
     public static String apikey = "0ac44ae016490db2204ce0a042db2916";//豆瓣key
     private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";

@@ -9,6 +9,7 @@ import com.github.catvod.bean.ali.Auth;
 import com.github.catvod.bean.ali.Item;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.spider.Ali;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.spider.PushAgentQQ;
@@ -358,6 +359,7 @@ public class API {
                 }
                 jo = sp.getJSONObject("pic");
                 pic = jo.getString("normal");
+                pic = Ali.getPicAgent(pic);
                 jo = sp.getJSONObject("rating");
                 rating = jo.optString("value","0")+"分";
                 title = sp.optString("title");
