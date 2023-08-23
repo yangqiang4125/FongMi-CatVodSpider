@@ -59,7 +59,7 @@ public class Ali extends Spider {
     }
 
     public static String getPicAgent(String pic){
-        if (!Utils.userAgent.isEmpty()&&pic!=null&&!pic.contains("//img9.doubanio")) {
+        if (!Utils.userAgent.isEmpty()&&pic!=null&&pic.contains(".doubanio")) {
             return pic + Utils.userAgent;
         }
         return pic;

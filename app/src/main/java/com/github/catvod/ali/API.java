@@ -166,7 +166,9 @@ public class API {
 
     private boolean refreshAccessToken() {
         try {
-            SpiderDebug.log("refreshAccessToken...");
+            Prefers.put("tokenInfo", "1");
+            Ali.fetchRule(true, 0);
+           /* SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
@@ -178,7 +180,7 @@ public class API {
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();
+            oauthRequest();*/
             return true;
         } catch (Exception e) {
             cleanToken();
@@ -214,7 +216,9 @@ public class API {
 
     private boolean refreshOpenToken() {
         try {
-            SpiderDebug.log("refreshAccessTokenOpen...");
+            Prefers.put("tokenInfo", "1");
+            Ali.fetchRule(true, 0);
+            /*SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
             body.put("refresh_token", auth.getRefreshTokenOpen());
@@ -223,7 +227,7 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
-            Prefers.put("tokenInfo", "1");
+            Prefers.put("tokenInfo", "1");*/
             return true;
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");
