@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 
-public class PushAgentQQ extends Ali {
+public class PushAgentQQ extends PushAgent {
     @Override
     public void init(Context context, String extend) {
         fetchRule(true,1);
@@ -246,13 +246,5 @@ public class PushAgentQQ extends Ali {
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         JSONObject obj = category(tid, pg, filter, extend,null);
         return obj != null ? obj.toString() : "";
-    }
-
-    @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) {
-        if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
-        if (flag.equals("网页")) return Result.get().parse().url(id).string();
-        if(Utils.matcher("[a-z0-9]{36,46}",id).matches())return super.playerContent(flag, id,vipFlags);
-        return Result.get().parse(0).url(id).string();
     }
 }
