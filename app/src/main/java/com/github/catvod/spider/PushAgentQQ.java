@@ -253,6 +253,6 @@ public class PushAgentQQ extends Ali {
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
         if(Utils.matcher("[a-z0-9]{36,46}",id).matches())return super.playerContent(flag, id,vipFlags);
-        return Result.get().url(id).string();
+        return Result.get().parse(0).url(id).string();
     }
 }
