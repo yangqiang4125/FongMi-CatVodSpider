@@ -252,8 +252,7 @@ public class PushAgentQQ extends Ali {
     public String playerContent(String flag, String id, List<String> vipFlags) {
         if (flag.equals("官源")) return Result.get().parse().jx().url(id).string();
         if (flag.equals("网页")) return Result.get().parse().url(id).string();
-        API.get().alert("id:" + id);
-        if(id.contains("aliyundrive"))return super.playerContent(flag, id,vipFlags);
+        if(Utils.matcher("[a-z0-9]{36,46}",id).matches())return super.playerContent(flag, id,vipFlags);
         return Result.get().url(id).string();
     }
 }

@@ -35,7 +35,7 @@ public class Miss extends Spider {
             String typeId = a.attr("href").replace(url, "");
             if (typeId.startsWith("http")) continue;
             classes.add(new Class(typeId, typeName));
-            filters.put(typeId, Arrays.asList(new Filter("filters", "过滤", Arrays.asList(new Filter.Value("全部", ""), new Filter.Value("单人作品", "individual"), new Filter.Value("中文字幕", "chinese-subtitle")))));
+            filters.put(typeId, Arrays.asList(new Filter("filters", "過濾", Arrays.asList(new Filter.Value("全部", ""), new Filter.Value("單人作品", "individual"), new Filter.Value("中文字幕", "chinese-subtitle")))));
         }
         for (Element div : doc.select("div.thumbnail")) {
             String id = div.select("a.text-secondary").attr("href").replace(url, "");
