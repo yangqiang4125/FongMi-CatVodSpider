@@ -48,6 +48,14 @@ public class Vod {
         setVodRemarks(vodRemarks);
     }
 
+    public Vod(String vodId, String vodName, String vodPic, String vodRemarks, String vodTag) {
+        setVodId(vodId);
+        setVodName(vodName);
+        setVodPic(vodPic);
+        setVodRemarks(vodRemarks);
+        setVodTag(vodTag);
+    }
+
     public void setTypeName(String typeName) {
         this.typeName = Trans.get(typeName);
     }
