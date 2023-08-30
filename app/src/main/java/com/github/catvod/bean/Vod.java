@@ -48,14 +48,6 @@ public class Vod {
         setVodRemarks(vodRemarks);
     }
 
-    public Vod(String vodId, String vodName, String vodPic, String vodRemarks, String vodTag) {
-        setVodId(vodId);
-        setVodName(vodName);
-        setVodPic(vodPic);
-        setVodRemarks(vodRemarks);
-        setVodTag(vodTag);
-    }
-
     public void setTypeName(String typeName) {
         this.typeName = Trans.get(typeName);
     }
@@ -98,6 +90,10 @@ public class Vod {
 
     public void setVodPlayFrom(String vodPlayFrom) {
         this.vodPlayFrom = Trans.get(vodPlayFrom);
+    }
+
+    public String getVodContent() {
+        return vodContent;
     }
 
     public void setVodPlayUrl(String vodPlayUrl) {
