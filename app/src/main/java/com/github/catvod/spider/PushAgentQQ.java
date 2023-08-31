@@ -208,11 +208,11 @@ public class PushAgentQQ extends PushAgent {
                     pic = getRuleVal(jsonObject, "pic");
                     pic = getPicAgent(pic);
                     skey = getRuleVal(jsonObject, "key");
+                    if(pic.equals("")) pic = Utils.getWebName(url, 1);
                     sid = url + "$$$" + pic + "$$$" + name;
                     if (tid.equals("t3")&&!sid.isEmpty()) {
                         sid = sid +","+skey;
                     }
-                    if(pic.equals("")) pic = Utils.getWebName(url, 1);
                     v = new JSONObject();
                     v.put("vod_id", sid);
                     v.put("vod_name", name);
