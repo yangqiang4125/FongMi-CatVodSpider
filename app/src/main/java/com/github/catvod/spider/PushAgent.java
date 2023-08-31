@@ -31,10 +31,15 @@ public class PushAgent extends Ali {
     }
 
     private Vod vod(String url) {
+        String[] idInfo = url.split("\\$\\$\\$");
+        String url2 = idInfo[0];
+        String spName = url2;
+        if (idInfo.length > 2)  spName = idInfo[2].trim();
+        else  spName = Utils.getWebName(url2, 0);
         Vod vod = new Vod();
-        vod.setVodId(url);
+        vod.setVodId(url2);
         vod.setTypeName("QQPush");
-        vod.setVodName(url);
+        vod.setVodName(spName);
         vod.setVodPic("http://image.xinjun58.com/sp/pic/bg/zl.jpg");
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
         vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url, "播放$" + url, "播放$" + url)));

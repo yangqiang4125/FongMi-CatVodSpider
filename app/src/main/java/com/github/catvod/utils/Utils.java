@@ -74,7 +74,7 @@ public class Utils {
             if(type==1) return "http://image.xinjun58.com/sp/pic/bg/bili.jpg";
             return "哗哩哔哩";
         }
-        if (url.startsWith("magnet")) {
+        if (isSpUrl(url)) {
             return "磁力";
         }
         if (url.contains("aliyundrive")) {
@@ -84,6 +84,14 @@ public class Utils {
         if(type==1)return "http://image.xinjun58.com/sp/pic/bg/zl.jpg";
         String host = Uri.parse(url).getHost();
         return host;
+    }
+
+    static String spxRegx = "^[magnet:|thunder|ed2k:|ftp://].*";
+    public static boolean isSpUrl(String _url) {
+        String url = _url.toLowerCase();
+        if(matcher(spxRegx,url).matches())return true;
+        if(url.contains(".torrent")) return url.split(";")[0].endsWith(".torrent");
+        return false;
     }
 
     public static boolean isMobile() {
