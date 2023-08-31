@@ -42,7 +42,7 @@ public class PushAgent extends Ali {
         vod.setVodName(spName);
         vod.setVodPic("http://image.xinjun58.com/sp/pic/bg/zl.jpg");
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
-        vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url, "播放$" + url, "播放$" + url)));
+        vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url2, "播放$" + url2, "播放$" + url2)));
         return vod;
     }
 
