@@ -86,7 +86,7 @@ public class Utils {
         return host;
     }
 
-    static String spxRegx = "^[magnet:|thunder|ed2k:|ftp://].*";
+    static String spxRegx = "^(magnet:|thunder|ed2k:|ftp://).*";
     public static boolean isSpUrl(String _url) {
         String url = _url.toLowerCase();
         if(matcher(spxRegx,url).matches())return true;

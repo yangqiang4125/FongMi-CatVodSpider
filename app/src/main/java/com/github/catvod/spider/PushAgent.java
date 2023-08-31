@@ -2,6 +2,7 @@ package com.github.catvod.spider;
 
 import android.net.Uri;
 import android.text.TextUtils;
+import com.github.catvod.ali.API;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
@@ -33,8 +34,11 @@ public class PushAgent extends Ali {
     private Vod vod(String url) {
         String[] idInfo = url.split("\\$\\$\\$");
         String url2 = idInfo[0];
-        String spName = url2;
-        if (idInfo.length > 2)  spName = idInfo[2].trim();
+        String spName = url2;boolean flag = false;
+        if (idInfo.length > 2)  {
+            flag=true;
+            spName = idInfo[2].trim();
+        }
         else  spName = Utils.getWebName(url2, 0);
         Vod vod = new Vod();
         vod.setVodId(url2);
@@ -43,6 +47,7 @@ public class PushAgent extends Ali {
         vod.setVodPic("http://image.xinjun58.com/sp/pic/bg/zl.jpg");
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
         vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url2, "播放$" + url2, "播放$" + url2)));
+        if(flag) vod = API.get().getVodInfo(spName, vod, idInfo);
         return vod;
     }
 
