@@ -37,7 +37,7 @@ public class PushAgent extends Ali {
         String spName = url2;boolean flag = false;
         if (idInfo.length > 2)  {
             flag=true;
-            pic = idInfo[1];
+            if(!idInfo[1].isEmpty()) pic = idInfo[1];
             spName = idInfo[2].trim();
             url = url+"$$$1";
             idInfo = url.split("\\$\\$\\$");
