@@ -34,6 +34,7 @@ public class API {
     private String shareId;
     private String refreshUrl;
     private String CLIENT_ID;
+    private String parentDir = "ali";
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -144,7 +145,8 @@ public class API {
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) {
             Init.show("账号容量不够啦");
-            return refreshAccessToken();
+            Init.execute(this::deleteAll);
+            return true;
         }
         return false;
     }
@@ -168,7 +170,8 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-           /* SpiderDebug.log("refreshAccessToken...");
+            if (getVal("updateTk", "0").equals("0"))return true;
+            SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
@@ -180,7 +183,7 @@ public class API {
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();*/
+            oauthRequest();
             return true;
         } catch (Exception e) {
             cleanToken();
@@ -218,7 +221,8 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            /*SpiderDebug.log("refreshAccessTokenOpen...");
+            if (getVal("updateTk", "0").equals("0"))return true;
+            SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
             body.put("refresh_token", auth.getRefreshTokenOpen());
@@ -227,7 +231,7 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
-            Prefers.put("tokenInfo", "1");*/
+            Prefers.put("tokenInfo", "1");
             return true;
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");
@@ -441,7 +445,7 @@ public class API {
         if (array.length() == 0) return "";
         JSONObject fileInfo = array.getJSONObject(0);
         if (fileInfo.getString("type").equals("folder")) return fileInfo.getString("file_id");
-        if (fileInfo.getString("type").equals("file") && fileInfo.getString("category").equals("video")) return "root";
+        if (fileInfo.getString("type").equals("file") && fileInfo.getString("category").equals("video")) return parentDir;
         return "";
     }
 
@@ -566,7 +570,7 @@ public class API {
 
     private String copy(String fileId) throws Exception {
         SpiderDebug.log("Copy..." + fileId);
-        String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"root\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
+        String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\""+parentDir+"\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
         json = String.format(json, fileId, shareId, auth.getDriveId());
         String result = auth("adrive/v2/batch", json, true);
         if (result.contains("ForbiddenNoPermission.File")) return copy(fileId);
