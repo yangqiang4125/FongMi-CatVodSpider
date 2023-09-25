@@ -34,7 +34,7 @@ public class API {
     private String shareId;
     private String refreshUrl;
     private String CLIENT_ID;
-    private String parentDir = "ali";
+    private String parentDir = "root/ali";
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
