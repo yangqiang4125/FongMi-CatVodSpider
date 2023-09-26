@@ -25,7 +25,8 @@ public class Ali extends Spider {
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     @Override
     public void init(Context context, String extend) {
-        API.get().setRefreshToken(extend);
+        //API.get().setRefreshToken(extend);
+        if(extend.startsWith("http"))Utils.jsonUrl = extend;
         fetchRule(false,0);
     }
 
