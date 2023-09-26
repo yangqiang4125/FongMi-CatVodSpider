@@ -26,7 +26,7 @@ public class Ali extends Spider {
     @Override
     public void init(Context context, String extend) {
         //API.get().setRefreshToken(extend);
-        if(extend.startsWith("http"))Utils.jsonUrl = extend;
+        if(extend.startsWith("http://test.xinjun58.com/"))Utils.jsonUrl = extend;
         fetchRule(false,0);
     }
 
@@ -35,7 +35,9 @@ public class Ali extends Spider {
             String rs = API.get().getRefreshToken();
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
-                String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
+                String jurl =Utils.jsonUrl+"?t="+Time();
+                API.get().alert("Utils.jsonUrl:" + jurl);
+                String json = OkHttp.string(jurl);
                 JSONObject jo = new JSONObject(json);
                 Utils.siteRule = jo;
                 /*if(t==0) {
