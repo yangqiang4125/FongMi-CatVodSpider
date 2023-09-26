@@ -35,6 +35,7 @@ public class API {
     private String refreshUrl;
     private String CLIENT_ID;
     private String parentDir = "root";
+    private String updateTk = "0";
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -68,6 +69,7 @@ public class API {
         }
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
+        updateTk = getVal("updateTk", "0");
         if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
     public String getVal(String key,String dval){
@@ -171,7 +173,7 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (getVal("updateTk", "0").equals("0"))return true;
+            if (updateTk.equals("0"))return true;
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;
@@ -222,7 +224,7 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (getVal("updateTk", "0").equals("0"))return true;
+            if (updateTk.equals("0"))return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
@@ -344,6 +346,7 @@ public class API {
 
     public static Vod getVodInfo(String key,Vod vod,String[] idInfo){
         try {
+            if(key.equals("磁力")||key.startsWith("http"))return vod;
             int sid = -1;
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) sid = Integer.parseInt(idInfo[3]);
             if(sid<1)return vod;
@@ -571,8 +574,8 @@ public class API {
 
     private String copy(String fileId) throws Exception {
         SpiderDebug.log("Copy..." + fileId);
-        String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\""+parentDir+"\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
-        json = String.format(json, fileId, shareId, auth.getDriveId());
+        String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"%s\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
+        json = String.format(json, fileId, shareId, parentDir, auth.getDriveId());
         String result = auth("adrive/v2/batch", json, true);
         if (result.contains("ForbiddenNoPermission.File")) return copy(fileId);
         return new JSONObject(result).getJSONArray("responses").getJSONObject(0).getJSONObject("body").getString("file_id");
@@ -589,8 +592,8 @@ public class API {
     private boolean delete(String fileId) {
         try {
             SpiderDebug.log("Delete..." + fileId);
-            String json = "{\"requests\":[{\"body\":{\"drive_id\":\"%s\",\"file_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"%s\",\"method\":\"POST\",\"url\":\"/file/delete\"}],\"resource\":\"file\"}";
-            json = String.format(json, auth.getDriveId(), fileId, fileId);
+            String json = "{\"requests\":[{\"body\":{\"drive_id\":\"%s\",\"file_id\":\"%s\",\"to_parent_file_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"%s\",\"method\":\"POST\",\"url\":\"/file/delete\"}],\"resource\":\"file\"}";
+            json = String.format(json, auth.getDriveId(), fileId, parentDir, fileId);
             String result = auth("adrive/v2/batch", json, true);
             return result.length() == 211;
         } catch (Exception ignored) {
