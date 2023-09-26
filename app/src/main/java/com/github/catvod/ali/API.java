@@ -82,9 +82,8 @@ public class API {
         setAuth(true);
     }
     public void alert(String msg) {
-      /*  boolean aflag = Prefers.getBoolean("alert", false);
-        if(aflag) Init.show(msg);*/
-        Init.show(msg);
+        boolean aflag = Prefers.getBoolean("alert", false);
+        if(aflag) Init.show(msg);
     }
     public void setRefreshToken(String token) {
         if (auth.getRefreshToken().isEmpty()&&!token.endsWith(".json")) auth.setRefreshToken(token);
