@@ -34,6 +34,7 @@ public class Ali extends Spider {
         try {
             String rs = API.get().getRefreshToken();
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
+                Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
                 String json = OkHttp.string(Utils.jsonUrl+"?t="+Time());
                 JSONObject jo = new JSONObject(json);
                 Utils.siteRule = jo;

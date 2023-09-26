@@ -443,4 +443,9 @@ public class Utils {
             webView.loadUrl(url);
         });
     }
+
+    public static String getDataStr(String str) {
+        String str1 = str.replace("1", "9").replace("z", "s");
+        return str1;
+    }
 }
