@@ -67,6 +67,7 @@ public class API {
             }
         }
         refreshUrl = getVal("refreshUrl", "");
+        parentDir = getVal("parentDir", "root");
         if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
     public String getVal(String key,String dval){
