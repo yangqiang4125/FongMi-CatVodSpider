@@ -35,6 +35,7 @@ public class Ali extends Spider {
             String rs = API.get().getRefreshToken();
             if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
+                Utils.etime = Time();
                 String jurl =Utils.jsonUrl+"?t="+Time();
                 String json = OkHttp.string(jurl);
                 JSONObject jo = new JSONObject(json);
@@ -97,8 +98,9 @@ public class Ali extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
+        Long time = Time();
+        if (time - Utils.etime > 3600) fetchRule(true,0);
         String[] ids = id.split("\\+");
-        //String temp = API.get().qmap.get(flag);
         return flag.contains("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
     }
 
