@@ -164,6 +164,7 @@ public class API {
             if (auth.getAccessToken().isEmpty()) {
                 refreshAccessToken();
             }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
+            else if(auth.getAccessTokenOpen().isEmpty())refreshOpenToken();
         } catch (Exception e) {
             Init.show("checkAccessToken："+e.getMessage());
         }
@@ -218,13 +219,14 @@ public class API {
         if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
+        auth.save();
     }
 
     private boolean refreshOpenToken() {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10)return true;
+            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10&&!auth.getAccessTokenOpen().isEmpty())return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
@@ -275,7 +277,7 @@ public class API {
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty())Init.show("来晚啦，该分享已失效~");
+            if(files.isEmpty())Init.show("阿里账号已失效~");
             else for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
         }
