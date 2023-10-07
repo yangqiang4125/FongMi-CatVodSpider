@@ -30,7 +30,7 @@ public class Utils {
     public static String spRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     public static Integer isPic=0;
     public static String refreshToken=null;
-    public static String tokenInfo=null;
+    public static String tokenInfo="";
     public static String cleanToken=null;
     public static String userAgent="";
     public static String jsonUrl = "http://test.xinjun58.com/sp/d.json";

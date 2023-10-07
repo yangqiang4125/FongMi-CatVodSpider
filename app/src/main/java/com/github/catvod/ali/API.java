@@ -173,7 +173,7 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (updateTk.equals("0"))return true;
+            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10)return true;
             SpiderDebug.log("refreshAccessToken...");
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;
@@ -224,7 +224,7 @@ public class API {
         try {
             Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (updateTk.equals("0"))return true;
+            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10)return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
