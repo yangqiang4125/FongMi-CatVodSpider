@@ -32,13 +32,7 @@ public class XPath extends Spider {
         return headers;
     }
 
-    @Override
-    public void init(Context context) {
-        super.init(context);
-    }
-
     public void init(Context context, String extend) {
-        super.init(context, extend);
         this.ext = extend;
     }
 
