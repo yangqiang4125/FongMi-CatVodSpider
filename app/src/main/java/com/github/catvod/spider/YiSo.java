@@ -1,6 +1,5 @@
 package com.github.catvod.spider;
 
-import android.content.Context;
 import android.util.Base64;
 
 import com.github.catvod.bean.Result;

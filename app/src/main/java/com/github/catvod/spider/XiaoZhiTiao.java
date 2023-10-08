@@ -39,7 +39,7 @@ public class XiaoZhiTiao extends Ali {
         params.put("token", this.getToken());
         params.put("keyword", key);
 
-        JSONObject jsonObject = new JSONObject(OkHttp.post(siteUrl, params, getHeaders()));
+        JSONObject jsonObject = new JSONObject(OkHttp.post(siteUrl, params, getHeaders()).getBody());
         if (jsonObject.getBoolean("success")) {
             List<Vod> list = new ArrayList<>();
             JSONArray jsonArray = jsonObject.getJSONArray("data");
@@ -61,7 +61,7 @@ public class XiaoZhiTiao extends Ali {
             params.put("action", "get_token");
             params.put("from", "web");
 
-            JSONObject jsonObject = new JSONObject(OkHttp.post(siteUrl, params, getHeaders()));
+            JSONObject jsonObject = new JSONObject(OkHttp.post(siteUrl, params, getHeaders()).getBody());
             if (jsonObject.getBoolean("success")) {
                 token = jsonObject.getString("data");
                 tokenExpiredAt = new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000);

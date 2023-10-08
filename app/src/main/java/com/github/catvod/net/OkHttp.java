@@ -69,6 +69,10 @@ public class OkHttp {
         return post(client(), url, params, header);
     }
 
+    public static OkResult postJson(String url, Map<String, String> params, Map<String, String> header) {
+        return post(client(), url, params, header);
+    }
+
     public static OkResult post(OkHttpClient client, String url, Map<String, String> params, Map<String, String> header) {
         return new OkRequest(POST, url, params, header).execute(client);
     }
