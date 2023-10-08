@@ -45,9 +45,7 @@ import java.util.regex.Pattern;
 public class API {
     private ScheduledExecutorService service;
     private AlertDialog dialog;
-
     private final List<String> tempIds;
-    private final List<String> quality;
     public final Map<String,String> qmap;
     private String refreshToken;
     private Auth auth;
@@ -68,13 +66,6 @@ public class API {
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
-        quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
-        qmap.put("2K","QHD");
-        qmap.put("极清","QHD");
-        qmap.put("超清","FHD");
-        qmap.put("高清","HD");
-        qmap.put("标清", "SD");
-        qmap.put("流畅", "LD");
     }
 
     public void setAuth(boolean flag){
@@ -110,7 +101,6 @@ public class API {
     public void setRefreshToken(String token) {
         this.refreshToken = token;
     }
-
     public Object[] getToken() {
         Object[] result = new Object[3];
         result[0] = 200;
@@ -194,7 +184,7 @@ public class API {
     }
 
     private void refreshShareToken(String shareId) {
-        if (shareId != null && share.alive(shareId)) return;
+        if (share != null && share.alive(shareId)) return;
         SpiderDebug.log("refreshShareToken...");
         JsonObject param = new JsonObject();
         param.addProperty("share_id", shareId);
@@ -263,41 +253,46 @@ public class API {
     }
 
     public Vod getVod(String url, String shareId, String fileId) {
-        refreshShareToken(shareId);
-        String[] idInfo = url.split("\\$\\$\\$");
-        JsonObject param = new JsonObject();
-        param.addProperty("share_id", shareId);
-        Share share = Share.objectFrom(post("adrive/v3/share_link/get_share_by_anonymous", param));
-        List<Item> files = new ArrayList<>();
-        List<Item> subs = new ArrayList<>();
-        listFiles(shareId, new Item(getParentFileId(fileId, share)), files, subs);
-        List<String> playFrom = Arrays.asList("原画", "普画");
-        List<String> episode = new ArrayList<>();
-        List<String> playUrl = new ArrayList<>();
-        for (Item file : files) episode.add(file.getDisplayName() + "$" + shareId + "+" + file.getFileId() + findSubs(file.getName(), subs));
-        for (int i = 0; i < playFrom.size(); i++) playUrl.add(TextUtils.join("#", episode));
         Vod vod = new Vod();
-        vod.setVodId(TextUtils.join("$$$",idInfo));
-        vod.setVodContent(idInfo[0]);
-        String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
-        String vname=share.getShareName()!=null?share.getShareName():"无名称";
-        if (idInfo != null) {
-            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
-            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
+        try {
+            refreshShareToken(shareId);
+            String[] idInfo = url.split("\\$\\$\\$");
+            JsonObject param = new JsonObject();
+            param.addProperty("share_id", shareId);
+            Share share = Share.objectFrom(post("adrive/v3/share_link/get_share_by_anonymous", param));
+            List<Item> files = new ArrayList<>();
+            List<Item> subs = new ArrayList<>();
+            listFiles(shareId, new Item(getParentFileId(fileId, share)), files, subs);
+            List<String> playFrom = Arrays.asList("原画", "普画");
+            List<String> episode = new ArrayList<>();
+            List<String> playUrl = new ArrayList<>();
+            for (Item file : files) episode.add(file.getDisplayName() + "$" + shareId + "+" + file.getFileId() + findSubs(file.getName(), subs));
+            for (int i = 0; i < playFrom.size(); i++) playUrl.add(TextUtils.join("#", episode));
+            vod.setVodId(url);
+            vod.setVodContent(idInfo[0]);
+            String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
+            String vname=share.getShareName()!=null?share.getShareName():"无名称";
+            if (idInfo != null) {
+                if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+                if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
+            }
+            vod.setVodPic(vpic);
+            vod.setVodName(vname);
+            vod.setVodPlayUrl(TextUtils.join("$$$", playUrl));
+            vod.setVodPlayFrom(TextUtils.join("$$$", playFrom));
+            vod.setTypeName("阿里云盘");
+            if (Utils.isPic==1&&!vname.equals("无名称")) {
+                Vod vod2 = getVodInfo(vname, vod, idInfo);
+                if(vod2!=null) vod = vod2;
+            }
+            String tag = vod.vodTag;
+            if(tag==null||tag.isEmpty()) tag = "推荐";
+            tag = tag + ";" + new Gson().toJson(auth);
+            vod.setVodTag(tag);
+            return vod;
+        } catch (Exception e) {
+            alert(e.getMessage());
         }
-        vod.setVodPic(vpic);
-        vod.setVodName(vname);
-        vod.setVodPlayUrl(TextUtils.join("$$$", playUrl));
-        vod.setVodPlayFrom(TextUtils.join("$$$", playFrom));
-        vod.setTypeName("阿里云盘");
-        if (Utils.isPic==1&&!vname.equals("无名称")) {
-            Vod vod2 = getVodInfo(vname, vod, idInfo);
-            if(vod2!=null) vod = vod2;
-        }
-        String tag = vod.vodTag;
-        if(tag==null||tag.isEmpty()) tag = "推荐";
-        tag = tag + ";" + new Gson().toJson(auth);
-        vod.setVodTag(tag);
         return vod;
     }
 
