@@ -218,6 +218,7 @@ public class API {
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
+            auth.save();
             if (auth.getAccessToken().isEmpty()) throw new Exception(json);
             return true;
         } catch (Exception e) {
