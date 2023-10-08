@@ -90,6 +90,10 @@ public class Auth {
         return userId;
     }
 
+    public boolean isAuthed() {
+        return getAccessToken().length() > 0;
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
     }
@@ -98,12 +102,13 @@ public class Auth {
         return getAccessToken().isEmpty();
     }
 
-    public void clean() {
+    public Auth clean() {
         setRefreshTokenOpen("");
         setAccessTokenOpen("");
         setRefreshToken("");
         setAccessToken("");
         setSignature("");
+        return this;
     }
 
     public void save() {

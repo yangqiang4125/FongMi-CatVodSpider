@@ -1,9 +1,7 @@
 package com.github.catvod.bean;
 
-import androidx.annotation.NonNull;
-
-import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
@@ -12,7 +10,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +24,12 @@ public class Result {
     private LinkedHashMap<String, List<Filter>> filters;
     @SerializedName("header")
     private String header;
+    @SerializedName("format")
+    private String format;
+    @SerializedName("danmaku")
+    private String danmaku;
     @SerializedName("url")
-    private String url;
+    private Object url;
     @SerializedName("subs")
     private List<Sub> subs;
     @SerializedName("parse")
@@ -36,21 +37,27 @@ public class Result {
     @SerializedName("jx")
     private int jx;
     @SerializedName("page")
-    private int page;
+    private Integer page;
     @SerializedName("pagecount")
-    private int pagecount;
+    private Integer pagecount;
     @SerializedName("limit")
-    private int limit;
+    private Integer limit;
     @SerializedName("total")
-    private int total;
+    private Integer total;
+
     public static Result objectFrom(String str) {
         return new Gson().fromJson(str, Result.class);
     }
+
     public static String string(List<Class> classes, List<Vod> list, LinkedHashMap<String, List<Filter>> filters) {
         return Result.get().classes(classes).vod(list).filters(filters).string();
     }
 
     public static String string(List<Class> classes, List<Vod> list, JSONObject filters) {
+        return Result.get().classes(classes).vod(list).filters(filters).string();
+    }
+
+    public static String string(List<Class> classes, List<Vod> list, JsonElement filters) {
         return Result.get().classes(classes).vod(list).filters(filters).string();
     }
 
@@ -101,13 +108,18 @@ public class Result {
     public Result filters(JSONObject object) {
         if (object == null) return this;
         Type listType = new TypeToken<LinkedHashMap<String, List<Filter>>>() {}.getType();
-        LinkedHashMap<String, List<Filter>> filters = new Gson().fromJson(object.toString(), listType);
-        for (Map.Entry<String, List<Filter>> entry : filters.entrySet()) for (Filter filter : entry.getValue()) filter.trans();
-        this.filters = filters;
+        this.filters = new Gson().fromJson(object.toString(), listType);
         return this;
     }
 
-    public Result header(HashMap<String, String> header) {
+    public Result filters(JsonElement element) {
+        if (element == null) return this;
+        Type listType = new TypeToken<LinkedHashMap<String, List<Filter>>>() {}.getType();
+        this.filters = new Gson().fromJson(element.toString(), listType);
+        return this;
+    }
+
+    public Result header(Map<String, String> header) {
         if (header.isEmpty()) return this;
         this.header = new Gson().toJson(header);
         return this;
@@ -133,8 +145,43 @@ public class Result {
         return this;
     }
 
+    public Result url(List<String> url) {
+        this.url = url;
+        return this;
+    }
+
+    public Result danmaku(String danmaku) {
+        this.danmaku = danmaku;
+        return this;
+    }
+
+    public Result format(String format) {
+        this.format = format;
+        return this;
+    }
+
     public Result subs(List<Sub> subs) {
         this.subs = subs;
+        return this;
+    }
+
+    public Result dash() {
+        this.format = "application/dash+xml";
+        return this;
+    }
+
+    public Result m3u8() {
+        this.format = "application/x-mpegURL";
+        return this;
+    }
+
+    public Result rtsp() {
+        this.format = "application/x-rtsp";
+        return this;
+    }
+
+    public Result octet() {
+        this.format = "application/octet-stream";
         return this;
     }
 
@@ -142,19 +189,6 @@ public class Result {
         return page(1, 1, 0, 1);
     }
 
-    public Result page(String pg, int limit, int total) {
-        int p = 0;
-        try {
-            if(Utils.isNumeric(pg)) p = Integer.parseInt(pg);
-            this.page = p;
-            this.limit = limit;
-            this.total = total;
-            this.pagecount = total * limit;
-        } catch (Exception e) {
-            page();
-        }
-        return this;
-    }
     public Result page(int page, int count, int limit, int total) {
         this.page = page > 0 ? page : Integer.MAX_VALUE;
         this.limit = limit > 0 ? limit : Integer.MAX_VALUE;
@@ -171,7 +205,6 @@ public class Result {
         return toString();
     }
 
-    @NonNull
     @Override
     public String toString() {
         return new Gson().toJson(this);
