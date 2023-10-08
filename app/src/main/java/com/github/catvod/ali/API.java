@@ -222,14 +222,18 @@ public class API {
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
-            e.printStackTrace();
-            cleanToken();
-            stopService();
-            startFlow();
+            alert(e.getMessage());
+            startPen();
             return true;
         } finally {
             while (auth.getAccessToken().isEmpty()) SystemClock.sleep(250);
         }
+    }
+
+    private void startPen() {
+        cleanToken();
+        stopService();
+        startFlow();
     }
 
     private boolean oauthRequest(){
@@ -459,7 +463,7 @@ public class API {
             String json = oauth("openFile/getDownloadUrl", param.toString(), true);
             return new JSONObject(json).getString("url");
         } catch (Exception e) {
-            e.printStackTrace();
+            alert(e.getMessage());
             return "";
         } finally {
             Init.execute(this::deleteAll);
@@ -487,6 +491,11 @@ public class API {
     }
 
     public String playerContent(String[] ids, boolean original) {
+        boolean aflag = Prefers.getBoolean("alert", false);
+        if (!aflag&&auth.getRefreshToken().isEmpty())  {
+            stopService();
+            startFlow();
+        }
         if (original) return Result.get().url(getDownloadUrl(ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
         else return getPreviewContent(ids);
     }
