@@ -41,7 +41,6 @@ public class SixV extends Spider {
 
     @Override
     public void init(Context context, String extend) {
-        super.init(context, extend);
         if (extend.endsWith("/")) {
             extend = extend.substring(0, extend.lastIndexOf("/"));
             siteURL = extend;
