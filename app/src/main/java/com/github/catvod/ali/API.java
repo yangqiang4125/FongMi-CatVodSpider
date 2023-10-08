@@ -492,7 +492,7 @@ public class API {
 
     public String playerContent(String[] ids, boolean original) {
         boolean aflag = Prefers.getBoolean("alert", false);
-        if (!aflag&&auth.getRefreshToken().isEmpty())  {
+        if (aflag&&auth.getRefreshToken().isEmpty())  {
             stopService();
             startFlow();
         }
