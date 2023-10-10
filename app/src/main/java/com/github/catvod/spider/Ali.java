@@ -32,7 +32,8 @@ public class Ali extends Spider {
 
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
-            if (flag || Utils.siteRule == null) {
+            String rs = API.get().getRefreshToken();
+            if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
                 Utils.etime = Time();
                 String jurl =Utils.jsonUrl+"?t="+Time();
@@ -91,18 +92,21 @@ public class Ali extends Spider {
         if (!matcher.find()) return "";
         String shareId = matcher.group(1);
         String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
-        return Result.string(API.get().getVod(url, shareId, fileId));
+        API.get().setShareId(shareId);
+        return Result.string(API.get().getVod(url, fileId));
     }
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        return API.get().playerContent(id.split("\\+"), flag.equals("原画"));
+        Long time = Time();
+        if (time - Utils.etime > 3600) fetchRule(true,0);
+        String[] ids = id.split("\\+");
+        return flag.contains("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
     }
 
     public static Object[] proxy(Map<String, String> params) throws Exception {
         String type = params.get("type");
         if (type.equals("sub")) return API.get().proxySub(params);
-        if ("token".equals(type)) return API.get().getToken();
         return null;
     }
 

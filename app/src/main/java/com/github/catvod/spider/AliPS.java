@@ -35,7 +35,9 @@ public class AliPS extends Ali {
         if (!id.contains("aliyundrive.com")) {
             String [] arr=id.split("\\$\\$\\$");
             String url = arr[0].replace("/s/", "/cv/");
-            url = OkHttp.getLocation(url, getHeaders(ids.get(0)));
+            Map<String, List<String>> respHeaders = new HashMap<>();
+            OkHttp.stringNoRedirect(url, getHeaders(arr[0]), respHeaders);
+            url = OkHttp.getRedirectLocation(respHeaders);
             arr[0] = url;
             String uid = TextUtils.join("$$$",arr);
             return super.detailContent(Arrays.asList(uid));

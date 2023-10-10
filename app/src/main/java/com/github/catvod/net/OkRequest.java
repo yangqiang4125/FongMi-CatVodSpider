@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.github.catvod.utils.Utils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.FormBody;
@@ -16,6 +17,7 @@ import okhttp3.Response;
 
 class OkRequest {
 
+    private final Map<String, List<String>> respHeader;
     private final Map<String, String> header;
     private final Map<String, String> params;
     private final String method;
@@ -24,20 +26,21 @@ class OkRequest {
     private String url;
     private Object tag;
 
-    OkRequest(String method, String url, Map<String, String> params, Map<String, String> header) {
-        this(method, url, null, params, header);
+    OkRequest(String method, String url, Map<String, String> params, Map<String, String> header, Map<String, List<String>> respHeader) {
+        this(method, url, null, params, header, respHeader);
     }
 
     OkRequest(String method, String url, String json, Map<String, String> header) {
-        this(method, url, json, null, header);
+        this(method, url, json, null, header, null);
     }
 
-    private OkRequest(String method, String url, String json, Map<String, String> params, Map<String, String> header) {
+    private OkRequest(String method, String url, String json, Map<String, String> params, Map<String, String> header, Map<String, List<String>> respHeader) {
         this.url = url;
         this.json = json;
         this.method = method;
         this.params = params;
         this.header = header;
+        this.respHeader = respHeader;
         getInstance();
     }
 
@@ -68,12 +71,14 @@ class OkRequest {
         url = Utils.substring(url);
     }
 
-    public OkResult execute(OkHttpClient client) {
+    public String execute(OkHttpClient client) {
         try {
             Response response = client.newCall(request).execute();
-            return new OkResult(response.code(), response.body().string(), response.headers().toMultimap());
+            if (respHeader != null) respHeader.clear();
+            if (respHeader != null) respHeader.putAll(response.headers().toMultimap());
+            return response.body().string();
         } catch (IOException e) {
-            return new OkResult();
+            return "";
         }
     }
 }
