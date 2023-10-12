@@ -71,7 +71,7 @@ public class Auth {
         this.deviceId = deviceId;
     }
 
-    public String getDriveId() { Utils.getStr(driveId); }
+    public String getDriveId() { return Utils.getStr(driveId); }
 
     public void setDriveId(String driveId) {
         this.driveId = driveId;
