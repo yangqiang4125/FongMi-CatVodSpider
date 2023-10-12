@@ -1,6 +1,7 @@
 package com.github.catvod.bean.ali;
 
 import android.text.TextUtils;
+import com.github.catvod.utils.Utils;
 import com.github.catvod.utils.Prefers;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -30,9 +31,7 @@ public class Auth {
         return item == null ? new Auth() : item;
     }
 
-    public String getRefreshToken() {
-        return Utils.getStr(refreshToken);
-    }
+    public String getRefreshToken() { return Utils.getStr(refreshToken); }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
