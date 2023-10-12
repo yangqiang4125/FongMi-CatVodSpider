@@ -16,7 +16,7 @@ import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.spider.Init;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.github.catvod.utils.Utils;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -132,6 +132,10 @@ public class Utils {
         }
     }
 
+    public static String getStr(String str) {
+        if(str==null||str.equals("null")||str.equals("NUll")) return "";
+        return str;
+    }
     public static String fixUrl(String base, String src) {
         try {
             if (src.startsWith("//")) {

@@ -31,6 +31,7 @@ public class API {
     public final Map<String,String> qmap;
     private String shareToken;
     private Auth auth;
+    private Auth auths;
     private String shareId;
     private String refreshUrl;
     private String CLIENT_ID;
@@ -59,13 +60,11 @@ public class API {
     }
 
     public void setAuth(boolean flag){
-        String tokenInfo = Prefers.getString("tokenInfo", "1");
-        if (tokenInfo.equals("1")) {
-            //if(flag)if(!auth.getAccessTokenOpen().isEmpty())return;
-            if (Utils.tokenInfo.length()>10) {
-                auth = Auth.objectFrom(Utils.tokenInfo);
+        if (Utils.tokenInfo.length()>10) {
+            auths = Auth.objectFrom(Utils.tokenInfo);
+            if(!auths.getRefreshTokenOpen().isEmpty()){
+                auth = auths;
                 auth.save();
-                //Init.show("已设置默认token");
             }
         }
         refreshUrl = getVal("refreshUrl", "");
@@ -81,7 +80,6 @@ public class API {
     public void cleanToken() {
         auth.clean();
         Prefers.put("aliyundrive", "");
-        setAuth(true);
     }
     public void alert(String msg) {
         boolean aflag = Prefers.getBoolean("alert", false);
@@ -174,10 +172,9 @@ public class API {
 
     private boolean refreshAccessToken() {
         try {
-            Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10)return true;
-            SpiderDebug.log("refreshAccessToken...");
+            if (auths!=null&&!auths.getRefreshTokenOpen().isEmpty())return true;
+            if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
@@ -192,6 +189,7 @@ public class API {
             oauthRequest();
             return true;
         } catch (Exception e) {
+            Init.show("阿里账号已失效，请稍后重试~");
             cleanToken();
             return true;
         } finally {
@@ -222,13 +220,14 @@ public class API {
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
+        auths = auth;
     }
 
     private boolean refreshOpenToken() {
         try {
-            Prefers.put("tokenInfo", "1");
             Ali.fetchRule(true, 0);
-            if (updateTk.equals("0")&&Utils.tokenInfo.length()>10&&!auth.getAccessTokenOpen().isEmpty())return true;
+            if (auths!=null&&!auths.getRefreshTokenOpen().isEmpty())return true;
+            if(updateTk.equals("0"))return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
@@ -238,13 +237,12 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
-            Prefers.put("tokenInfo", "1");
+            auths = auth;
             return true;
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");
             else{
                 alert(e.getMessage());
-                SpiderDebug.log(e);
                 cleanToken();
             }
             return false;
@@ -262,7 +260,6 @@ public class API {
             return true;
         } catch (Exception e) {
             Init.show("来晚啦，该分享已失效");
-            e.printStackTrace();
             return false;
         }
     }
@@ -350,7 +347,7 @@ public class API {
 
     public Vod getVodInfo(String key,Vod vod,String[] idInfo){
         try {
-            if(key.equals("磁力")||key.startsWith("http"))return vod;
+            if(key.equals("磁力")||key.contains("."))return vod;
             int sid = -1;
             if(idInfo.length>3&&Utils.isNumeric(idInfo[3])) {
                 sid = Integer.parseInt(idInfo[3]);
