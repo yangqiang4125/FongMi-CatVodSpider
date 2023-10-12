@@ -86,7 +86,7 @@ public class Auth {
     }
 
     public boolean isEmpty() {
-        return getAccessToken().isEmpty();
+        return getAccessTokenOpen().isEmpty();
     }
 
 
