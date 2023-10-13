@@ -50,6 +50,7 @@ public class API {
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
+        if(auth.isEmpty())cleanToken();
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         qmap.put("2K","QHD");
         qmap.put("极清","QHD");
@@ -62,7 +63,7 @@ public class API {
     public void setAuth(boolean flag){
         if (Utils.tokenInfo.length()>10) {
             auths = Auth.objectFrom(Utils.tokenInfo);
-            if(!auths.getRefreshTokenOpen().isEmpty()){
+            if(!auths.isEmpty()){
                 auth = auths;
                 auth.save();
             }
@@ -173,7 +174,7 @@ public class API {
     private boolean refreshAccessToken() {
         try {
             Ali.fetchRule(true, 0);
-            if (auths!=null&&!auths.getRefreshTokenOpen().isEmpty())return true;
+            if (auths!=null&&!auths.getRefreshToken().isEmpty())return true;
             if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
             String token = Utils.refreshToken;

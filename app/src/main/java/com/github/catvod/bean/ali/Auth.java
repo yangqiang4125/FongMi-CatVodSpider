@@ -24,6 +24,8 @@ public class Auth {
     private String userId;
     @SerializedName("driveId")
     public String driveId;
+    @SerializedName("time")
+    public String time;
 
     public static Auth objectFrom(String str) {
         if(str.isEmpty())return new Auth();
@@ -71,10 +73,10 @@ public class Auth {
         this.deviceId = deviceId;
     }
 
-    public String getDriveId() { return Utils.getStr(driveId); }
+    public String getTime() { return Utils.getStr(time); }
 
-    public void setDriveId(String driveId) {
-        this.driveId = driveId;
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getUserId() {
@@ -86,16 +88,17 @@ public class Auth {
     }
 
     public boolean isEmpty() {
-        return getAccessTokenOpen().isEmpty();
+        return getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
     }
 
 
-    public void clean() {
+    public Auth clean() {
         setRefreshTokenOpen("");
         setAccessTokenOpen("");
         setRefreshToken("");
         setAccessToken("");
         setSignature("");
+        return this;
     }
 
     public void save() {
