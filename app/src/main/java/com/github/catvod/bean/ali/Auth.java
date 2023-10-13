@@ -107,4 +107,7 @@ public class Auth {
     public void save() {
         Prefers.put("aliyundrive", new Gson().toJson(this));
     }
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
 }

@@ -1,5 +1,22 @@
 package com.github.catvod.ali;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.widget.FrameLayout;
+import android.widget.EditText;
+import java.util.concurrent.TimeUnit;
+import android.widget.ImageView;
+import android.os.SystemClock;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import com.github.catvod.bean.ali.Data;
+import com.github.catvod.utils.QRCode;
+
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.catvod.bean.Result;
@@ -18,6 +35,7 @@ import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class API {
+    private ScheduledExecutorService service;
+    private AlertDialog dialog;
     private final List<String> tempIds;
     private final List<String> quality;
     public final Map<String,String> qmap;
@@ -38,6 +58,7 @@ public class API {
     private String parentDir = "root";
     private String updateTk = "0";
     private String vodInfo = "1";
+    private String updateAliData;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -72,6 +93,7 @@ public class API {
         parentDir = getVal("parentDir", "root");
         vodInfo = getVal("vodInfo", "1");
         updateTk = getVal("updateTk", "0");
+        updateAliData = getVal("updateAliData", "");
         if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
     public String getVal(String key,String dval){
@@ -170,6 +192,19 @@ public class API {
             Init.show("checkAccessToken："+e.getMessage());
         }
     }
+    public void updateData() {
+        try {
+            if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
+                String [] arr= updateAliData.split(",");
+                Map<String, String> params = new HashMap<>();
+                params.put("pwd", arr[1]);
+                params.put("key", auth.toJson());
+                OkHttp.post(arr[0], params);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private boolean refreshAccessToken() {
         try {
@@ -182,7 +217,6 @@ public class API {
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
             JSONObject object = new JSONObject(post("https://auth.aliyundrive.com/v2/account/token", body));
-            Log.e("DDD", object.toString());
             auth.setUserId(object.getString("user_id"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setRefreshToken(object.getString("refresh_token"));
@@ -190,11 +224,15 @@ public class API {
             oauthRequest();
             return true;
         } catch (Exception e) {
-            Init.show("阿里账号已失效，请稍后重试~");
-            cleanToken();
+            String qrcode = getVal("qrcode", "0");
+            if (qrcode.equals("1")) startPen();
+            else {
+                Init.show("阿里账号已失效，请稍后重试~");
+                cleanToken();
+            }
             return true;
         } finally {
-            //while (auth.isEmpty()) SystemClock.sleep(250);
+            while (auths.getAccessToken().isEmpty()) SystemClock.sleep(250);
         }
     }
 
@@ -222,6 +260,7 @@ public class API {
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
         auths = auth;
+        updateData();
     }
 
     private boolean refreshOpenToken() {
@@ -239,6 +278,7 @@ public class API {
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
             auths = auth;
+            updateData();
             return true;
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");
@@ -616,5 +656,107 @@ public class API {
         result[1] = "application/octet-stream";
         result[2] = new ByteArrayInputStream(body);
         return result;
+    }
+    private void startPen() {
+        cleanToken();
+        stopService();
+        startFlow();
+    }
+    private void startFlow() {
+        Init.run(this::showInput);
+    }
+
+    private void showInput() {
+        try {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(Utils.dp2px(16), Utils.dp2px(16), Utils.dp2px(16), Utils.dp2px(16));
+            FrameLayout frame = new FrameLayout(Init.context());
+            EditText input = new EditText(Init.context());
+            frame.addView(input, params);
+            dialog = new AlertDialog.Builder(Init.getActivity()).setTitle("请输入阿里Token").setView(frame).setNeutralButton("阿里云盘APP授权", (dialog, which) -> onNeutral()).setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, (dialog, which) -> onPositive(input.getText().toString())).show();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void onNeutral() {
+        dismiss();
+        Init.execute(this::getQRCode);
+    }
+
+    private void onPositive(String text) {
+        dismiss();
+        Init.execute(() -> {
+            if (text.startsWith("http")) setToken(OkHttp.string(text));
+            else if (text.length() == 32) setToken(text);
+            else if (text.contains(":")) setToken(OkHttp.string("http://" + text + "/proxy?do=ali&type=token"));
+        });
+    }
+
+    private void getQRCode() {
+        String json = OkHttp.string("https://passport.aliyundrive.com/newlogin/qrcode/generate.do?appName=aliyun_drive&fromSite=52&appName=aliyun_drive&appEntrance=web&isMobile=false&lang=zh_CN&returnUrl=&bizParams=&_bx-v=2.2.3");
+        Data data = Data.objectFrom(json).getContent().getData();
+        Init.run(() -> openApp(json, data));
+    }
+
+    private void openApp(String json, Data data) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setClassName("com.alicloud.databox", "com.taobao.login4android.scan.QrScanActivity");
+            intent.putExtra("key_scanParam", json);
+            Init.getActivity().startActivity(intent);
+        } catch (Exception e) {
+            showQRCode(data);
+        } finally {
+            Init.execute(() -> startService(data.getParams()));
+        }
+    }
+
+    private void showQRCode(Data data) {
+        try {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(Utils.dp2px(240), Utils.dp2px(240));
+            ImageView image = new ImageView(Init.context());
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            image.setImageBitmap(QRCode.getBitmap(data.getCodeContent(), 240, 2));
+            FrameLayout frame = new FrameLayout(Init.context());
+            params.gravity = Gravity.CENTER;
+            frame.addView(image, params);
+            dialog = new AlertDialog.Builder(Init.getActivity()).setView(frame).setOnCancelListener(this::dismiss).setOnDismissListener(this::dismiss).show();
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            Init.show("请使用阿里云盘 App 扫描二维码");
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void startService(Map<String, String> params) {
+        service = Executors.newScheduledThreadPool(1);
+        service.scheduleAtFixedRate(() -> {
+            String result = OkHttp.post("https://passport.aliyundrive.com/newlogin/qrcode/query.do?appName=aliyun_drive&fromSite=52&_bx-v=2.2.3", params);
+            Data data = Data.objectFrom(result).getContent().getData();
+            if (data.hasToken()) setToken(data.getToken());
+        }, 1, 1, TimeUnit.SECONDS);
+    }
+
+    private void setToken(String value) {
+        SpiderDebug.log("Token:" + value);
+        Init.show("Token:" + value);
+        auth.setRefreshToken(value);
+        refreshAccessToken();
+        stopService();
+    }
+
+    private void stopService() {
+        if (service != null) service.shutdownNow();
+        Init.run(this::dismiss);
+    }
+
+    private void dismiss(DialogInterface dialog) {
+        stopService();
+    }
+
+    private void dismiss() {
+        try {
+            if (dialog != null) dialog.dismiss();
+        } catch (Exception ignored) {
+        }
     }
 }
