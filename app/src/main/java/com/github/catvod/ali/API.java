@@ -197,8 +197,9 @@ public class API {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
                 String [] arr= updateAliData.split(",");
                 Map<String, String> params = new HashMap<>();
+                params.put("type", "jar");
                 params.put("pwd", arr[1]);
-                params.put("key", auth.toJson());
+                params.put("key", "tokenInfo "+auth.toJson());
                 OkHttp.post(arr[0], params);
             }
         } catch (Exception e) {
