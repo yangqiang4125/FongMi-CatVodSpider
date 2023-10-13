@@ -73,6 +73,10 @@ public class Auth {
         this.deviceId = deviceId;
     }
 
+    public String getDriveId() { return Utils.getStr(driveId); }
+
+    public void setDriveId(String driveId) { this.driveId = driveId; }
+
     public String getTime() { return Utils.getStr(time); }
 
     public void setTime(String time) {
@@ -90,7 +94,6 @@ public class Auth {
     public boolean isEmpty() {
         return getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
     }
-
 
     public Auth clean() {
         setRefreshTokenOpen("");
