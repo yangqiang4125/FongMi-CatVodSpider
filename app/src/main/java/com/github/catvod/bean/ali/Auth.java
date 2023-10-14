@@ -100,7 +100,7 @@ public class Auth {
     }
 
     public boolean isToken(String token) {
-        return token.length>20&&Utils.matcher("^[0-9a-z]+",token);
+        return token.length()>20&&Utils.matcher("^[0-9a-z]+",token);
     }
     public Auth clean() {
         setRefreshTokenOpen("");

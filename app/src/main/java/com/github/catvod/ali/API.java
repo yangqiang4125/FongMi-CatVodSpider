@@ -225,7 +225,7 @@ public class API {
             body.put("grant_type", "refresh_token");
             String json = post("https://auth.aliyundrive.com/v2/account/token", body);
             JSONObject object = new JSONObject(json);
-            auth.setRefreshToken(object.getString("refresh_token",""));
+            auth.setRefreshToken(object.getString("refresh_token"));
             if(auth.getRefreshToken().isEmpty())throw new Exception(json);
             auth.setUserId(object.getString("user_id"));
             auth.setDriveId(object.getString("default_drive_id"));
