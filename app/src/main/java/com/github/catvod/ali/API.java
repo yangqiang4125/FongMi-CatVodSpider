@@ -246,7 +246,7 @@ public class API {
         }
     }
 
-    private void oauthRequest() throws Exception {
+    private boolean oauthRequest() throws Exception {
         SpiderDebug.log("OAuth Request...");
         if(CLIENT_ID==null) CLIENT_ID = getVal("CLIENT_ID", "76917ccccd4441c39457a04f6084fb2f");
         JSONObject body = new JSONObject();
@@ -254,23 +254,24 @@ public class API {
         body.put("scope", "user:base,file:all:read,file:all:write");
         JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
-        if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
-        oauthRedirect(object.getString("redirectUri").split("code=")[1]);
+        //if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
+        return oauthRedirect(object.getString("redirectUri").split("code=")[1]);
     }
 
-    private void oauthRedirect(String code) throws Exception {
+    private boolean oauthRedirect(String code) throws Exception {
         SpiderDebug.log("OAuth Redirect...");
         JSONObject body = new JSONObject();
         body.put("code", code);
         body.put("grant_type", "authorization_code");
 
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
-        if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
+        //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
         auths = auth;
         updateData();
+        return true;
     }
 
     private boolean refreshOpenToken() {
