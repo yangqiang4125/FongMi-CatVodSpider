@@ -228,7 +228,6 @@ public class API {
             auth.setUserId(object.getString("user_id"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
@@ -269,7 +268,7 @@ public class API {
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
         auths = auth;
-        updateData();
+        //updateData();
     }
 
     private boolean refreshOpenToken() {
