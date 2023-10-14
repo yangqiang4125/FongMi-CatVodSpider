@@ -254,7 +254,7 @@ public class API {
         body.put("scope", "user:base,file:all:read,file:all:write");
         JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
-        if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
+        //if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
     }
 
@@ -265,7 +265,7 @@ public class API {
         body.put("grant_type", "authorization_code");
 
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
-        if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
+        //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
