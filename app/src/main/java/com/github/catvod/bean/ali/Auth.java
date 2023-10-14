@@ -33,7 +33,11 @@ public class Auth {
         return item == null ? new Auth() : item;
     }
 
-    public String getRefreshToken() { return Utils.getStr(refreshToken); }
+    public String getRefreshToken() {
+        refreshToken = Utils.getStr(refreshToken);
+        if(!isToken(refreshToken)) refreshToken = "";
+        return refreshToken;
+    }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
@@ -95,6 +99,9 @@ public class Auth {
         return getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
     }
 
+    public boolean isToken(String token) {
+        return token.length>20&&Utils.matcher("^[0-9a-z]+",token);
+    }
     public Auth clean() {
         setRefreshTokenOpen("");
         setAccessTokenOpen("");

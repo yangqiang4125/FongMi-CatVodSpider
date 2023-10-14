@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import com.github.catvod.bean.ali.Data;
 import com.github.catvod.utils.QRCode;
+import java.util.concurrent.TimeoutException;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -71,6 +72,7 @@ public class API {
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
+        auths = new Auth();
         if(auth.isEmpty())cleanToken();
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         qmap.put("2K","QHD");
@@ -88,7 +90,7 @@ public class API {
                 auth = auths;
                 auth.save();
             }
-        }
+        }else auths.clean();
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
         vodInfo = getVal("vodInfo", "1");
@@ -196,10 +198,12 @@ public class API {
         try {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
                 String [] arr= updateAliData.split(",");
+                String dkey = getVal("refreshUrl", "");
                 Map<String, String> params = new HashMap<>();
                 params.put("type", "jar");
                 params.put("pwd", arr[1]);
-                params.put("key", "tokenInfo "+auth.toJson());
+                params.put("dkey", dkey);
+                params.put("key", dkey+"tokenInfo "+auth.toJson());
                 OkHttp.post(arr[0], params);
             }
         } catch (Exception e) {
@@ -209,22 +213,27 @@ public class API {
 
     private boolean refreshAccessToken() {
         try {
-            Ali.fetchRule(true, 0);
-            if (auths!=null&&!auths.getRefreshToken().isEmpty())return true;
+            if(auth.getRefreshToken().isEmpty()){
+                Ali.fetchRule(true, 0);
+                if (auths!=null&&!auths.getRefreshToken().isEmpty())return true;
+            }
             if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
-            String token = Utils.refreshToken;
+            String token = auth.getRefreshToken();
             if (token.startsWith("http")) token = OkHttp.string(token).replaceAll("[^A-Za-z0-9]", "");
             body.put("refresh_token", token);
             body.put("grant_type", "refresh_token");
-            JSONObject object = new JSONObject(post("https://auth.aliyundrive.com/v2/account/token", body));
+            String json = post("https://auth.aliyundrive.com/v2/account/token", body);
+            JSONObject object = new JSONObject(json);
+            auth.setRefreshToken(object.getString("refresh_token",""));
+            if(auth.getRefreshToken().isEmpty())throw new Exception(json);
             auth.setUserId(object.getString("user_id"));
             auth.setDriveId(object.getString("default_drive_id"));
-            auth.setRefreshToken(object.getString("refresh_token"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             oauthRequest();
             return true;
         } catch (Exception e) {
+            if (e instanceof TimeoutException) return onTimeout();
             String qrcode = getVal("qrcode", "0");
             if (qrcode.equals("1")) startPen();
             else {
@@ -267,7 +276,7 @@ public class API {
     private boolean refreshOpenToken() {
         try {
             Ali.fetchRule(true, 0);
-            if (auths!=null&&!auths.getRefreshTokenOpen().isEmpty())return true;
+            if (auths.getRefreshTokenOpen().isEmpty()) return oauthRequest();
             if(updateTk.equals("0"))return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
@@ -744,7 +753,10 @@ public class API {
         refreshAccessToken();
         stopService();
     }
-
+    private boolean onTimeout() {
+        stopService();
+        return false;
+    }
     private void stopService() {
         if (service != null) service.shutdownNow();
         Init.run(this::dismiss);
