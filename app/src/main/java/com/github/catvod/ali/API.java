@@ -186,10 +186,8 @@ public class API {
 
     public void checkAccessToken() {
         try {
-            if (auth.getAccessToken().isEmpty()) {
-                refreshAccessToken();
-            }else if(auth.getRefreshTokenOpen().isEmpty())oauthRequest();
-            else if(auth.getAccessTokenOpen().isEmpty())refreshOpenToken();
+            if (auth.getAccessToken().isEmpty())refreshAccessToken();
+            if(auth.isEmpty())refreshOpenToken();
         } catch (Exception e) {
             Init.show("checkAccessToken："+e.getMessage());
         }
@@ -267,6 +265,7 @@ public class API {
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
+        alert(object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
         auths = auth;
@@ -276,8 +275,9 @@ public class API {
     private boolean refreshOpenToken() {
         try {
             Ali.fetchRule(true, 0);
-            if (auths.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(updateTk.equals("0"))return true;
+            if (auths.getRefreshTokenOpen().isEmpty()) oauthRequest();
+            
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
@@ -748,7 +748,7 @@ public class API {
 
     private void setToken(String value) {
         SpiderDebug.log("Token:" + value);
-        Init.show("Token:" + value);
+        //Init.show("Token:" + value);
         auth.setRefreshToken(value);
         refreshAccessToken();
         stopService();
