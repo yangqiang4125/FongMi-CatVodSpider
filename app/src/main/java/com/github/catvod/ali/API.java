@@ -276,7 +276,7 @@ public class API {
     private boolean refreshOpenToken() {
         try {
             Ali.fetchRule(true, 0);
-            if (auths.getRefreshTokenOpen().isEmpty()) return oauthRequest();
+            if (auths.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(updateTk.equals("0"))return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
