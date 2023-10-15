@@ -112,6 +112,7 @@ public class API {
 
     public boolean isRefresh() {
         if(auth.getRefreshToken().isEmpty()||auth.isEmpty())return true;
+        return false;
     }
     public void setShareId(String shareId) {
         this.shareId = shareId;
