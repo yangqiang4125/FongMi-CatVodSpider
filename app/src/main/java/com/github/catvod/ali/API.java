@@ -202,7 +202,7 @@ public class API {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
                 String [] arr= updateAliData.split(",");
                 String dkey = getVal("dkey", "");
-                JSONObject params = new JSONObject<>();
+                JSONObject params = new JSONObject();
                 params.put("type", "jar");
                 params.put("pwd", arr[1]);
                 params.put("dkey", dkey);
