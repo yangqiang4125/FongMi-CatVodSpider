@@ -25,15 +25,13 @@ public class Ali extends Spider {
     public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     @Override
     public void init(Context context, String extend) {
-        //API.get().setRefreshToken(extend);
         if(extend.startsWith("http://test.xinjun58.com/"))Utils.jsonUrl = extend;
         fetchRule(false,0);
     }
 
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
-            String rs = API.get().getRefreshToken();
-            if (flag || Utils.siteRule == null ||rs.isEmpty()) {
+            if (flag || Utils.siteRule == null ||API.get().isRefresh()) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
                 Utils.etime = Time();
                 String jurl =Utils.jsonUrl+"?t="+Time();

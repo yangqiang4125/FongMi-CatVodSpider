@@ -109,11 +109,9 @@ public class API {
         boolean aflag = Prefers.getBoolean("alert", false);
         if(aflag) Init.show(msg);
     }
-    public void setRefreshToken(String token) {
-        if (auth.getRefreshToken().isEmpty()&&!token.endsWith(".json")) auth.setRefreshToken(token);
-    }
-    public String getRefreshToken() {
-        return auth.getRefreshToken();
+
+    public boolean isRefresh() {
+        if(auth.getRefreshToken().isEmpty()||auth.isEmpty())return true;
     }
     public void setShareId(String shareId) {
         this.shareId = shareId;
