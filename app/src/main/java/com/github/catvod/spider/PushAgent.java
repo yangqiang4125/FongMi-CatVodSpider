@@ -22,7 +22,7 @@ public class PushAgent extends Ali {
         String [] arr=null;
         if(url.contains(","))arr = url.split(",");
         else if(url.contains(" "))arr = url.split(" ");
-        if(arr!=null&&arr.length>1)url = arr[0]+"$$$"+zlpic+"$$$"+arr[1];
+        if(arr!=null&&arr.length>1)url = arr[1]+"$$$"+zlpic+"$$$"+arr[0];
         ids.set(0, url);
         if (Ali.pattern.matcher(url).find()) return super.detailContent(ids);
         return Result.string(vod(url));
