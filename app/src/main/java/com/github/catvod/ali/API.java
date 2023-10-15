@@ -117,6 +117,8 @@ public class API {
     }
     public void setShareId(String shareId) {
         this.shareId = shareId;
+        refreshShareToken();
+        checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -233,7 +235,7 @@ public class API {
             auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            //oauthRequest();
+            oauthRequest();
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
