@@ -267,14 +267,12 @@ public class API {
 
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
-        Log.e("DDD", object.toString());
-
-        //auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-        alert("access_tokenopen " + object.optString("access_token"));
+        //Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
+        auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
         auth.save();
         auths = auth;
-        //updateData();
+        updateData();
     }
 
     private boolean refreshOpenToken() {
