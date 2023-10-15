@@ -182,7 +182,10 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshOpenToken();
+        if (result.contains("AccessTokenInvalid")) {
+            auth.setAccessTokenOpen("");
+            return refreshOpenToken();
+        }
         return false;
     }
 
@@ -268,10 +271,8 @@ public class API {
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         //Log.e("DDD", object.toString());
-        alert("11");
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-        alert("setAccessTokenOpen "+auth.getAccessTokenOpen());
         auth.save();
         auths = auth;
         updateData();
