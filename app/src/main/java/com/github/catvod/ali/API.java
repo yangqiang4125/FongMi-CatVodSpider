@@ -231,7 +231,7 @@ public class API {
             auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            //oauthRequest();
+            oauthRequest();
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
@@ -273,7 +273,7 @@ public class API {
         alert("access_tokenopen " + object.optString("access_token"));
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
-        //auths = auth;
+        auths = auth;
         //updateData();
     }
 
