@@ -18,8 +18,12 @@ public class PushAgent extends Ali {
 
     @Override
     public String detailContent(List<String> ids) throws Exception {
-        if (Ali.pattern.matcher(ids.get(0)).find()) return super.detailContent(ids);
-        return Result.string(vod(ids.get(0)));
+        String url = ids.get(0);
+        if(url.contains(","))url = url.split(",")[1];
+        else if(url.contains(" "))url = url.split(" ")[1];
+        ids.set(0, url);
+        if (Ali.pattern.matcher(url).find()) return super.detailContent(ids);
+        return Result.string(vod(url));
     }
 
     @Override

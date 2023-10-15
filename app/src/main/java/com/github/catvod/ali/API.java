@@ -52,7 +52,6 @@ public class API {
     public final Map<String,String> qmap;
     private String shareToken;
     private Auth auth;
-    private Auth auths;
     private String shareId;
     private String refreshUrl;
     private String CLIENT_ID;
@@ -72,7 +71,6 @@ public class API {
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
-        auths = new Auth();
         if(auth.isEmpty())cleanToken();
         quality = Arrays.asList("UHD","QHD","FHD", "HD", "SD", "LD");
         qmap.put("2K","QHD");
@@ -86,12 +84,12 @@ public class API {
     public void setAuth(boolean flag){
         if (flag) {
             if (Utils.tokenInfo.length()>10) {
-                auths = Auth.objectFrom(Utils.tokenInfo);
+                Auth auths = Auth.objectFrom(Utils.tokenInfo);
                 if(!auths.isEmpty()){
                     auth = auths;
                     auth.save();
                 }
-            }else auths.clean();
+            }
         }
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
@@ -218,7 +216,7 @@ public class API {
         try {
             if(auth.getRefreshToken().isEmpty()){
                 Ali.fetchRule(true, 0);
-                if (auths!=null&&!auths.getRefreshToken().isEmpty())return true;
+                if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
             }
             if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
@@ -246,7 +244,7 @@ public class API {
             }
             return true;
         } finally {
-            while (auths.getAccessToken().isEmpty()) SystemClock.sleep(250);
+            while (auth.getAccessToken().isEmpty()) SystemClock.sleep(250);
         }
     }
 
@@ -274,7 +272,6 @@ public class API {
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
         auth.save();
-        auths = auth;
         updateData();
     }
 
@@ -282,7 +279,7 @@ public class API {
         try {
             Ali.fetchRule(true, 1);
             if(updateTk.equals("0"))return true;
-            if (auths.getRefreshTokenOpen().isEmpty()) oauthRequest();
+            if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty())return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
@@ -293,7 +290,6 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             auth.save();
-            auths = auth;
             updateData();
             return true;
         } catch (Exception e) {

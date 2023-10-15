@@ -36,8 +36,7 @@ public class Auth {
     }
 
     public String getRefreshToken() {
-        refreshToken = Utils.getStr(refreshToken);
-        if(!isToken(refreshToken)) refreshToken = "";
+        if(!Utils.isToken(refreshToken)) refreshToken = "";
         return refreshToken;
     }
 
@@ -107,9 +106,6 @@ public class Auth {
         return getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
     }
 
-    public boolean isToken(String token) {
-        return token.length()>20;
-    }
     public Auth clean() {
         setRefreshTokenOpen("");
         setAccessTokenOpen("");

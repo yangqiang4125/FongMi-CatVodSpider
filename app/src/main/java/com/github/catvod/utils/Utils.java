@@ -365,7 +365,10 @@ public class Utils {
             return true;
         return false;
     }
-
+    public static boolean isToken(String token) {
+        token = getStr(token);
+        return token.length()>20;
+    }
     public static String trim(String str) {
         return str == null ? str : str.replaceAll("^[\\s　|\\s ]*|[\\s　|\\s ]*$", "");
     }
