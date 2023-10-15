@@ -51,7 +51,7 @@ public class PushAgent extends Ali {
         Vod vod = new Vod();
         vod.setVodId(url2);
         vod.setTypeName("QQPush");
-        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName)) spName + ".";
+        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName)) spName = spName + ".";
         vod.setVodName(spName);
         vod.setVodPic(zlpic);
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
