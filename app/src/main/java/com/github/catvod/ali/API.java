@@ -201,7 +201,7 @@ public class API {
         try {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
                 String [] arr= updateAliData.split(",");
-                String dkey = getVal("refreshUrl", "");
+                String dkey = getVal("dkey", "");
                 Map<String, String> params = new HashMap<>();
                 params.put("type", "jar");
                 params.put("pwd", arr[1]);
