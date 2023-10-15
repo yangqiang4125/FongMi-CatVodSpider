@@ -59,6 +59,7 @@ public class API {
     private String updateTk = "0";
     private String vodInfo = "1";
     private String updateAliData;
+    private Integer jtype=0;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -82,13 +83,11 @@ public class API {
     }
 
     public void setAuth(boolean flag){
-        if (flag) {
-            if (Utils.tokenInfo.length()>10) {
-                Auth auths = Auth.objectFrom(Utils.tokenInfo);
-                if(!auths.isEmpty()){
-                    auth = auths;
-                    auth.save();
-                }
+        if (Utils.tokenInfo.length()>10) {
+            Auth auths = Auth.objectFrom(Utils.tokenInfo);
+            if(!auths.isEmpty()){
+                auth = auths;
+                auth.save();
             }
         }
         refreshUrl = getVal("refreshUrl", "");
@@ -118,8 +117,6 @@ public class API {
     }
     public void setShareId(String shareId) {
         this.shareId = shareId;
-        refreshShareToken();
-        checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -169,7 +166,10 @@ public class API {
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("AccessTokenInvalid")) return refreshAccessToken();
+        if (result.contains("AccessTokenInvalid")) {
+            auth.setAccessToken("");
+            return refreshAccessToken();
+        }
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
         if (result.contains("QuotaExhausted")) {
             Init.show("账号容量不够啦");
@@ -190,7 +190,7 @@ public class API {
     public void checkAccessToken() {
         try {
             if (auth.getAccessToken().isEmpty())refreshAccessToken();
-            if(auth.isEmpty())refreshOpenToken();
+            //if(auth.isEmpty())refreshOpenToken();
         } catch (Exception e) {
             Init.show("checkAccessToken："+e.getMessage());
         }
@@ -201,7 +201,7 @@ public class API {
                 String [] arr= updateAliData.split(",");
                 String dkey = getVal("dkey", "");
                 JSONObject params = new JSONObject();
-                params.put("type", "jar");
+                params.put("type", "jar"+jtype);
                 params.put("pwd", arr[1]);
                 params.put("dkey", dkey);
                 params.put("key", dkey+"tokenInfo "+auth.toJson());
@@ -216,6 +216,7 @@ public class API {
         try {
             if(auth.getRefreshToken().isEmpty()){
                 Ali.fetchRule(true, 0);
+                if(!auth.getAccessToken().isEmpty())return true;
                 if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
             }
             if(updateTk.equals("0"))return true;
@@ -232,7 +233,7 @@ public class API {
             auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();
+            //oauthRequest();
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
@@ -271,13 +272,14 @@ public class API {
         //Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
+        jtype = 1;
         auth.save();
         updateData();
     }
 
     private boolean refreshOpenToken() {
         try {
-            Ali.fetchRule(true, 1);
+            Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty())return true;
@@ -289,6 +291,7 @@ public class API {
             Log.e("DDD", object.toString());
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
+            jtype=2;
             auth.save();
             updateData();
             return true;
