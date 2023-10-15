@@ -41,6 +41,7 @@ public class PushAgent extends Ali {
         String[] idInfo = url.split("\\$\\$\\$");
         String url2 = idInfo[0];
         String spName = url2;boolean flag = false;
+        String pic=zlpic;
         if (idInfo.length > 2)  {
             flag=true;
             if(!idInfo[1].isEmpty()) pic = idInfo[1];
@@ -51,9 +52,9 @@ public class PushAgent extends Ali {
         Vod vod = new Vod();
         vod.setVodId(url2);
         vod.setTypeName("QQPush");
-        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName)) spName = spName + ".";
+        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName).matches()) spName = spName + ".";
         vod.setVodName(spName);
-        vod.setVodPic(zlpic);
+        vod.setVodPic(pic);
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
         vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url2, "播放$" + url2, "播放$" + url2)));
         if(flag) vod = API.get().getVodInfo(spName, vod, idInfo);
