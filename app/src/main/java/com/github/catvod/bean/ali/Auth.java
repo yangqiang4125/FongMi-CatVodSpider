@@ -24,6 +24,8 @@ public class Auth {
     private String userId;
     @SerializedName("driveId")
     public String driveId;
+    @SerializedName("nickName")
+    public String nickName;
     @SerializedName("time")
     public String time;
 
@@ -80,6 +82,12 @@ public class Auth {
     public String getDriveId() { return Utils.getStr(driveId); }
 
     public void setDriveId(String driveId) { this.driveId = driveId; }
+
+    public String getNickName() { return Utils.getStr(nickName); }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
     public String getTime() { return Utils.getStr(time); }
 

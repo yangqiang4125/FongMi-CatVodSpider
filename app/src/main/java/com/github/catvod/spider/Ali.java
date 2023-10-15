@@ -33,7 +33,7 @@ public class Ali extends Spider {
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
             String rs = API.get().getRefreshToken();
-            if (flag || Utils.siteRule == null ||(rs == null || rs.isEmpty())) {
+            if (flag || Utils.siteRule == null ||rs.isEmpty()) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
                 Utils.etime = Time();
                 String jurl =Utils.jsonUrl+"?t="+Time();
@@ -53,7 +53,9 @@ public class Ali extends Spider {
                 Utils.refreshToken = Utils.siteRule.optString("token", "");
                 Utils.tokenInfo = Utils.siteRule.optString("tokenInfo", "0");
                 Utils.userAgent = Utils.siteRule.optString("userAgent", "");
-                API.get().setAuth(true);
+                boolean aflag=false;
+                if(t==0)aflag = true;
+                API.get().setAuth(aflag);
                 return jo;
             }
         } catch (JSONException e) {

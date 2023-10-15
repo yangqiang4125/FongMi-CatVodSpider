@@ -84,13 +84,15 @@ public class API {
     }
 
     public void setAuth(boolean flag){
-        if (Utils.tokenInfo.length()>10) {
-            auths = Auth.objectFrom(Utils.tokenInfo);
-            if(!auths.isEmpty()){
-                auth = auths;
-                auth.save();
-            }
-        }else auths.clean();
+        if (flag) {
+            if (Utils.tokenInfo.length()>10) {
+                auths = Auth.objectFrom(Utils.tokenInfo);
+                if(!auths.isEmpty()){
+                    auth = auths;
+                    auth.save();
+                }
+            }else auths.clean();
+        }
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
         vodInfo = getVal("vodInfo", "1");
@@ -226,6 +228,7 @@ public class API {
             auth.setRefreshToken(object.getString("refresh_token"));
             if(auth.getRefreshToken().isEmpty())throw new Exception(json);
             auth.setUserId(object.getString("user_id"));
+            auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
             //oauthRequest();
@@ -252,7 +255,7 @@ public class API {
         body.put("scope", "user:base,file:all:read,file:all:write");
         JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
-        if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
+        //if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
     }
 
@@ -267,7 +270,7 @@ public class API {
         Log.e("DDD", object.toString());
 
         //auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-        alert(object.getString("token_type") + " " + object.getString("access_token"));
+        alert("access_tokenopen " + object.optString("access_token"));
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
         //auths = auth;
@@ -276,7 +279,7 @@ public class API {
 
     private boolean refreshOpenToken() {
         try {
-            Ali.fetchRule(true, 0);
+            Ali.fetchRule(true, 1);
             if(updateTk.equals("0"))return true;
             if (auths.getRefreshTokenOpen().isEmpty()) oauthRequest();
 
