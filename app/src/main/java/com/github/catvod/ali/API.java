@@ -228,7 +228,7 @@ public class API {
             auth.setUserId(object.getString("user_id"));
             auth.setDriveId(object.getString("default_drive_id"));
             auth.setAccessToken(object.getString("token_type") + " " + object.getString("access_token"));
-            oauthRequest();
+            //oauthRequest();
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
@@ -265,12 +265,13 @@ public class API {
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
         Log.e("DDD", object.toString());
-        auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-        alert(auth.getAccessTokenOpen());
+        
+        //auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
+        alert(object.getString("token_type") + " " + object.getString("access_token"));
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.save();
-        auths = auth;
-        updateData();
+        //auths = auth;
+        //updateData();
     }
 
     private boolean refreshOpenToken() {
