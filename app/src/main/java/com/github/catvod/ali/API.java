@@ -202,12 +202,12 @@ public class API {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
                 String [] arr= updateAliData.split(",");
                 String dkey = getVal("dkey", "");
-                Map<String, String> params = new HashMap<>();
+                JSONObject params = new JSONObject<>();
                 params.put("type", "jar");
                 params.put("pwd", arr[1]);
                 params.put("dkey", dkey);
                 params.put("key", dkey+"tokenInfo "+auth.toJson());
-                OkHttp.post(arr[0], params);
+                OkHttp.postJson(arr[0], params.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
