@@ -15,12 +15,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PushAgent extends Ali {
-
+    private String zlpic="http://image.xinjun58.com/sp/pic/bg/zl.jpg";
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0);
-        if(url.contains(","))url = url.split(",")[1];
-        else if(url.contains(" "))url = url.split(" ")[1];
+        String [] arr=null;
+        if(url.contains(","))arr = url.split(",");
+        else if(url.contains(" "))arr = url.split(" ");
+        if(arr!=null&&arr.length>1)url = arr[0]+"$$$"+zlpic+"$$$"+arr[1];
         ids.set(0, url);
         if (Ali.pattern.matcher(url).find()) return super.detailContent(ids);
         return Result.string(vod(url));
@@ -37,7 +39,7 @@ public class PushAgent extends Ali {
 
     private Vod vod(String url) {
         String[] idInfo = url.split("\\$\\$\\$");
-        String url2 = idInfo[0],pic="http://image.xinjun58.com/sp/pic/bg/zl.jpg";
+        String url2 = idInfo[0];
         String spName = url2;boolean flag = false;
         if (idInfo.length > 2)  {
             flag=true;
@@ -45,13 +47,13 @@ public class PushAgent extends Ali {
             spName = idInfo[2].trim();
             url = url+"$$$1";
             idInfo = url.split("\\$\\$\\$");
-        }
-        else  spName = Utils.getWebName(url2, 0);
+        } else  spName = Utils.getWebName(url2, 0);
         Vod vod = new Vod();
         vod.setVodId(url2);
         vod.setTypeName("QQPush");
+        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName)) spName + ".";
         vod.setVodName(spName);
-        vod.setVodPic(pic);
+        vod.setVodPic(zlpic);
         vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
         vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url2, "播放$" + url2, "播放$" + url2)));
         if(flag) vod = API.get().getVodInfo(spName, vod, idInfo);
