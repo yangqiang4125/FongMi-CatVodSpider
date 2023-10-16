@@ -187,17 +187,16 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        Init.show("checkOpen:"+result);
         if (result.contains("AccessTokenInvalid")) {
             refreshTokenOpen = auth.getRefreshTokenOpen();
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
         }
-        Init.show("checkOpenauths:2");
-        if(auths==null){
+        if(auths==null||(!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen())&&!refreshTokenOpen.isEmpty())){
             jtype=3;
             updateData();
         }
+        refreshTokenOpen = "";
         return false;
     }
 
