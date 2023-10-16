@@ -18,8 +18,6 @@ public class Auth {
     private String accessTokenOpen;
     @SerializedName("signature")
     private String signature;
-    @SerializedName("deviceId")
-    private String deviceId;
     @SerializedName("userId")
     private String userId;
     @SerializedName("driveId")
@@ -70,14 +68,6 @@ public class Auth {
         this.signature = signature;
     }
 
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
     public String getDriveId() { return Utils.getStr(driveId); }
 
     public void setDriveId(String driveId) { this.driveId = driveId; }
@@ -103,7 +93,7 @@ public class Auth {
     }
 
     public boolean isEmpty() {
-        return getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
+        return getRefreshToken().isEmpty()||getAccessTokenOpen().isEmpty()||getRefreshTokenOpen().isEmpty();
     }
 
     public Auth clean() {
@@ -116,6 +106,8 @@ public class Auth {
     }
 
     public void save() {
+        String time = Utils.getTime();
+        setTime(time);
         Prefers.put("aliyundrive", new Gson().toJson(this));
     }
     public String toJson() {

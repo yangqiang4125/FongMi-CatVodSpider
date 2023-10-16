@@ -52,6 +52,7 @@ public class API {
     public final Map<String,String> qmap;
     private String shareToken;
     private Auth auth;
+    private Auth auths;
     private String shareId;
     private String refreshUrl;
     private String CLIENT_ID;
@@ -80,15 +81,22 @@ public class API {
         qmap.put("高清","HD");
         qmap.put("标清", "SD");
         qmap.put("流畅", "LD");
+        alert("api:"+auth.toJson());
     }
 
     public void setAuth(boolean flag){
+        alert("setAuth");
         if (Utils.tokenInfo.length()>10) {
-            Auth auths = Auth.objectFrom(Utils.tokenInfo);
+            auths = Auth.objectFrom(Utils.tokenInfo);
+            alert("auths:"+auths.isEmpty());
             if(!auths.isEmpty()){
                 auth = auths;
                 auth.save();
-            }
+                alert("auth3:");
+            } else auths = null;
+        } else {
+            auths = null;
+            alert("d:"+auth.toJson());
         }
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
@@ -176,6 +184,10 @@ public class API {
             Init.show("账号容量不够啦");
             Init.execute(this::deleteAll);
             return true;
+        }
+        if(auths==null){
+            jtype=3;
+            updateData();
         }
         return false;
     }

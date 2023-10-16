@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import java.text.SimpleDateFormat;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.spider.Init;
 import org.json.JSONException;
@@ -132,6 +132,11 @@ public class Utils {
         }
     }
 
+    public static String getTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentTime = sdf.format(new Date());
+        return currentTime;
+    }
     public static String getStr(String str) {
         if(str==null||str.equals("null")||str.equals("NUll")) return "";
         return str;

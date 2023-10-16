@@ -51,9 +51,7 @@ public class Ali extends Spider {
                 Utils.refreshToken = Utils.siteRule.optString("token", "");
                 Utils.tokenInfo = Utils.siteRule.optString("tokenInfo", "0");
                 Utils.userAgent = Utils.siteRule.optString("userAgent", "");
-                boolean aflag=false;
-                if(t==0)aflag = true;
-                API.get().setAuth(aflag);
+                API.get().setAuth(true);
                 return jo;
             }
         } catch (JSONException e) {
