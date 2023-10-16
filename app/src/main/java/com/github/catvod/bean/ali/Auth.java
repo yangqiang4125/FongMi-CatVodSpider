@@ -5,7 +5,7 @@ import com.github.catvod.utils.Utils;
 import com.github.catvod.utils.Prefers;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
+import com.github.catvod.ali.API;
 public class Auth {
 
     @SerializedName("refreshToken")
@@ -24,6 +24,8 @@ public class Auth {
     public String driveId;
     @SerializedName("nickName")
     public String nickName;
+    @SerializedName("jtype")
+    private String jtype;
     @SerializedName("time")
     public String time;
 
@@ -84,6 +86,12 @@ public class Auth {
         this.time = time;
     }
 
+    public String getJtype() { return Utils.getStr(jtype); }
+
+    public void setJtype(String jtype) {
+        this.jtype = jtype;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -108,6 +116,7 @@ public class Auth {
     public void save() {
         String time = Utils.getTime();
         setTime(time);
+        setJtype(API.get().jtype);
         Prefers.put("aliyundrive", new Gson().toJson(this));
     }
     public String toJson() {

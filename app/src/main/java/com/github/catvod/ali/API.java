@@ -62,7 +62,7 @@ public class API {
     private String updateAliData;
     private String refreshTokenOpen="";
     private String accessToken="";
-    private Integer jtype=0;
+    public String jtype="0";
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -122,7 +122,6 @@ public class API {
     public void setShareId(String shareId) {
         this.shareId = shareId;
         refreshShareToken();
-        //checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -193,21 +192,13 @@ public class API {
             return refreshOpenToken();
         }
         if(auths==null||(!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen())&&!refreshTokenOpen.isEmpty())){
-            jtype=3;
+            jtype="3";
             updateData();
         }
         refreshTokenOpen = "";
         return false;
     }
 
-    public void checkAccessToken() {
-        try {
-            if (auth.getAccessToken().isEmpty())refreshAccessToken();
-            //if(auth.isEmpty())refreshOpenToken();
-        } catch (Exception e) {
-            Init.show("checkAccessToken："+e.getMessage());
-        }
-    }
     public void updateData() {
         try {
             if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
@@ -285,7 +276,7 @@ public class API {
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-        jtype = 1;
+        jtype = "1";
         auth.save();
         updateData();
     }
@@ -304,7 +295,7 @@ public class API {
             Log.e("DDD", object.toString());
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
-            jtype=2;
+            jtype="2";
             auth.save();
             updateData();
             return true;
