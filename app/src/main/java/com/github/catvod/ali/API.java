@@ -173,10 +173,9 @@ public class API {
     }
 
     private boolean checkAuth(String result) {
-        if (result.contains("Invalid")) alert("checkAuth:"+result);
+        //if (result.contains("Invalid")) alert("checkAuth:"+result);
         if (result.contains("AccessTokenInvalid")) {
             refreshToken = auth.getRefreshToken();
-            auth.setAccessToken("");
             return refreshAccessToken();
         }
         if (result.contains("ShareLinkTokenInvalid") || result.contains("InvalidParameterNotMatch")) return refreshShareToken();
@@ -190,7 +189,7 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        if (result.contains("Invalid")) alert("checkOpen:"+result);
+        //if (result.contains("Invalid")) alert("checkOpen:"+result);
         if (result.contains("AccessTokenInvalid")) {
             refreshTokenOpen = auth.getRefreshTokenOpen();
             auth.setAccessTokenOpen("");
