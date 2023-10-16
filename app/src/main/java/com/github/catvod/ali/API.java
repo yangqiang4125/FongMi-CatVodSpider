@@ -60,6 +60,7 @@ public class API {
     private String updateTk = "0";
     private String vodInfo = "1";
     private String updateAliData;
+    private String refreshTokenOpen="";
     private Integer jtype=0;
     private static class Loader {
         static volatile API INSTANCE = new API();
@@ -81,22 +82,17 @@ public class API {
         qmap.put("高清","HD");
         qmap.put("标清", "SD");
         qmap.put("流畅", "LD");
-        alert("api:"+auth.toJson());
     }
 
     public void setAuth(boolean flag){
-        alert("setAuth");
         if (Utils.tokenInfo.length()>10) {
             auths = Auth.objectFrom(Utils.tokenInfo);
-            alert("auths:"+auths.isEmpty());
             if(!auths.isEmpty()){
                 auth = auths;
                 auth.save();
-                alert("auth3:");
             } else auths = null;
         } else {
             auths = null;
-            alert("d:"+auth.toJson());
         }
         refreshUrl = getVal("refreshUrl", "");
         parentDir = getVal("parentDir", "root");
@@ -185,17 +181,20 @@ public class API {
             Init.execute(this::deleteAll);
             return true;
         }
-        if(auths==null){
-            jtype=3;
-            updateData();
-        }
         return false;
     }
 
     private boolean checkOpen(String result) {
+        Init.show("checkOpen:"+result)
         if (result.contains("AccessTokenInvalid")) {
+            refreshTokenOpen = auth.getRefreshTokenOpen();
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
+        }
+        Init.show("checkOpenauths:2")
+        if(auths==null){
+            jtype=3;
+            updateData();
         }
         return false;
     }
@@ -295,7 +294,7 @@ public class API {
             Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
-            if(!auth.isEmpty())return true;
+            if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;
             SpiderDebug.log("refreshAccessTokenOpen...");
             JSONObject body = new JSONObject();
             body.put("grant_type", "refresh_token");
@@ -564,6 +563,7 @@ public class API {
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
+
             return new JSONObject(json).getString("url");
         } catch (Exception e) {
             e.printStackTrace();
