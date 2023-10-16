@@ -122,7 +122,7 @@ public class API {
     public void setShareId(String shareId) {
         this.shareId = shareId;
         refreshShareToken();
-        checkAccessToken();
+        //checkAccessToken();
     }
 
     public HashMap<String, String> getHeader() {
