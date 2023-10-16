@@ -61,8 +61,9 @@ public class API {
     private String vodInfo = "1";
     private String updateAliData;
     private String refreshTokenOpen="";
-    private String accessToken="";
+    private String refreshToken="";
     public String jtype="0";
+    private String dkey;
     private static class Loader {
         static volatile API INSTANCE = new API();
     }
@@ -100,6 +101,7 @@ public class API {
         vodInfo = getVal("vodInfo", "1");
         updateTk = getVal("updateTk", "0");
         updateAliData = getVal("updateAliData", "");
+        dkey = getVal("dkey", "");
         if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
     public String getVal(String key,String dval){
@@ -173,7 +175,7 @@ public class API {
     private boolean checkAuth(String result) {
         if (result.contains("Invalid")) alert("checkAuth:"+result);
         if (result.contains("AccessTokenInvalid")) {
-            accessToken = auth.getAccessToken();
+            refreshToken = auth.getRefreshToken();
             auth.setAccessToken("");
             return refreshAccessToken();
         }
@@ -183,6 +185,7 @@ public class API {
             Init.execute(this::deleteAll);
             return true;
         }
+        refreshToken = "";
         return false;
     }
 
@@ -202,17 +205,20 @@ public class API {
     }
 
     public void updateData() {
+        if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
+            postData(dkey+"tokenInfo "+auth.toJson(),"jar"+jtype);
+        }
+    }
+
+    public void postData(String key,String type) {
         try {
-            if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
-                String [] arr= updateAliData.split(",");
-                String dkey = getVal("dkey", "");
-                JSONObject params = new JSONObject();
-                params.put("type", "jar"+jtype);
-                params.put("pwd", arr[1]);
-                params.put("dkey", dkey);
-                params.put("key", dkey+"tokenInfo "+auth.toJson());
-                OkHttp.postJson(arr[0], params.toString());
-            }
+            String [] arr= updateAliData.split(",");
+            JSONObject params = new JSONObject();
+            params.put("pwd", arr[1]);
+            params.put("dkey", dkey);
+            params.put("type", type);
+            params.put("key", key);
+            OkHttp.postJson(arr[0], params.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -220,11 +226,12 @@ public class API {
 
     private boolean refreshAccessToken() {
         try {
-            if(auth.getRefreshToken().isEmpty()||!accessToken.isEmpty()){
+            if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()){
                 Ali.fetchRule(true, 0);
-                if (!accessToken.equals(auth.getAccessToken())) {
-                    if(!auth.getAccessToken().isEmpty())return true;
+                if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
+                    if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
                     if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
+                    else throw new Exception("refreshToken无效");
                 }
             }
             if(updateTk.equals("0"))return true;
@@ -237,7 +244,7 @@ public class API {
             JSONObject object = new JSONObject(json);
             auth.setRefreshToken(object.getString("refresh_token"));
             if(auth.getRefreshToken().isEmpty())throw new Exception(json);
-            accessToken = "";
+            refreshToken = "";
             auth.setUserId(object.getString("user_id"));
             auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
@@ -249,6 +256,7 @@ public class API {
             String qrcode = getVal("qrcode", "0");
             if (qrcode.equals("1")) startPen();
             else {
+                postData(e.getMessage(), "msg");
                 Init.show("阿里账号已失效，请稍后重试~");
                 cleanToken();
             }
