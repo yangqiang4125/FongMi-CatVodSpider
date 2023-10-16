@@ -61,6 +61,7 @@ public class API {
     private String vodInfo = "1";
     private String updateAliData;
     private String refreshTokenOpen="";
+    private String accessToken="";
     private Integer jtype=0;
     private static class Loader {
         static volatile API INSTANCE = new API();
@@ -172,6 +173,7 @@ public class API {
 
     private boolean checkAuth(String result) {
         if (result.contains("AccessTokenInvalid")) {
+            accessToken = auth.getAccessToken();
             auth.setAccessToken("");
             return refreshAccessToken();
         }
@@ -185,13 +187,13 @@ public class API {
     }
 
     private boolean checkOpen(String result) {
-        Init.show("checkOpen:"+result)
+        Init.show("checkOpen:"+result);
         if (result.contains("AccessTokenInvalid")) {
             refreshTokenOpen = auth.getRefreshTokenOpen();
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
         }
-        Init.show("checkOpenauths:2")
+        Init.show("checkOpenauths:2");
         if(auths==null){
             jtype=3;
             updateData();
@@ -228,8 +230,10 @@ public class API {
         try {
             if(auth.getRefreshToken().isEmpty()){
                 Ali.fetchRule(true, 0);
-                if(!auth.getAccessToken().isEmpty())return true;
-                if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
+                if (!accessToken.equals(auth.getAccessToken())) {
+                    if(!auth.getAccessToken().isEmpty())return true;
+                    if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
+                }
             }
             if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
@@ -280,8 +284,6 @@ public class API {
         body.put("grant_type", "authorization_code");
 
         JSONObject object = new JSONObject(post(refreshUrl+"alist/ali_open/code", body));
-        //if(object.toString().contains("not"))alert("oauthRedirect:"+object.toString());
-        //Log.e("DDD", object.toString());
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
         jtype = 1;
