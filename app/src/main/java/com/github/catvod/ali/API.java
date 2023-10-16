@@ -228,9 +228,9 @@ public class API {
             if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()){
                 Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
-                    if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
-                    if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);                
+                    if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;                        
                 }
+                if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
             }
             if(auth.getRefreshToken().isEmpty()) throw new Exception("refreshToken无效");
             if(updateTk.equals("0"))return true;
