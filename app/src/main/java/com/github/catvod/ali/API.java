@@ -220,7 +220,7 @@ public class API {
 
     private boolean refreshAccessToken() {
         try {
-            if(auth.getRefreshToken().isEmpty()){
+            if(auth.getRefreshToken().isEmpty()||!accessToken.isEmpty()){
                 Ali.fetchRule(true, 0);
                 if (!accessToken.equals(auth.getAccessToken())) {
                     if(!auth.getAccessToken().isEmpty())return true;
@@ -237,6 +237,7 @@ public class API {
             JSONObject object = new JSONObject(json);
             auth.setRefreshToken(object.getString("refresh_token"));
             if(auth.getRefreshToken().isEmpty())throw new Exception(json);
+            accessToken = "";
             auth.setUserId(object.getString("user_id"));
             auth.setNickName(object.optString("nick_name"));
             auth.setDriveId(object.getString("default_drive_id"));
