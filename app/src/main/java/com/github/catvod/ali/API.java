@@ -252,13 +252,13 @@ public class API {
             return true;
         } catch (Exception e) {
             if (e instanceof TimeoutException) return onTimeout();
+            cleanToken();
             String qrcode = getVal("qrcode", "0");
             if (qrcode.equals("1")) {
                 startPen();
             } else {
                 postData(e.getMessage(), "msg");
-                Init.show("阿里账号已失效，请稍后重试~");
-                cleanToken();
+                Init.show("阿里账号已失效，请稍后重试~");                
             }
             return true;
         } finally {
