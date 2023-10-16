@@ -229,10 +229,10 @@ public class API {
                 Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
                     if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
-                    if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
-                    else throw new Exception("refreshToken无效");
+                    if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);                
                 }
             }
+            if(auth.getRefreshToken().isEmpty()) throw new Exception("refreshToken无效");
             if(updateTk.equals("0"))return true;
             JSONObject body = new JSONObject();
             String token = auth.getRefreshToken();
@@ -242,7 +242,7 @@ public class API {
             String json = post("https://auth.aliyundrive.com/v2/account/token", body);
             JSONObject object = new JSONObject(json);
             auth.setRefreshToken(object.getString("refresh_token"));
-            if(auth.getRefreshToken().isEmpty())throw new Exception(json);
+            //if(auth.getRefreshToken().isEmpty())throw new Exception(json);
             refreshToken = "";
             auth.setUserId(object.getString("user_id"));
             auth.setNickName(object.optString("nick_name"));
@@ -255,13 +255,12 @@ public class API {
             String qrcode = getVal("qrcode", "0");
             if (qrcode.equals("1")) {
                 startPen();
-                return true;
             } else {
                 postData(e.getMessage(), "msg");
                 Init.show("阿里账号已失效，请稍后重试~");
                 cleanToken();
             }
-            return false;
+            return true;
         } finally {
             while (auth.getAccessToken().isEmpty()) SystemClock.sleep(250);
         }
