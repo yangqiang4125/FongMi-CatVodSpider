@@ -277,6 +277,12 @@ public class API {
         auth.setRefreshTokenOpen(object.getString("refresh_token"));
         auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
         jtype = "1";
+        save();
+    }
+    public void save(){
+        String time = Utils.getTime();
+        auth.setTime(time);
+        auth.setJtype(jtype);
         auth.save();
         updateData();
     }
@@ -296,8 +302,7 @@ public class API {
             auth.setRefreshTokenOpen(object.optString("refresh_token"));
             auth.setAccessTokenOpen(object.optString("token_type") + " " + object.optString("access_token"));
             jtype="2";
-            auth.save();
-            updateData();
+            save();
             return true;
         } catch (Exception e) {
             if(e.getMessage().contains("Too Many Requests"))Init.show("请求过多被封IP，明天再看");

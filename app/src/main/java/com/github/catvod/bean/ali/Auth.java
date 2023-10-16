@@ -5,7 +5,6 @@ import com.github.catvod.utils.Utils;
 import com.github.catvod.utils.Prefers;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.github.catvod.ali.API;
 public class Auth {
 
     @SerializedName("refreshToken")
@@ -114,9 +113,6 @@ public class Auth {
     }
 
     public void save() {
-        String time = Utils.getTime();
-        setTime(time);
-        setJtype(API.get().jtype);
         Prefers.put("aliyundrive", new Gson().toJson(this));
     }
     public String toJson() {
