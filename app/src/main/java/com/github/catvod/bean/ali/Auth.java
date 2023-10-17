@@ -46,7 +46,8 @@ public class Auth {
     public String getRefreshTokenOpen() { return Utils.getStr(refreshTokenOpen); }
 
     public void setRefreshTokenOpen(String refreshTokenOpen) {
-        this.refreshTokenOpen = refreshTokenOpen;
+        if(!Utils.isToken(refreshTokenOpen)) refreshTokenOpen = "";
+        return refreshTokenOpen;
     }
 
     public String getAccessToken() {
