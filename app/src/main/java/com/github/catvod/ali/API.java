@@ -204,7 +204,7 @@ public class API {
     }
 
     public void updateData() {
-        if (!updateAliData.isEmpty()&&!auth.isEmpty()) {
+        if (!updateAliData.isEmpty()&&!auth.isEmpty()&&!auth.getJtype().equals("10")) {
             postData(dkey+"tokenInfo "+auth.toJson(),"jar"+jtype);
         }
     }
