@@ -60,7 +60,10 @@ public class Auth {
         this.accessToken = accessToken;
     }
 
-    public String getAccessTokenOpen() { return Utils.getStr(accessTokenOpen); }
+    public String getAccessTokenOpen() {
+        if(!Utils.isToken(accessTokenOpen)) accessTokenOpen = "";
+        return accessTokenOpen;
+    }
 
     public void setAccessTokenOpen(String accessTokenOpen) {
         this.accessTokenOpen = accessTokenOpen;
