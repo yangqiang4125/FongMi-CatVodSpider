@@ -150,6 +150,7 @@ public class MyQQ extends Spider {
             if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
             String remarks = null;
             if(elremarks!=null&&!elremarks.isEmpty()) remarks = getText(element, elremarks);
+            id=id + "$$$" + pic + "$$$" + name;
             list.add(new Vod(id, name, pic, remarks));
         }
         return Result.get().page(pg, list.size(), total).vod(list);
