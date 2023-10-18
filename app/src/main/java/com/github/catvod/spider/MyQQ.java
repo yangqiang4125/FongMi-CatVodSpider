@@ -150,6 +150,7 @@ public class MyQQ extends Spider {
             if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
             String remarks = null;
             if(elremarks!=null&&!elremarks.isEmpty()) remarks = getText(element, elremarks);
+            id=id + "$$$" + pic + "$$$" + name;
             list.add(new Vod(id, name, pic, remarks));
         }
         return Result.get().page(pg, list.size(), total).vod(list);
@@ -320,6 +321,7 @@ public class MyQQ extends Spider {
                         surl = o.optString("id", "");
                         surl = durl.replace("%", surl);
                         if(surl!=null) surl = getUrl(siteUrl, surl);
+                        surl= surl + "$$$" + spic + "$$$" + sname;
                         list.add(new Vod(surl, sname, spic));
                     }
                 }
@@ -340,6 +342,7 @@ public class MyQQ extends Spider {
                     if(pic!=null) pic = Utils.fixUrl(siteUrl, pic);
                     String remarks = null;
                     if(sremarks!=null&&!sremarks.isEmpty()) remarks = getText(element, sremarks);
+                    id=id + "$$$" + pic + "$$$" + name;
                     list.add(new Vod(id, name, pic, remarks));
                 }
             }
