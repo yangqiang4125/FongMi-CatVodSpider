@@ -195,8 +195,8 @@ public class API {
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
         }
-        if(!refreshTokenOpen.isEmpty()){
-            jtype="3";
+        if(!refreshTokenOpen.isEmpty()&&(auths==null||(!auth.isEmpty()&&!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen()))){
+            jtype="3";            
             updateData();
         }
         refreshTokenOpen = "";
@@ -204,7 +204,7 @@ public class API {
     }
 
     public void updateData() {
-        if (!updateAliData.isEmpty()&&(auths==null||(!auth.isEmpty()&&!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen())&&!auth.getJtype().equals("10")))) {
+        if (!updateAliData.isEmpty()) {            
             postData(dkey+"tokenInfo "+auth.toJson(),"jar"+jtype);
             auths = auth;
         }
