@@ -353,7 +353,7 @@ public class API {
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty())Init.show("阿里账号已失效~");
+            if(files.isEmpty())Init.show("资源已失效~");
             else for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
         }
