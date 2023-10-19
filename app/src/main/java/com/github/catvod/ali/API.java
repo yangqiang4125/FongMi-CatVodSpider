@@ -195,7 +195,7 @@ public class API {
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
         }
-        if(!refreshTokenOpen.isEmpty()&&(auths==null||(!auth.isEmpty()&&!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen()))){
+        if(auths==null){
             jtype="3";            
             updateData();
         }
