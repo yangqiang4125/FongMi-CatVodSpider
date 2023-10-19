@@ -280,6 +280,7 @@ public class MyQQ extends Spider {
 
     public String getValue(String value,Vod vod){
         if(value!=null) {
+            if(value.contains("http")||Utils.isSpUrl(value)) value = Utils.trim(value);
             if (!value.startsWith("http")) {
                 if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
                 value = value.replace("&nbsp;", " ");
