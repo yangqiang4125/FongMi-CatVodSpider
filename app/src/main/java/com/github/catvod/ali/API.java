@@ -351,7 +351,7 @@ public class API {
             body.put("share_id", shareId);
             String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
             object = new JSONObject(json);
-            vname=object!=null?object.getString("share_name"):"无名称";
+            vname=object!=null?object.getString("share_name"):"未找到";
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
@@ -366,7 +366,7 @@ public class API {
             vod.setVodPic(vpic);
             vod.setVodName(vname);
             vod.setTypeName("阿里云盘");
-            if (Utils.isPic==1&&!vname.equals("无名称")) {
+            if (Utils.isPic==1&&!vname.equals("未找到")) {
                 Vod vod2 = getVodInfo(vname, vod, idInfo);
                 if(vod2!=null) vod = vod2;
             }
