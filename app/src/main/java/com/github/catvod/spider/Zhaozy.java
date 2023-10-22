@@ -70,7 +70,9 @@ public class Zhaozy extends Ali {
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        String url = siteUrl + "so?filename=" + URLEncoder.encode(key);
+        fetchRule(false,0);
+        String so = Utils.siteRule.optString("zhaozy", "so");
+        String url = siteUrl + so+"?filename=" + URLEncoder.encode(key);
         Document doc = Jsoup.parse(OkHttp.string(url, getHeader()));
         List<Vod> list = new ArrayList<>();
         String pic = "https://inews.gtimg.com/newsapp_bt/0/13263837859/1000";
