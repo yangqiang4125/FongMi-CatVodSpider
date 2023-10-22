@@ -344,12 +344,13 @@ public class API {
     public Vod getVod(String url, String fileId) {
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
-        JSONObject object = null;
+        JSONObject object = null;String vname=null;
         try {
             JSONObject body = new JSONObject();
             body.put("share_id", shareId);
             String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
             object = new JSONObject(json);
+            vname=object!=null?object.getString("share_name"):"无名称";
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
@@ -384,7 +385,6 @@ public class API {
         vod.setVodId(TextUtils.join("$$$",idInfo));
         vod.setVodContent(idInfo[0]);
         String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
-        String vname=object!=null?object.getString("share_name"):"无名称";
         if (idInfo != null) {
             if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
             if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
