@@ -356,7 +356,7 @@ public class API {
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
             if(files.isEmpty()){
                 Init.show("资源已失效~");
-                return "";
+                return new Vod();
             }
             for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
