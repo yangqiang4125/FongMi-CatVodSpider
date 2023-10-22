@@ -344,6 +344,7 @@ public class API {
     public Vod getVod(String url, String fileId) {
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
+        Vod vod = new Vod();
         JSONObject object = null;String vname=null;
         try {
             JSONObject body = new JSONObject();
@@ -354,9 +355,28 @@ public class API {
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
+
+            vod.setVodId(TextUtils.join("$$$",idInfo));
+            vod.setVodContent(idInfo[0]);
+            String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
+            if (idInfo != null) {
+                if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+                if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
+            }
+            vod.setVodPic(vpic);
+            vod.setVodName(vname);
+            vod.setTypeName("阿里云盘");
+            if (Utils.isPic==1&&!vname.equals("无名称")) {
+                Vod vod2 = getVodInfo(vname, vod, idInfo);
+                if(vod2!=null) vod = vod2;
+            }
+            String tag = vod.vodTag;
+            if(tag==null||tag.isEmpty()) tag = "推荐";
+            tag = tag + ";" + new Gson().toJson(auth);
+            vod.setVodTag(tag);
             if(files.isEmpty()){
                 Init.show("资源已失效~");
-                return new Vod();
+                return vod;
             }
             for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
@@ -364,7 +384,7 @@ public class API {
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new LinkedList<>();
-        Vod vod = new Vod(); String type = "";
+        String type = "";
         if (!fp){
             if (s.contains("4K")) {
                 type = "4K";
@@ -385,26 +405,8 @@ public class API {
             else sourceUrls.add(s);
         }
         from = from.replace("。", "");
-        vod.setVodId(TextUtils.join("$$$",idInfo));
-        vod.setVodContent(idInfo[0]);
-        String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
-        if (idInfo != null) {
-            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
-            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
-        }
-        vod.setVodPic(vpic);
-        vod.setVodName(vname);
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
-        vod.setTypeName("阿里云盘");
-        if (Utils.isPic==1&&!vname.equals("无名称")) {
-            Vod vod2 = getVodInfo(vname, vod, idInfo);
-            if(vod2!=null) vod = vod2;
-        }
-        String tag = vod.vodTag;
-        if(tag==null||tag.isEmpty()) tag = "推荐";
-        tag = tag + ";" + new Gson().toJson(auth);
-        vod.setVodTag(tag);
         return vod;
     }
 
