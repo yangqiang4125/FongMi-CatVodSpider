@@ -375,6 +375,7 @@ public class API {
             tag = tag + ";" + new Gson().toJson(auth);
             vod.setVodTag(tag);
             if(files.isEmpty()){
+                vod.setDirector("");
                 Init.show("资源已失效~");
                 return vod;
             }
