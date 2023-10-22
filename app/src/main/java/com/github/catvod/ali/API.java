@@ -341,22 +341,18 @@ public class API {
         }
     }
 
-    public Vod getVod(String url, String fileId) throws Exception {
+    public Vod getVod(String url, String fileId) {
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
-        JSONObject object = null;
-        try {
-            JSONObject body = new JSONObject();
-            body.put("share_id", shareId);
-            String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
-            object = new JSONObject(json);
-            List<Item> files = new ArrayList<>();
-            List<Item> subs = new ArrayList<>();
-            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty())Init.show("资源已失效~");
-            else for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
-        } catch (Exception e) {
-        }
+        JSONObject body = new JSONObject();
+        body.put("share_id", shareId);
+        String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
+        JSONObject object = new JSONObject(json);
+        List<Item> files = new ArrayList<>();
+        List<Item> subs = new ArrayList<>();
+        listFiles(new Item(getParentFileId(fileId, object)), files, subs);
+        if(files.isEmpty())Init.show("资源已失效~");
+        for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new LinkedList<>();
