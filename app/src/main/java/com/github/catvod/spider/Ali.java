@@ -81,7 +81,7 @@ public class Ali extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
+    public String detailContent(List<String> ids) {
         String url = ids.get(0).trim();String url2=null;
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url2 = idInfo[0].trim();

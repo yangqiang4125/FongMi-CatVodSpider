@@ -8,7 +8,7 @@ import java.util.Locale;
 public class Trans {
 
     private static final HashMap<Character, Character> S2T = new HashMap<>();
-    private static boolean trans;
+    private static boolean trans=true;
 
     public static void init() {
         trans = Locale.getDefault().getCountry().equals("TW");

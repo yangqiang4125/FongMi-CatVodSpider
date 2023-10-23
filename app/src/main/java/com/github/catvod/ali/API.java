@@ -381,6 +381,8 @@ public class API {
             }
             for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
+            vod.setVodDirector("");
+            return vod;
         }
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
