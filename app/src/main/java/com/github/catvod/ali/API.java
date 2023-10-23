@@ -341,21 +341,12 @@ public class API {
         }
     }
 
-    public Vod getVod(String url, String fileId) {
+    public Vod getVod(String url, String fileId,String shareId) {
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
         Vod vod = new Vod();
         JSONObject object = null;String vname=null;
         try {
-            JSONObject body = new JSONObject();
-            body.put("share_id", shareId);
-            String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
-            object = new JSONObject(json);
-            vname=object!=null?object.getString("share_name"):"未找到";
-            List<Item> files = new ArrayList<>();
-            List<Item> subs = new ArrayList<>();
-            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-
             vod.setVodId(TextUtils.join("$$$",idInfo));
             vod.setVodContent(idInfo[0]);
             String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
@@ -366,7 +357,7 @@ public class API {
             vod.setVodPic(vpic);
             vod.setVodName(vname);
             vod.setTypeName("阿里云盘");
-            if (Utils.isPic==1&&!vname.equals("未找到")) {
+            if (Utils.isPic==1) {
                 Vod vod2 = getVodInfo(vname, vod, idInfo);
                 if(vod2!=null) vod = vod2;
             }
@@ -374,11 +365,22 @@ public class API {
             if(tag==null||tag.isEmpty()) tag = "推荐";
             tag = tag + ";" + new Gson().toJson(auth);
             vod.setVodTag(tag);
+
+            setShareId(shareId);
+            JSONObject body = new JSONObject();
+            body.put("share_id", shareId);
+            String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
+            object = new JSONObject(json);
+            vname=object!=null?object.getString("share_name"):"未找到";
+            List<Item> files = new ArrayList<>();
+            List<Item> subs = new ArrayList<>();
+            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
             if(files.isEmpty()){
                 vod.setVodDirector("");
                 Init.show("资源已失效~");
                 return vod;
             }
+            if (Utils.getStr(vod.getVodName()).isEmpty())vod.setVodName(vname);
             for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
             vod.setVodDirector("");

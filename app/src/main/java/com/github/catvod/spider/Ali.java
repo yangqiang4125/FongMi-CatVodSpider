@@ -89,8 +89,8 @@ public class Ali extends Spider {
         if (!matcher.find()) return "";
         String shareId = matcher.group(1);
         String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
-        API.get().setShareId(shareId);
-        return Result.string(API.get().getVod(url, fileId));
+        //API.get().setShareId(shareId);
+        return Result.string(API.get().getVod(url, fileId,shareId));
     }
 
     @Override
