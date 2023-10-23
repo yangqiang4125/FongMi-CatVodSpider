@@ -375,15 +375,13 @@ public class API {
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty()){
-                vod.setVodDirector("");
+            if(files.isEmpty()){               
                 Init.show("资源已失效~");
                 return vod;
             }
             if (Utils.getStr(vod.getVodName()).isEmpty())vod.setVodName(vname);
             for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
-            vod.setVodDirector("");
             return vod;
         }
         boolean fp = playUrls.isEmpty();
