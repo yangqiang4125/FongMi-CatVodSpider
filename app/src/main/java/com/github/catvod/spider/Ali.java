@@ -87,9 +87,9 @@ public class Ali extends Spider {
         Matcher matcher = Utils.regexAli.matcher(url2);
         if (!matcher.find()) return "";
         String shareId = matcher.group(2);
-        String fileId = matcher.groupCount() == 4 ? matcher.group(5) : "";
-        API.get().setShareId(shareId);
-        return Result.string(API.get().getVod(url, fileId));
+        String fileId = matcher.groupCount() == 4 ? matcher.group(4) : "";
+        //API.get().setShareId(shareId);
+        return Result.string(API.get().getVod(url, fileId,shareId));
     }
 
     @Override
