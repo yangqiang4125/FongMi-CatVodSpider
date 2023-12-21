@@ -83,7 +83,7 @@ public class Wogg extends Ali {
     @Override
     public String detailContent(List<String> list) throws Exception {
         String id =list.get(0);
-        if (!id.contains("aliyundrive.com")) {
+        if (!Utils.regexAli.matcher(id).find()) {
             String[] arr = id.split("\\$\\$\\$");
             Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
             if (!matcher.find()) return "";

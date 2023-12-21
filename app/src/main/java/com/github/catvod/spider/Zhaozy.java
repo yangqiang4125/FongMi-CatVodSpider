@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class Zhaozy extends Ali {
     private final Pattern regexVid = Pattern.compile("(\\S+)");
-    private final String siteUrl = "https://zhaoziyuan.me/";
+    private final String siteUrl = "https://zhaoziyuan.pw/";
     private Map<String, String> getHeader() {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
@@ -51,14 +51,13 @@ public class Zhaozy extends Ali {
     public String detailContent(List<String> list) throws Exception {
         try {
             String id =list.get(0);
-            if (!id.contains("aliyundrive.com")) {
+            if (!Utils.regexAli.matcher(id).find()) {
                 String[] arr = id.split("\\$\\$\\$");
                 Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
                 if (!matcher.find()) return "";
                 arr[0] = matcher.group(1);
                 String uid = TextUtils.join("$$$",arr);
                 list.set(0, uid);
-                return super.detailContent(list);
             }
             return super.detailContent(list);
         } catch (Exception e) {

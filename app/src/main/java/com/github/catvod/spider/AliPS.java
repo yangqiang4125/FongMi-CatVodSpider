@@ -32,7 +32,7 @@ public class AliPS extends Ali {
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String id = ids.get(0);
-        if (!id.contains("aliyundrive.com")) {
+        if (!Utils.regexAli.matcher(id).find()) {
             String [] arr=id.split("\\$\\$\\$");
             String url = arr[0].replace("/s/", "/cv/");
             Map<String, List<String>> respHeaders = new HashMap<>();

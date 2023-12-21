@@ -37,7 +37,7 @@ public class Utils {
     public static String apikey = "0ac44ae016490db2204ce0a042db2916";//豆瓣key
     private static String a = "(https:\\/\\/www.aliyundrive.com\\/s\\/[^\\\"]+)";
     public static long etime=0L;
-    public static final Pattern regexAli = Pattern.compile("(https://www.aliyundrive.com/s/[^\"]+)");
+    public static final Pattern regexAli = Pattern.compile(www.(aliyundrive|alipan){1}/s/([^/]+)(/folder/([^/]+))?");
     public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
     public static final String MOBILE = "Mozilla/5.0 (Linux; Android 11; Ghxi Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/76.0.3809.89 Mobile Safari/537.36 T7/12.16 SearchCraft/3.9.1 (Baidu; P1 11)";
     public static boolean isVip(String url) {
@@ -460,5 +460,17 @@ public class Utils {
     public static String getDataStr(String str) {
         String str1 = str.replace("1", "9").replace("z", "s");
         return str1;
+    }
+    public static Long getLongTime(String time){
+        Long timestamp = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = sdf.parse(time);
+            timestamp = date.getTime();
+            timestamp = timestamp / 1000;
+        } catch (ParseException e) {
+            timestamp=0L;
+        }
+        return timestamp;
     }
 }

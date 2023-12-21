@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
  */
 public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
-    public static final Pattern pattern = Pattern.compile("www.aliyundrive.com/s/([^/]+)(/folder/([^/]+))?");
     @Override
     public void init(Context context, String extend) {
         if(extend.startsWith("http://test.xinjun58.com/"))Utils.jsonUrl = extend;
@@ -33,7 +32,6 @@ public class Ali extends Spider {
         try {
             if (flag || Utils.siteRule == null ||API.get().isRefresh()) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
-                Utils.etime = Time();
                 String jurl =Utils.jsonUrl+"?t="+Time();
                 String json = OkHttp.string(jurl);
                 JSONObject jo = new JSONObject(json);
@@ -52,6 +50,7 @@ public class Ali extends Spider {
                 Utils.tokenInfo = Utils.siteRule.optString("tokenInfo", "0");
                 Utils.userAgent = Utils.siteRule.optString("userAgent", "");
                 API.get().setAuth(true);
+                Utils.etime = Utils.getLongTime(API.get().getAuth().getTime());
                 return jo;
             }
         } catch (JSONException e) {
@@ -85,10 +84,10 @@ public class Ali extends Spider {
         String url = ids.get(0).trim();String url2=null;
         String[] idInfo = url.split("\\$\\$\\$");
         if (idInfo.length > 0)  url2 = idInfo[0].trim();
-        Matcher matcher = pattern.matcher(url2);
+        Matcher matcher = Utils.regexAli.matcher(url2);
         if (!matcher.find()) return "";
-        String shareId = matcher.group(1);
-        String fileId = matcher.groupCount() == 3 ? matcher.group(3) : "";
+        String shareId = matcher.group(2);
+        String fileId = matcher.groupCount() == 4 ? matcher.group(5) : "";
         API.get().setShareId(shareId);
         return Result.string(API.get().getVod(url, fileId));
     }
@@ -96,7 +95,12 @@ public class Ali extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
         Long time = Time();
-        if (time - Utils.etime > 3600) fetchRule(true,0);
+        if (time - Utils.etime > 3600) {
+            fetchRule(true,0);
+            if (time - Utils.etime > 3600) {
+                API.get().refreshOpenToken(false);
+            }
+        }
         String[] ids = id.split("\\+");
         return flag.contains("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
     }

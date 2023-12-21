@@ -104,6 +104,9 @@ public class API {
         dkey = getVal("dkey", "");
         if(refreshUrl.length()<10) refreshUrl = "https://api.nn.ci/";
     }
+    public Auth getAuth(){
+        return auth;
+    }
     public String getVal(String key,String dval){
         String tk = Utils.siteRule.optString(key,dval);
         return tk;
@@ -293,15 +296,18 @@ public class API {
     }
     public void save(){
         String time = Utils.getTime();
+        Utils.etime = Utils.getLongTime(time);
         auth.setTime(time);
         auth.setJtype(jtype);
         auth.save();
         updateData();
     }
-
     private boolean refreshOpenToken() {
+        return refreshOpenToken(true);
+    }
+    public boolean refreshOpenToken(boolean iflag) {
         try {
-            Ali.fetchRule(true, 0);
+            if(iflag) Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;
