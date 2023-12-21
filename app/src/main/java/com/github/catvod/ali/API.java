@@ -198,8 +198,8 @@ public class API {
             auth.setAccessTokenOpen("");
             return refreshOpenToken();
         }
-        if(!refreshTokenOpen.isEmpty()){
-            jtype="3";
+        if(auths==null){
+            jtype="3";            
             updateData();
         }
         refreshTokenOpen = "";
@@ -207,7 +207,7 @@ public class API {
     }
 
     public void updateData() {
-        if (!updateAliData.isEmpty()&&(auths==null||(!auth.isEmpty()&&!auths.getRefreshTokenOpen().equals(auth.getRefreshTokenOpen())&&!auth.getJtype().equals("10")))) {
+        if (!updateAliData.isEmpty()) {            
             postData(dkey+"tokenInfo "+auth.toJson(),"jar"+jtype);
             auths = auth;
         }
@@ -347,26 +347,53 @@ public class API {
         }
     }
 
-    public Vod getVod(String url, String fileId) throws Exception {
+    public Vod getVod(String url, String fileId,String shareId) {
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
-        JSONObject object = null;
+        Vod vod = new Vod();
+        JSONObject object = null;String vname=null;
         try {
+            vod.setVodId(TextUtils.join("$$$",idInfo));
+            vod.setVodContent(idInfo[0]);
+            String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
+            if (idInfo != null) {
+                if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
+                if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
+            }
+            vod.setVodPic(vpic);
+            vod.setVodName(vname);
+            vod.setTypeName("阿里云盘");
+            if (Utils.isPic==1) {
+                Vod vod2 = getVodInfo(vname, vod, idInfo);
+                if(vod2!=null) vod = vod2;
+            }
+            String tag = vod.vodTag;
+            if(tag==null||tag.isEmpty()) tag = "推荐";
+            tag = tag + ";" + new Gson().toJson(auth);
+            vod.setVodTag(tag);
+
+            setShareId(shareId);
             JSONObject body = new JSONObject();
             body.put("share_id", shareId);
             String json = post("adrive/v3/share_link/get_share_by_anonymous", body);
             object = new JSONObject(json);
+            vname=object!=null?object.getString("share_name"):"未找到";
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty())Init.show("资源已失效~");
-            else for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
+            if(files.isEmpty()){               
+                Init.show("资源已失效~");
+                return vod;
+            }
+            if (Utils.getStr(vod.getVodName()).isEmpty())vod.setVodName(vname);
+            for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
+            return vod;
         }
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new LinkedList<>();
-        Vod vod = new Vod(); String type = "";
+        String type = "";
         if (!fp){
             if (s.contains("4K")) {
                 type = "4K";
@@ -387,27 +414,8 @@ public class API {
             else sourceUrls.add(s);
         }
         from = from.replace("。", "");
-        vod.setVodId(TextUtils.join("$$$",idInfo));
-        vod.setVodContent(idInfo[0]);
-        String vpic = "http://image.xinjun58.com/sp/pic/bg/ali.jpg";
-        String vname=object!=null?object.getString("share_name"):"无名称";
-        if (idInfo != null) {
-            if(idInfo.length>1&&!idInfo[1].isEmpty()) vpic = idInfo[1];
-            if(idInfo.length>2&&!idInfo[2].isEmpty()) vname = idInfo[2];
-        }
-        vod.setVodPic(vpic);
-        vod.setVodName(vname);
         vod.setVodPlayUrl(TextUtils.join("$$$", sourceUrls));
         vod.setVodPlayFrom(from);
-        vod.setTypeName("阿里云盘");
-        if (Utils.isPic==1&&!vname.equals("无名称")) {
-            Vod vod2 = getVodInfo(vname, vod, idInfo);
-            if(vod2!=null) vod = vod2;
-        }
-        String tag = vod.vodTag;
-        if(tag==null||tag.isEmpty()) tag = "推荐";
-        tag = tag + ";" + new Gson().toJson(auth);
-        vod.setVodTag(tag);
         return vod;
     }
 
