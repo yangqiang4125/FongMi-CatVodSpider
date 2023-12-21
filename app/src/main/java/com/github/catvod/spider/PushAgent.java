@@ -24,7 +24,7 @@ public class PushAgent extends Ali {
         else if(url.contains(" "))arr = url.split(" ");
         if(arr!=null&&arr.length>1)url = arr[1]+"$$$"+zlpic+"$$$"+arr[0];
         ids.set(0, url);
-        if (Ali.pattern.matcher(url).find()) return super.detailContent(ids);
+        if (Utils.regexAli.matcher(url).find()) return super.detailContent(ids);
         return Result.string(vod(url));
     }
 
