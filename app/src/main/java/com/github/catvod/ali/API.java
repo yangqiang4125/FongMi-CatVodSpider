@@ -228,9 +228,12 @@ public class API {
     }
 
     private boolean refreshAccessToken() {
+        return refreshAccessToken(true);
+    }
+    public boolean refreshAccessToken(boolean iflag) {
         try {
-            if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()){
-                Ali.fetchRule(true, 0);
+            if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()||!iflag){
+                if(iflag) Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
                     if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;                        
                 }
@@ -303,11 +306,8 @@ public class API {
         updateData();
     }
     private boolean refreshOpenToken() {
-        return refreshOpenToken(true);
-    }
-    public boolean refreshOpenToken(boolean iflag) {
         try {
-            if(iflag) Ali.fetchRule(true, 0);
+            Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;

@@ -98,7 +98,7 @@ public class Ali extends Spider {
         if (time - Utils.etime > 3600) {
             fetchRule(true,0);
             if (time - Utils.etime > 3600) {
-                API.get().refreshOpenToken(false);
+                API.get().refreshAccessToken(false);
             }
         }
         String[] ids = id.split("\\+");
