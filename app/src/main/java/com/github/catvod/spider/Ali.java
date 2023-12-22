@@ -24,7 +24,7 @@ public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     @Override
     public void init(Context context, String extend) {
-        if(extend.startsWith("http://test.xinjun58.com/"))Utils.jsonUrl = extend;
+        if(extend.contains("=web"))Utils.jsonUrl = extend;
         fetchRule(false,0);
     }
 

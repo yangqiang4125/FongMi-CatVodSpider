@@ -17,7 +17,6 @@ import java.util.List;
 public class PushAgentQQ extends PushAgent {
     @Override
     public void init(Context context, String extend) {
-        Utils.jsonUrl = extend;
         fetchRule(true,1);
     }
     public static String douban_api_host = "https://frodo.douban.com/api/v2";
