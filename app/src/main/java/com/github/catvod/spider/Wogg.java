@@ -35,7 +35,7 @@ public class Wogg extends Ali {
                 "  \"ua\":1,\n" +
                 "  \"name\": \"Wogg\",\n" +
                 "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
-                "  \"types\": \"国产剧$/index.php/vodshow/20-大陆-------#韩剧$/index.php/vodshow/20-韩国-------#港剧$/index.php/vodshow/20-香港-------#电影$/index.php/vodshow/1--------#综艺$/index.php/vodshow/28--------#动漫$/index.php/vodshow/24--------#音乐MV$/index.php/vodshow/32--------\", \n" +
+                "  \"types\": \"国产剧$/index.php/vodshow/2-大陆-------#韩剧$/index.php/vodshow/2-韩国-------#港剧$/index.php/vodshow/2-香港-------#电影$/index.php/vodshow/1--------#综艺$/index.php/vodshow/4--------#动漫$/index.php/vodshow/3--------#音乐MV$/index.php/vodshow/5--------\", \n" +
                 "  \"end\": \"---.html\", \n" +
                 "  \"search\":\"\",\n" +
                 "  \"sbox\":\"\",\n" +
