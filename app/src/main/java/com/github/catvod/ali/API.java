@@ -538,7 +538,7 @@ public class API {
                 folders.add(file);
             } else if (file.getCategory().equals("video") || file.getCategory().equals("audio")) {
                 files.add(file.parent(parent.getName()));
-            } else if (Util.isSub(file.getExt())) {
+            } else if (Utils.isSub(file.getExt())) {
                 subs.add(file);
             }
         }
