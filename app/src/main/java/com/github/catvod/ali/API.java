@@ -415,7 +415,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "原画%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
+        from = "原画y%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -592,7 +592,8 @@ public class API {
     public String getShareDownloadUrl(String shareId, String fileId) {
         try {
             if (shareDownloadMap.containsKey(fileId) && shareDownloadMap.get(fileId) != null && !isExpire(shareDownloadMap.get(fileId))) return shareDownloadMap.get(fileId);
-            //refreshShareToken();
+            this.shareId=shareId;
+            refreshShareToken();
             SpiderDebug.log("getShareDownloadUrl..." + fileId);
             JsonObject param = new JsonObject();
             param.addProperty("file_id", fileId);
@@ -610,7 +611,8 @@ public class API {
     public String getDownloadUrl(String shareId, String fileId) {
         try {
             if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId))) return downloadMap.get(fileId);
-            //refreshShareToken();
+            this.shareId=shareId;
+            refreshShareToken();
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
             JsonObject param = new JsonObject();
