@@ -672,13 +672,13 @@ public class API {
 
     private String getPreviewContent(String[] ids, String flag) {
         Preview.Info info = getVideoPreviewPlayInfo(ids[0],ids[1]);
-        List<String> url = getPreviewUrl(info, ids[0], ids[1], true,flag);
+        List<String> url = getPreviewUrl(info, ids[0], ids[1], true);
         List<Sub> subs = getSubs(ids);
         subs.addAll(getSubs(info));
         return Result.get().url(url).m3u8().subs(subs).header(getHeader()).string();
     }
 
-    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy, String flag) {
+    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy) {
         List<Preview.LiveTranscodingTask> tasks = info.getLiveTranscodingTaskList();
         List<String> url = new ArrayList<>();
         for (int i = tasks.size() - 1; i >= 0; i--) {
