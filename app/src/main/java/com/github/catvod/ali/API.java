@@ -415,7 +415,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "原画y%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
+        from = "原画%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -634,6 +634,7 @@ public class API {
     public Preview.Info getVideoPreviewPlayInfo(String shareId, String fileId) {
         try {
             this.shareId = shareId;
+            refreshShareToken(shareId);
             SpiderDebug.log("getVideoPreviewPlayInfo..." + fileId);
             tempIds.add(0, copy( fileId));
             JsonObject param = new JsonObject();
