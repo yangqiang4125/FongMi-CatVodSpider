@@ -137,6 +137,7 @@ public class API {
     }
     public void setShareId(String shareId) {
         this.shareId = shareId;
+        refreshShareToken();
     }
 
     public HashMap<String, String> getHeader() {
@@ -358,8 +359,6 @@ public class API {
     }
 
     public Vod getVod(String url, String fileId,String shareId) {
-        this.shareId = shareId;
-        refreshShareToken();
         String[] idInfo = url.split("\\$\\$\\$");
         List<String> playUrls = new ArrayList<>();
         Vod vod = new Vod();
@@ -398,7 +397,7 @@ public class API {
                 return vod;
             }
             if (Utils.getStr(vod.getVodName()).isEmpty())vod.setVodName(vname);
-            for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
+            for (Item file : files) playUrls.add(file.getDisplayName() + "$" + shareId + "+" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
             return vod;
         }
@@ -593,8 +592,7 @@ public class API {
     public String getShareDownloadUrl(String shareId, String fileId) {
         try {
             if (shareDownloadMap.containsKey(fileId) && shareDownloadMap.get(fileId) != null && !isExpire(shareDownloadMap.get(fileId))) return shareDownloadMap.get(fileId);
-            this.shareId = shareId;
-            refreshShareToken();
+            //refreshShareToken();
             SpiderDebug.log("getShareDownloadUrl..." + fileId);
             JsonObject param = new JsonObject();
             param.addProperty("file_id", fileId);
@@ -612,8 +610,7 @@ public class API {
     public String getDownloadUrl(String shareId, String fileId) {
         try {
             if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId))) return downloadMap.get(fileId);
-            this.shareId = shareId;
-            refreshShareToken();
+            //refreshShareToken();
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
             JsonObject param = new JsonObject();
