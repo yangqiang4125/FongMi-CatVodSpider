@@ -583,7 +583,7 @@ public class API {
             String[] split = text.split("@@@");
             String name = split[0];
             String ext = split[1];
-            String url = Proxy.getUrl() + "?do=ali&type=sub" + "&file_id=" + split[2];
+            String url = Proxy.getUrl() + "?do=ali&type=sub&shareId=" + ids[0] + "&fileId=" + split[2];
             sub.add(Sub.create().name(name).ext(ext).url(url));
         }
         return sub;
