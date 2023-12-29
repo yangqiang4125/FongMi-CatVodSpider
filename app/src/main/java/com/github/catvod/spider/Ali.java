@@ -98,7 +98,7 @@ public class Ali extends Spider {
             }
         }
         String[] ids = id.split("\\+");
-        return flag.contains("原画") ? API.get().playerContent(ids) : API.get().playerContent(ids, flag);
+        return API.get().playerContent(ids, flag);
     }
 
     public static Object[] proxy(Map<String, String> params) throws Exception {

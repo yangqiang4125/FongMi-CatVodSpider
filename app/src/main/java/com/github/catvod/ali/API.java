@@ -656,17 +656,15 @@ public class API {
 
     public String playerContent(String[] ids, String flag) {
         try {
-            if (!flag.contains("原画")) {
+            if (!flag.contains("原画")) {//代理普画
                 return getPreviewContent(ids);
-            } else if (flag.equals("轉存原畫")) {
-                return Result.get().url(proxyVideoUrl("open", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
-            } else if (flag.equals("分享原畫")) {
+            } else if (flag.contains("原画F")) {//分享原画
                 return Result.get().url(proxyVideoUrl("share", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
+            } else if (flag.contains("原画")) {//转存原画
+                return Result.get().url(proxyVideoUrl("open", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
             } else {
                 return "";
             }
-
-            //return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
             e.printStackTrace();
             return Result.get().url("").string();
