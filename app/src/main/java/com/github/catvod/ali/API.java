@@ -391,7 +391,7 @@ public class API {
             vname=object!=null?object.getString("share_name"):"未找到";
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
-            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
+            listFiles(shareId, new Item(getParentFileId(fileId,object)), files, subs);
             if(files.isEmpty()){               
                 Init.show("资源已失效~");
                 return vod;
@@ -519,34 +519,34 @@ public class API {
     }
 
 
-    private void listFiles(Item folder, List<Item> files, List<Item> subs) throws Exception {
-        listFiles(folder, files, subs, "");
+    private void listFiles(String shareId, Item folder, List<Item> files, List<Item> subs) {
+        listFiles(shareId, folder, files, subs, "");
     }
 
-    private void listFiles(Item parent, List<Item> files, List<Item> subs, String marker) throws Exception {
-        JSONObject body = new JSONObject();
+    private void listFiles(String shareId, Item parent, List<Item> files, List<Item> subs, String marker) {
         List<Item> folders = new ArrayList<>();
-        body.put("limit", 200);
-        body.put("share_id", shareId);
-        body.put("parent_file_id", parent.getFileId());
-        body.put("order_by", "name");
-        body.put("order_direction", "ASC");
-        if (marker.length() > 0) body.put("marker", marker);
-        Item item = Item.objectFrom(auth("adrive/v3/file/list", body.toString(), true));
+        JsonObject param = new JsonObject();
+        param.addProperty("limit", 200);
+        param.addProperty("share_id", shareId);
+        param.addProperty("parent_file_id", parent.getFileId());
+        param.addProperty("order_by", "name");
+        param.addProperty("order_direction", "ASC");
+        if (marker.length() > 0) param.addProperty("marker", marker);
+        Item item = Item.objectFrom(auth("adrive/v3/file/list", param.toString(), true));
         for (Item file : item.getItems()) {
             if (file.getType().equals("folder")) {
                 folders.add(file);
             } else if (file.getCategory().equals("video") || file.getCategory().equals("audio")) {
                 files.add(file.parent(parent.getName()));
-            } else if (Utils.isSub(file.getExt())) {
+            } else if (Util.isSub(file.getExt())) {
                 subs.add(file);
             }
         }
         if (item.getNextMarker().length() > 0) {
-            listFiles(parent, files, subs, item.getNextMarker());
+            listFiles(shareId, parent, files, subs, item.getNextMarker());
         }
         for (Item folder : folders) {
-            listFiles(folder, files, subs);
+            listFiles(shareId, folder, files, subs);
         }
     }
 
