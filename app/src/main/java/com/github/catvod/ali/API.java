@@ -415,7 +415,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
+        from = "原画%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -672,13 +672,13 @@ public class API {
 
     private String getPreviewContent(String[] ids, String flag) {
         Preview.Info info = getVideoPreviewPlayInfo(ids[0],ids[1]);
-        List<String> url = getPreviewUrl(info, ids[0], ids[1], true,flag);
+        List<String> url = getPreviewUrl(info, ids[0], ids[1], true);
         List<Sub> subs = getSubs(ids);
         subs.addAll(getSubs(info));
         return Result.get().url(url).m3u8().subs(subs).header(getHeader()).string();
     }
 
-    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy, String flag) {
+    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy) {
         List<Preview.LiveTranscodingTask> tasks = info.getLiveTranscodingTaskList();
         List<String> url = new ArrayList<>();
         for (int i = tasks.size() - 1; i >= 0; i--) {
