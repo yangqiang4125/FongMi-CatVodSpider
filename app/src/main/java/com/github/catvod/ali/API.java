@@ -415,7 +415,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
+        from = "原画%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -592,7 +592,7 @@ public class API {
     public String getShareDownloadUrl(String shareId, String fileId) {
         try {
             if (shareDownloadMap.containsKey(fileId) && shareDownloadMap.get(fileId) != null && !isExpire(shareDownloadMap.get(fileId))) return shareDownloadMap.get(fileId);
-            refreshShareToken();
+            //refreshShareToken();
             SpiderDebug.log("getShareDownloadUrl..." + fileId);
             JsonObject param = new JsonObject();
             param.addProperty("file_id", fileId);
@@ -610,8 +610,7 @@ public class API {
     public String getDownloadUrl(String shareId, String fileId) {
         try {
             if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId))) return downloadMap.get(fileId);
-            this.shareId = shareId;
-            refreshShareToken();
+            //refreshShareToken();
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
             JsonObject param = new JsonObject();
@@ -657,7 +656,7 @@ public class API {
     public String playerContent(String[] ids, String flag) {
         try {
             if (!flag.contains("原画")) {//代理普画
-                return getPreviewContent(ids);
+                return getPreviewContent(ids,flag);
             } else if (flag.contains("原画F")) {//分享原画
                 return Result.get().url(proxyVideoUrl("share", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
             } else if (flag.contains("原画")) {//转存原画
@@ -671,15 +670,15 @@ public class API {
         }
     }
 
-    private String getPreviewContent(String[] ids) {
+    private String getPreviewContent(String[] ids, String flag) {
         Preview.Info info = getVideoPreviewPlayInfo(ids[0],ids[1]);
-        List<String> url = getPreviewUrl(info, ids[0], ids[1], true);
+        List<String> url = getPreviewUrl(info, ids[0], ids[1], true,flag);
         List<Sub> subs = getSubs(ids);
         subs.addAll(getSubs(info));
         return Result.get().url(url).m3u8().subs(subs).header(getHeader()).string();
     }
 
-    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy) {
+    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy, String flag) {
         List<Preview.LiveTranscodingTask> tasks = info.getLiveTranscodingTaskList();
         List<String> url = new ArrayList<>();
         for (int i = tasks.size() - 1; i >= 0; i--) {
