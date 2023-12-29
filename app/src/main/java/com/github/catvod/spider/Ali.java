@@ -32,7 +32,7 @@ public class Ali extends Spider {
         try {
             if (flag || Utils.siteRule == null ||API.get().isRefresh()) {
                 Utils.jsonUrl = Utils.getDataStr(Utils.jsonUrl);
-                String jurl =Utils.jsonUrl+"?t="+Time();
+                String jurl =Utils.jsonUrl+"?t="+Utils.Time();
                 String json = OkHttp.string(jurl);
                 JSONObject jo = new JSONObject(json);
                 Utils.siteRule = jo;
@@ -75,10 +75,6 @@ public class Ali extends Spider {
         return getRuleVal(o,key, "");
     }
 
-    public static long Time() {
-        return (System.currentTimeMillis() / 1000);
-    }
-
     @Override
     public String detailContent(List<String> ids) throws Exception {
         String url = ids.get(0).trim();String url2=null;
@@ -94,7 +90,7 @@ public class Ali extends Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        Long time = Time();
+        Long time = Utils.Time();
         if (time - Utils.etime > 3600) {
             fetchRule(true,0);
             if (time - Utils.etime > 3600) {
@@ -107,7 +103,8 @@ public class Ali extends Spider {
 
     public static Object[] proxy(Map<String, String> params) throws Exception {
         String type = params.get("type");
-        if (type.equals("sub")) return API.get().proxySub(params);
+        if ("video".equals(type)) return API.get().proxyVideo(params);
+        if ("sub".equals(type)) return API.get().proxySub(params);
         return null;
     }
 

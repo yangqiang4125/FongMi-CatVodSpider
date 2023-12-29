@@ -27,8 +27,10 @@ public class Result {
     private LinkedHashMap<String, List<Filter>> filters;
     @SerializedName("header")
     private String header;
+    @SerializedName("format")
+    private String format;
     @SerializedName("url")
-    private String url;
+    private Object url;
     @SerializedName("subs")
     private List<Sub> subs;
     @SerializedName("parse")
@@ -128,13 +130,42 @@ public class Result {
         return this;
     }
 
+
     public Result url(String url) {
+        this.url = url;
+        return this;
+    }
+
+    public Result url(List<String> url) {
         this.url = url;
         return this;
     }
 
     public Result subs(List<Sub> subs) {
         this.subs = subs;
+        return this;
+    }
+    public Result format(String format) {
+        this.format = format;
+        return this;
+    }
+    public Result dash() {
+        this.format = "application/dash+xml";
+        return this;
+    }
+
+    public Result m3u8() {
+        this.format = "application/x-mpegURL";
+        return this;
+    }
+
+    public Result rtsp() {
+        this.format = "application/x-rtsp";
+        return this;
+    }
+
+    public Result octet() {
+        this.format = "application/octet-stream";
         return this;
     }
 
