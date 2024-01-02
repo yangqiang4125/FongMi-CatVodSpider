@@ -624,6 +624,7 @@ public class API {
             downloadMap.put(fileId, url);
             return url;
         } catch (Exception e) {
+            alert("getDownloadUrl:"+e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -645,6 +646,7 @@ public class API {
             String json = oauth("openFile/getVideoPreviewPlayInfo", param.toString(), true);
             return Preview.objectFrom(json).getVideoPreviewPlayInfo();
         } catch (Exception e) {
+            alert("getVideoPreviewPlayInfo:"+e.getMessage());
             e.printStackTrace();
             return new Preview.Info();
         } finally {
@@ -658,6 +660,7 @@ public class API {
 
     public String playerContent(String[] ids, String flag) {
         try {
+            alert(flag);
             if (!flag.contains("原画")) {//代理普画
                 return getPreviewContent(ids,flag);
             } else if (flag.contains("原画F")) {//分享原画
@@ -668,6 +671,7 @@ public class API {
                 return "";
             }
         } catch (Exception e) {
+            alert("playerContent:"+e.getMessage());
             e.printStackTrace();
             return Result.get().url("").string();
         }
