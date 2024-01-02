@@ -634,7 +634,7 @@ public class API {
     public Preview.Info getVideoPreviewPlayInfo(String shareId, String fileId) {
         try {
             this.shareId = shareId;
-            refreshShareToken(shareId);
+            refreshShareToken();
             SpiderDebug.log("getVideoPreviewPlayInfo..." + fileId);
             tempIds.add(0, copy( fileId));
             JsonObject param = new JsonObject();
