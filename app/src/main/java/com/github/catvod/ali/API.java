@@ -290,7 +290,7 @@ public class API {
         JSONObject body = new JSONObject();
         body.put("authorize", 1);
         body.put("scope", "user:base,file:all:read,file:all:write");
-        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
+        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, true));
         Log.e("DDD", object.toString());
         //if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
@@ -538,7 +538,7 @@ public class API {
                 folders.add(file);
             } else if (file.getCategory().equals("video") || file.getCategory().equals("audio")) {
                 files.add(file.parent(parent.getName()));
-            } else if (Util.isSub(file.getExt())) {
+            } else if (Utils.isSub(file.getExt())) {
                 subs.add(file);
             }
         }
@@ -551,13 +551,13 @@ public class API {
     }
 
     private String getParentFileId(String fileId, JSONObject shareInfo) throws Exception {
-        JSONArray array = shareInfo.getJSONArray("file_infos");
         if (!TextUtils.isEmpty(fileId)) return fileId;
+        JSONArray array = shareInfo.getJSONArray("file_infos");
         if (array.length() == 0) return "";
         JSONObject fileInfo = array.getJSONObject(0);
         if (fileInfo.getString("type").equals("folder")) return fileInfo.getString("file_id");
         if (fileInfo.getString("type").equals("file") && fileInfo.getString("category").equals("video")) return parentDir;
-        return "";
+        return "root";
     }
 
     private void pair(String name1, List<Item> items, List<Item> subs) {
