@@ -647,6 +647,7 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
+        Init.show("playerContent:"+ids[0]);
         return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
