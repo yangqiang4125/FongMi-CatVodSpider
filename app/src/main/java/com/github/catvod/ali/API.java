@@ -200,7 +200,7 @@ public class API {
             return refreshOpenToken();
         }
         if(auths==null){
-            jtype="3";            
+            jtype="3";
             updateData();
         }
         refreshTokenOpen = "";
@@ -208,7 +208,7 @@ public class API {
     }
 
     public void updateData() {
-        if (!updateAliData.isEmpty()) {            
+        if (!updateAliData.isEmpty()) {
             postData(dkey+"tokenInfo "+auth.toJson(),"jar"+jtype);
             auths = auth;
         }
@@ -236,7 +236,7 @@ public class API {
             if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()||!iflag){
                 if(iflag) Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
-                    if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;                        
+                    if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
                 }
                 if (Utils.isToken(Utils.refreshToken))auth.setRefreshToken(Utils.refreshToken);
             }
@@ -266,7 +266,7 @@ public class API {
                 startPen();
             } else {
                 postData(e.getMessage(), "msg");
-                Init.show("阿里账号已失效，请稍后重试~");                
+                Init.show("阿里账号已失效，请稍后重试~");
             }
             return true;
         } finally {
@@ -382,7 +382,7 @@ public class API {
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
             listFiles(new Item(getParentFileId(fileId, object)), files, subs);
-            if(files.isEmpty()){               
+            if(files.isEmpty()){
                 Init.show("资源已失效~");
                 return vod;
             }
