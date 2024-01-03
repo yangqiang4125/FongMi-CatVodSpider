@@ -18,7 +18,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.github.catvod.bean.ali.*;
 import com.github.catvod.utils.QRCode;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantLock;
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.catvod.bean.Result;
@@ -45,8 +44,6 @@ import java.util.regex.Pattern;
 
 public class API {
     private final Map<String, String> downloadMap;
-    private final Map<String, Map<String, String>> m3u8MediaMap;
-    private final ReentrantLock lock;
     private ScheduledExecutorService service;
     private AlertDialog dialog;
     private final List<String> tempIds;
@@ -76,8 +73,6 @@ public class API {
 
     public API() {
         downloadMap = new HashMap<>();
-        m3u8MediaMap = new HashMap<>();
-        lock = new ReentrantLock();
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
@@ -609,10 +604,10 @@ public class API {
             refreshShareToken();
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
-            JsonObject param = new JsonObject();
-            param.addProperty("file_id", tempIds.get(0));
-            param.addProperty("drive_id", auth.getDriveId());
-            param.addProperty("expire_sec", 900);
+            JSONObject param = new JSONObject();
+            param.put("file_id", tempIds.get(0));
+            param.put("drive_id", auth.getDriveId());
+            param.put("expire_sec", "900");
             String json = oauth("openFile/getDownloadUrl", param.toString(), true);
             String url = Download.objectFrom(json).getUrl();
             downloadMap.put(fileId, url);
@@ -634,7 +629,7 @@ public class API {
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             body.put("category", "live_transcoding");
-            body.put("url_expire_sec", "14400");
+            body.put("url_expire_sec", "900");
             String json = oauth("openFile/getVideoPreviewPlayInfo", body.toString(), true);
             return new JSONObject(json).getJSONObject("video_preview_play_info");
         } catch (Exception e) {
@@ -753,10 +748,6 @@ public class API {
         return String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s&templateId=%s", cate, shareId, fileId, templateId);
     }
 
-    private String proxyVideoUrl(String cate, String shareId, String fileId, String templateId, String mediaId) {
-        return String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s&templateId=%s&mediaId=%s", cate, shareId, fileId, templateId, mediaId);
-    }
-
     private static boolean isExpire(String url) {
         String expires = new UrlQuerySanitizer(url).getValue("x-oss-expires");
         if (TextUtils.isEmpty(expires)) return false;
@@ -768,7 +759,6 @@ public class API {
         String templateId = params.get("templateId");
         String response = params.get("response");
         String shareId = params.get("shareId");
-        String mediaId = params.get("mediaId");
         String fileId = params.get("fileId");
         String cate = params.get("cate");
         String downloadUrl = "";
@@ -779,17 +769,6 @@ public class API {
 
         if ("open".equals(cate)) {
             downloadUrl = getDownloadUrl(shareId, fileId);
-        } else if ("share".equals(cate)) {
-            downloadUrl = getShareDownloadUrl(shareId, fileId);
-        } else if ("m3u8".equals(cate)) {
-            lock.lock();
-            String mediaUrl = m3u8MediaMap.get(fileId).get(mediaId);
-            if (isExpire(mediaUrl)) {
-                getM3u8(shareId, fileId, templateId);
-                mediaUrl = m3u8MediaMap.get(fileId).get(mediaId);
-            }
-            lock.unlock();
-            downloadUrl = mediaUrl;
         }
 
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
@@ -801,7 +780,6 @@ public class API {
         headers.remove("cate");
         headers.remove("fileId");
         headers.remove("shareId");
-        headers.remove("mediaId");
         headers.remove("templateId");
         headers.remove("remote-addr");
         headers.remove("http-client-ip");
@@ -810,37 +788,6 @@ public class API {
 
     private Object[] previewProxy(String shareId, String fileId, String templateId) {
         return new Object[]{200, "application/vnd.apple.mpegurl", new ByteArrayInputStream(getM3u8(shareId, fileId, templateId).getBytes())};
-    }
-
-    private String getM3u8Url(String shareId, String fileId, String templateId) {
-        Preview.Info info = getVideoPreviewPlayInfo(shareId, fileId);
-        List<String> url = getPreviewUrl(info, shareId, fileId, false);
-        Map<String, String> previewMap = new HashMap<>();
-        for (int i = 0; i < url.size(); i = i + 2) {
-            previewMap.put(url.get(i), url.get(i + 1));
-        }
-        return previewMap.get(templateId);
-    }
-
-    private String getM3u8(String shareId, String fileId, String templateId) {
-        String m3u8Url = getM3u8Url(shareId, fileId, templateId);
-        String m3u8 = OkHttp.string(m3u8Url, getHeader());
-        String[] m3u8Arr = m3u8.split("\n");
-        List<String> listM3u8 = new ArrayList<>();
-        Map<String, String> media = new HashMap<>();
-        String site = m3u8Url.substring(0, m3u8Url.lastIndexOf("/")) + "/";
-        int mediaId = 0;
-        for (String oneLine : m3u8Arr) {
-            String thisOne = oneLine;
-            if (oneLine.contains("x-oss-expires")) {
-                media.put(String.valueOf(mediaId), site + thisOne);
-                thisOne = proxyVideoUrl("m3u8", shareId, fileId, templateId, String.valueOf(mediaId));
-                mediaId++;
-            }
-            listM3u8.add(thisOne);
-        }
-        m3u8MediaMap.put(fileId, media);
-        return TextUtils.join("\n", listM3u8);
     }
 
     private void startPen() {
