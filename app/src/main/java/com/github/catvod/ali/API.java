@@ -763,9 +763,6 @@ public class API {
         String cate = params.get("cate");
         String downloadUrl = "";
         if(shareId==null)shareId = this.shareId;
-        if ("preview".equals(cate)) {
-            return previewProxy(shareId, fileId, templateId);
-        }
 
         if ("open".equals(cate)) {
             downloadUrl = getDownloadUrl(shareId, fileId);
@@ -784,10 +781,6 @@ public class API {
         headers.remove("remote-addr");
         headers.remove("http-client-ip");
         return new Object[]{ProxyVideo.proxy(downloadUrl, headers)};
-    }
-
-    private Object[] previewProxy(String shareId, String fileId, String templateId) {
-        return new Object[]{200, "application/vnd.apple.mpegurl", new ByteArrayInputStream(getM3u8(shareId, fileId, templateId).getBytes())};
     }
 
     private void startPen() {
