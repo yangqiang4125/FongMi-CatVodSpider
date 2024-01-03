@@ -15,11 +15,9 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
 import com.github.catvod.bean.ali.*;
 import com.github.catvod.utils.QRCode;
 import java.util.concurrent.TimeoutException;
-import com.github.catvod.utils.ProxyVideo;
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.catvod.bean.Result;
@@ -34,23 +32,18 @@ import com.github.catvod.spider.PushAgentQQ;
 import com.github.catvod.utils.Prefers;
 import com.github.catvod.utils.Utils;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.concurrent.locks.ReentrantLock;
+import com.github.catvod.utils.ProxyVideo;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class API {
-    private final Map<String, Map<String, String>> m3u8MediaMap;
-    private final Map<String, String> shareDownloadMap;
     private final Map<String, String> downloadMap;
-    private final ReentrantLock lock;
     private ScheduledExecutorService service;
     private AlertDialog dialog;
     private final List<String> tempIds;
@@ -80,9 +73,6 @@ public class API {
 
     public API() {
         downloadMap = new HashMap<>();
-        m3u8MediaMap = new HashMap<>();
-        shareDownloadMap = new HashMap<>();
-        lock = new ReentrantLock();
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
@@ -290,7 +280,7 @@ public class API {
         JSONObject body = new JSONObject();
         body.put("authorize", 1);
         body.put("scope", "user:base,file:all:read,file:all:write");
-        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, true));
+        JSONObject object = new JSONObject(auth("https://open.aliyundrive.com/oauth/users/authorize?client_id=" + CLIENT_ID + "&redirect_uri=https://alist.nn.ci/tool/aliyundrive/callback&scope=user:base,file:all:read,file:all:write&state=", body, false));
         Log.e("DDD", object.toString());
         //if(object.toString().contains("not"))alert("oauthRequest:"+object.toString());
         oauthRedirect(object.getString("redirectUri").split("code=")[1]);
@@ -391,13 +381,13 @@ public class API {
             vname=object!=null?object.getString("share_name"):"未找到";
             List<Item> files = new ArrayList<>();
             List<Item> subs = new ArrayList<>();
-            listFiles(shareId, new Item(getParentFileId(fileId,object)), files, subs);
+            listFiles(new Item(getParentFileId(fileId, object)), files, subs);
             if(files.isEmpty()){               
                 Init.show("资源已失效~");
                 return vod;
             }
             if (Utils.getStr(vod.getVodName()).isEmpty())vod.setVodName(vname);
-            for (Item file : files) playUrls.add(file.getDisplayName() + "$" + shareId + "+" + file.getFileId() + findSubs(file.getName(), subs));
+            for (Item file : files) playUrls.add(file.getDisplayName() + "$" + file.getFileId() + findSubs(file.getName(), subs));
         } catch (Exception e) {
             return vod;
         }
@@ -415,7 +405,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "原画%。$$$原画F%。$$$普画%。$$$原画i%$$$普画i%";
+        from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -519,20 +509,20 @@ public class API {
     }
 
 
-    private void listFiles(String shareId, Item folder, List<Item> files, List<Item> subs) {
-        listFiles(shareId, folder, files, subs, "");
+    private void listFiles(Item folder, List<Item> files, List<Item> subs) throws Exception {
+        listFiles(folder, files, subs, "");
     }
 
-    private void listFiles(String shareId, Item parent, List<Item> files, List<Item> subs, String marker) {
+    private void listFiles(Item parent, List<Item> files, List<Item> subs, String marker) throws Exception {
+        JSONObject body = new JSONObject();
         List<Item> folders = new ArrayList<>();
-        JsonObject param = new JsonObject();
-        param.addProperty("limit", 200);
-        param.addProperty("share_id", shareId);
-        param.addProperty("parent_file_id", parent.getFileId());
-        param.addProperty("order_by", "name");
-        param.addProperty("order_direction", "ASC");
-        if (marker.length() > 0) param.addProperty("marker", marker);
-        Item item = Item.objectFrom(auth("adrive/v3/file/list", param.toString(), true));
+        body.put("limit", 200);
+        body.put("share_id", shareId);
+        body.put("parent_file_id", parent.getFileId());
+        body.put("order_by", "name");
+        body.put("order_direction", "ASC");
+        if (marker.length() > 0) body.put("marker", marker);
+        Item item = Item.objectFrom(auth("adrive/v3/file/list", body.toString(), true));
         for (Item file : item.getItems()) {
             if (file.getType().equals("folder")) {
                 folders.add(file);
@@ -543,21 +533,21 @@ public class API {
             }
         }
         if (item.getNextMarker().length() > 0) {
-            listFiles(shareId, parent, files, subs, item.getNextMarker());
+            listFiles(parent, files, subs, item.getNextMarker());
         }
         for (Item folder : folders) {
-            listFiles(shareId, folder, files, subs);
+            listFiles(folder, files, subs);
         }
     }
 
     private String getParentFileId(String fileId, JSONObject shareInfo) throws Exception {
-        if (!TextUtils.isEmpty(fileId)) return fileId;
         JSONArray array = shareInfo.getJSONArray("file_infos");
+        if (!TextUtils.isEmpty(fileId)) return fileId;
         if (array.length() == 0) return "";
         JSONObject fileInfo = array.getJSONObject(0);
         if (fileInfo.getString("type").equals("folder")) return fileInfo.getString("file_id");
         if (fileInfo.getString("type").equals("file") && fileInfo.getString("category").equals("video")) return parentDir;
-        return "root";
+        return "";
     }
 
     private void pair(String name1, List<Item> items, List<Item> subs) {
@@ -583,48 +573,22 @@ public class API {
             String[] split = text.split("@@@");
             String name = split[0];
             String ext = split[1];
-            String url = Proxy.getUrl() + "?do=ali&type=sub&shareId=" + ids[0] + "&fileId=" + split[2];
+            String url = Proxy.getUrl() + "?do=ali&type=sub" + "&file_id=" + split[2];
             sub.add(Sub.create().name(name).ext(ext).url(url));
         }
         return sub;
     }
 
-    public String getShareDownloadUrl(String shareId, String fileId) {
+    public String getDownloadUrl(String fileId) {
         try {
-            if (shareDownloadMap.containsKey(fileId) && shareDownloadMap.get(fileId) != null && !isExpire(shareDownloadMap.get(fileId))) return shareDownloadMap.get(fileId);
-            this.shareId=shareId;
-            refreshShareToken();
-            SpiderDebug.log("getShareDownloadUrl..." + fileId);
-            JsonObject param = new JsonObject();
-            param.addProperty("file_id", fileId);
-            param.addProperty("share_id", shareId);
-            param.addProperty("expire_sec", 600);
-            String json = auth("v2/file/get_share_link_download_url", param.toString(), false);
-            String url = JsonParser.parseString(json).getAsJsonObject().get("download_url").getAsString();
-            shareDownloadMap.put(fileId, url);
-            return url;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-    public String getDownloadUrl(String shareId, String fileId) {
-        try {
-            if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId))) return downloadMap.get(fileId);
-            this.shareId=shareId;
-            refreshShareToken();
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
-            JsonObject param = new JsonObject();
-            param.addProperty("file_id", tempIds.get(0));
-            param.addProperty("drive_id", auth.getDriveId());
-            param.addProperty("expire_sec", 900);
-            String json = oauth("openFile/getDownloadUrl", param.toString(), true);
-            String url = Download.objectFrom(json).getUrl();
-            downloadMap.put(fileId, url);
-            return url;
+            JSONObject body = new JSONObject();
+            body.put("file_id", tempIds.get(0));
+            body.put("drive_id", auth.getDriveId());
+            String json = oauth("openFile/getDownloadUrl", body.toString(), true);
+            return new JSONObject(json).getString("url");
         } catch (Exception e) {
-            alert("getDownloadUrl:"+e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -632,67 +596,65 @@ public class API {
         }
     }
 
-    public Preview.Info getVideoPreviewPlayInfo(String shareId, String fileId) {
+    public String getDownloadUrl(String shareId, String fileId) {
         try {
+            if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId)))
+                return downloadMap.get(fileId);
             this.shareId = shareId;
             refreshShareToken();
-            SpiderDebug.log("getVideoPreviewPlayInfo..." + fileId);
-            tempIds.add(0, copy( fileId));
-            JsonObject param = new JsonObject();
-            param.addProperty("file_id", tempIds.get(0));
-            param.addProperty("drive_id", auth.getDriveId());
-            param.addProperty("category", "live_transcoding");
-            param.addProperty("url_expire_sec", 900);
-            String json = oauth("openFile/getVideoPreviewPlayInfo", param.toString(), true);
-            return Preview.objectFrom(json).getVideoPreviewPlayInfo();
+            SpiderDebug.log("getDownloadUrl..." + fileId);
+            tempIds.add(0, copy(fileId));
+            JSONObject param = new JSONObject();
+            param.put("file_id", tempIds.get(0));
+            param.put("drive_id", auth.getDriveId());
+            param.put("expire_sec", "900");
+            String json = oauth("openFile/getDownloadUrl", param.toString(), true);
+            String url = Download.objectFrom(json).getUrl();
+            downloadMap.put(fileId, url);
+            return url;
         } catch (Exception e) {
-            alert("getVideoPreviewPlayInfo:"+e.getMessage());
+            alert("getDownloadUrl:" + e.getMessage());
             e.printStackTrace();
-            return new Preview.Info();
+            return "";
+        } finally {
+            Init.execute(this::deleteAll);
+        }
+    }
+
+    public JSONObject getVideoPreviewPlayInfo(String fileId) {
+        try {
+            SpiderDebug.log("getVideoPreviewPlayInfo..." + fileId);
+            tempIds.add(0, copy(fileId));
+            JSONObject body = new JSONObject();
+            body.put("file_id", tempIds.get(0));
+            body.put("drive_id", auth.getDriveId());
+            body.put("category", "live_transcoding");
+            body.put("url_expire_sec", "900");
+            String json = oauth("openFile/getVideoPreviewPlayInfo", body.toString(), true);
+            return new JSONObject(json).getJSONObject("video_preview_play_info");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new JSONObject();
         } finally {
             Init.execute(this::deleteAll);
         }
     }
 
     public String playerContent(String[] ids) {
-        return Result.get().url(getDownloadUrl(ids[0],ids[1])).subs(getSubs(ids)).header(getHeader()).string();
+        return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
     }
 
     public String playerContent(String[] ids, String flag) {
         try {
-            alert(flag);
-            if (!flag.contains("原画")) {//代理普画
-                return getPreviewContent(ids,flag);
-            } else if (flag.contains("原画F")) {//分享原画
-                return Result.get().url(proxyVideoUrl("share", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
-            } else if (flag.contains("原画")) {//转存原画
-                return Result.get().url(proxyVideoUrl("open", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
-            } else {
-                return "";
-            }
+            JSONObject playInfo = getVideoPreviewPlayInfo(ids[0]);
+            String url = getPreviewUrl(playInfo, flag);
+            List<Sub> subs = getSubs(ids);
+            subs.addAll(getSubs(playInfo));
+            return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
         } catch (Exception e) {
-            alert("playerContent:"+e.getMessage());
             e.printStackTrace();
             return Result.get().url("").string();
         }
-    }
-
-    private String getPreviewContent(String[] ids, String flag) {
-        Preview.Info info = getVideoPreviewPlayInfo(ids[0],ids[1]);
-        List<String> url = getPreviewUrl(info, ids[0], ids[1], true);
-        List<Sub> subs = getSubs(ids);
-        subs.addAll(getSubs(info));
-        return Result.get().url(url).m3u8().subs(subs).header(getHeader()).string();
-    }
-
-    private List<String> getPreviewUrl(Preview.Info info, String shareId, String fileId, boolean proxy) {
-        List<Preview.LiveTranscodingTask> tasks = info.getLiveTranscodingTaskList();
-        List<String> url = new ArrayList<>();
-        for (int i = tasks.size() - 1; i >= 0; i--) {
-            url.add(tasks.get(i).getTemplateId());
-            url.add(proxy ? proxyVideoUrl("preview", shareId, fileId, tasks.get(i).getTemplateId()) : tasks.get(i).getUrl());
-        }
-        return url;
     }
 
     private String getPreviewUrl(JSONObject playInfo, String flag) throws Exception {
@@ -718,11 +680,20 @@ public class API {
         }
         return taskList.getJSONObject(0).getString("url");
     }
-    private List<Sub> getSubs(Preview.Info info) {
+
+    private List<Sub> getSubs(JSONObject playInfo) throws Exception {
+        if (!playInfo.has("live_transcoding_subtitle_task_list")) return Collections.emptyList();
+        JSONArray taskList = playInfo.getJSONArray("live_transcoding_subtitle_task_list");
         List<Sub> subs = new ArrayList<>();
-        for (Preview.LiveTranscodingTask task : info.getLiveTranscodingSubtitleTaskList()) subs.add(task.getSub());
+        for (int i = 0; i < taskList.length(); ++i) {
+            JSONObject task = taskList.getJSONObject(i);
+            String lang = task.getString("language");
+            String url = task.getString("url");
+            subs.add(Sub.create().url(url).name(lang).lang(lang).ext("vtt"));
+        }
         return subs;
     }
+
     private String copy(String fileId) throws Exception {
         SpiderDebug.log("Copy..." + fileId);
         String json = "{\"requests\":[{\"body\":{\"file_id\":\"%s\",\"share_id\":\"%s\",\"auto_rename\":true,\"to_parent_file_id\":\"%s\",\"to_drive_id\":\"%s\"},\"headers\":{\"Content-Type\":\"application/json\"},\"id\":\"0\",\"method\":\"POST\",\"url\":\"/file/copy\"}],\"resource\":\"file\"}";
@@ -751,6 +722,20 @@ public class API {
             return false;
         }
     }
+    public Object[] proxySub(Map<String, String> params) throws Exception {
+        String fileId = params.get("fileId");
+        String shareId = params.get("shareId");
+        Response res = null;
+        if(shareId!=null) res = OkHttp.newCall(getDownloadUrl(shareId, fileId), getHeaderAuth());
+        else res = OkHttp.newCall(getDownloadUrl(fileId), getHeaderAuth());
+        byte[] body = Utils.toUtf8(res.body().bytes());
+        Object[] result = new Object[3];
+        result[0] = 200;
+        result[1] = "application/octet-stream";
+        result[2] = new ByteArrayInputStream(body);
+        return result;
+    }
+
     private String proxyVideoUrl(String cate, String shareId, String fileId) {
         int thread = 1;
         String url = String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s", cate, shareId, fileId);
@@ -763,45 +748,24 @@ public class API {
         return String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s&templateId=%s", cate, shareId, fileId, templateId);
     }
 
-    private String proxyVideoUrl(String cate, String shareId, String fileId, String templateId, String mediaId) {
-        return String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s&templateId=%s&mediaId=%s", cate, shareId, fileId, templateId, mediaId);
-    }
-
     private static boolean isExpire(String url) {
         String expires = new UrlQuerySanitizer(url).getValue("x-oss-expires");
         if (TextUtils.isEmpty(expires)) return false;
         return Long.parseLong(expires) - Utils.Time() <= 60;
     }
 
-
-
     public Object[] proxyVideo(Map<String, String> params) throws Exception {
         if (dialog != null && dialog.isShowing()) return null;
         String templateId = params.get("templateId");
         String response = params.get("response");
         String shareId = params.get("shareId");
-        String mediaId = params.get("mediaId");
         String fileId = params.get("fileId");
         String cate = params.get("cate");
         String downloadUrl = "";
-
-        if ("preview".equals(cate)) {
-            return previewProxy(shareId, fileId, templateId);
-        }
+        if(shareId==null)shareId = this.shareId;
 
         if ("open".equals(cate)) {
             downloadUrl = getDownloadUrl(shareId, fileId);
-        } else if ("share".equals(cate)) {
-            downloadUrl = getShareDownloadUrl(shareId, fileId);
-        } else if ("m3u8".equals(cate)) {
-            lock.lock();
-            String mediaUrl = m3u8MediaMap.get(fileId).get(mediaId);
-            if (isExpire(mediaUrl)) {
-                getM3u8(shareId, fileId, templateId);
-                mediaUrl = m3u8MediaMap.get(fileId).get(mediaId);
-            }
-            lock.unlock();
-            downloadUrl = mediaUrl;
         }
 
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
@@ -813,60 +777,11 @@ public class API {
         headers.remove("cate");
         headers.remove("fileId");
         headers.remove("shareId");
-        headers.remove("mediaId");
         headers.remove("templateId");
         headers.remove("remote-addr");
         headers.remove("http-client-ip");
         return new Object[]{ProxyVideo.proxy(downloadUrl, headers)};
     }
-
-    private Object[] previewProxy(String shareId, String fileId, String templateId) {
-        return new Object[]{200, "application/vnd.apple.mpegurl", new ByteArrayInputStream(getM3u8(shareId, fileId, templateId).getBytes())};
-    }
-
-    private String getM3u8Url(String shareId, String fileId, String templateId) {
-        Preview.Info info = getVideoPreviewPlayInfo(shareId, fileId);
-        List<String> url = getPreviewUrl(info, shareId, fileId, false);
-        Map<String, String> previewMap = new HashMap<>();
-        for (int i = 0; i < url.size(); i = i + 2) {
-            previewMap.put(url.get(i), url.get(i + 1));
-        }
-        return previewMap.get(templateId);
-    }
-
-    private String getM3u8(String shareId, String fileId, String templateId) {
-        String m3u8Url = getM3u8Url(shareId, fileId, templateId);
-        String m3u8 = OkHttp.string(m3u8Url, getHeader());
-        String[] m3u8Arr = m3u8.split("\n");
-        List<String> listM3u8 = new ArrayList<>();
-        Map<String, String> media = new HashMap<>();
-        String site = m3u8Url.substring(0, m3u8Url.lastIndexOf("/")) + "/";
-        int mediaId = 0;
-        for (String oneLine : m3u8Arr) {
-            String thisOne = oneLine;
-            if (oneLine.contains("x-oss-expires")) {
-                media.put(String.valueOf(mediaId), site + thisOne);
-                thisOne = proxyVideoUrl("m3u8", shareId, fileId, templateId, String.valueOf(mediaId));
-                mediaId++;
-            }
-            listM3u8.add(thisOne);
-        }
-        m3u8MediaMap.put(fileId, media);
-        return TextUtils.join("\n", listM3u8);
-    }
-
-    public Object[] proxySub(Map<String, String> params) throws Exception {
-        String fileId = params.get("fileId");
-        String shareId = params.get("shareId");
-        Response res = OkHttp.newCall(getDownloadUrl(shareId, fileId), getHeaderAuth());
-        byte[] body = Utils.toUtf8(res.body().bytes());
-        Object[] result = new Object[3];
-        result[0] = 200;
-        result[1] = "application/octet-stream";
-        result[2] = new ByteArrayInputStream(body);
-        return result;
-    }
-
 
     private void startPen() {
         cleanToken();
