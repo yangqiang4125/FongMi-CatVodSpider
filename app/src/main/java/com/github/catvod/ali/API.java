@@ -405,7 +405,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
+        from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -581,13 +581,17 @@ public class API {
 
     public String getDownloadUrl(String fileId) {
         try {
+            if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId)))
+                return downloadMap.get(fileId);
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
             JSONObject body = new JSONObject();
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
-            return new JSONObject(json).getString("url");
+            String url = Download.objectFrom(json).getUrl();
+            downloadMap.put(fileId, url);
+            return url;
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -641,7 +645,7 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
-        return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
+        return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
     public String playerContent(String[] ids, String flag) {
@@ -650,7 +654,7 @@ public class API {
             String url = getPreviewUrl(playInfo, flag);
             List<Sub> subs = getSubs(ids);
             subs.addAll(getSubs(playInfo));
-            return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
+            return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
             e.printStackTrace();
             return Result.get().url("").string();
@@ -758,14 +762,11 @@ public class API {
         if (dialog != null && dialog.isShowing()) return null;
         String templateId = params.get("templateId");
         String response = params.get("response");
-        String shareId = params.get("shareId");
         String fileId = params.get("fileId");
         String cate = params.get("cate");
         String downloadUrl = "";
-        if(shareId==null)shareId = this.shareId;
-
         if ("open".equals(cate)) {
-            downloadUrl = getDownloadUrl(shareId, fileId);
+            downloadUrl = getDownloadUrl(fileId);
         }
 
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
