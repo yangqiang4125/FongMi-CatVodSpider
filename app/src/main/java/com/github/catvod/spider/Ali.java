@@ -107,7 +107,8 @@ public class Ali extends Spider {
 
     public static Object[] proxy(Map<String, String> params) throws Exception {
         String type = params.get("type");
-        if (type.equals("sub")) return API.get().proxySub(params);
+        if ("video".equals(type)) return API.get().proxyVideo(params);
+        if ("sub".equals(type)) return API.get().proxySub(params);
         return null;
     }
 

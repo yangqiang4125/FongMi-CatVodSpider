@@ -130,7 +130,9 @@ public class Utils {
             return String.format(Locale.getDefault(), "%.2f%s", size, "KB");
         }
     }
-
+    public static long Time() {
+        return (System.currentTimeMillis() / 1000);
+    }
     public static String getTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentTime = sdf.format(new Date());
