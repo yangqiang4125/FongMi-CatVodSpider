@@ -34,12 +34,12 @@ public class ProxyVideo {
             String result = OkHttp.string(GO_SERVER + "version");
             return new JSONObject(result).optString("version");
         } catch (Exception e) {
-            return "2";
+            return "";
         }
     }
 
     public static String url(String url, int thread) {
-        if (!TextUtils.isEmpty(goVer()) && url.contains("/proxy?")) url += "&response=url";
+        //if (!TextUtils.isEmpty(goVer()) && url.contains("/proxy?")) url += "&response=url";
         return String.format(Locale.getDefault(), "%s?url=%s&thread=%d", GO_SERVER, URLEncoder.encode(url), thread);
     }
 
