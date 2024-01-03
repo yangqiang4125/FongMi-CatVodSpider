@@ -405,7 +405,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%";
+        from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -588,11 +588,13 @@ public class API {
             JSONObject body = new JSONObject();
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
+            param.put("expire_sec", 900);
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
             String url = Download.objectFrom(json).getUrl();
             downloadMap.put(fileId, url);
             return url;
         } catch (Exception e) {
+            alert("getDownloadUrl2:" + e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -765,10 +767,11 @@ public class API {
         String fileId = params.get("fileId");
         String cate = params.get("cate");
         String downloadUrl = "";
+        Init.show("cate:"+cate);
         if ("open".equals(cate)) {
             downloadUrl = getDownloadUrl(fileId);
         }
-
+        Init.show("downloadUrl774:"+downloadUrl);
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (String key : params.keySet()) headers.put(key, params.get(key));
