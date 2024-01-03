@@ -588,7 +588,7 @@ public class API {
             JSONObject body = new JSONObject();
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
-            param.put("expire_sec", 900);
+            body.put("expire_sec", 900);
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
             String url = Download.objectFrom(json).getUrl();
             downloadMap.put(fileId, url);
