@@ -34,7 +34,7 @@ public class ProxyVideo {
             String result = OkHttp.string(GO_SERVER + "version");
             return new JSONObject(result).optString("version");
         } catch (Exception e) {
-            return "2";
+            return "";
         }
     }
 

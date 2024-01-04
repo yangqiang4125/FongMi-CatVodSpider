@@ -647,6 +647,7 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
+        Init.show("playerContent:"+ids[0]);
         return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
@@ -767,11 +768,9 @@ public class API {
         String fileId = params.get("fileId");
         String cate = params.get("cate");
         String downloadUrl = "";
-        Init.show("cate:"+cate);
         if ("open".equals(cate)) {
             downloadUrl = getDownloadUrl(fileId);
         }
-        Init.show("downloadUrl774:"+downloadUrl);
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (String key : params.keySet()) headers.put(key, params.get(key));
