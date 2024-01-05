@@ -75,7 +75,7 @@ public class Pan99 extends Ali {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
+    public String detailContent(List<String> list) throws Exception {
         try {
             String id =list.get(0);
             if (!Utils.regexAli.matcher(id).find()) {
