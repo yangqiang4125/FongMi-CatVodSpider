@@ -89,6 +89,7 @@ public class Pan99 extends Ali {
             return super.detailContent(list);
         } catch (Exception e) {
         }
+        return "";
     }
 
     @Override
