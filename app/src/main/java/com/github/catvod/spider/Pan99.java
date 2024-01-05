@@ -6,7 +6,7 @@ import com.github.catvod.bean.Class;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.net.OkHttp;
-import com.github.catvod.utils.Util;
+import com.github.catvod.utils.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
 public class Pan99 extends Ali {
 
     private static String siteUrl = "https://pan99.xyz";
-    private String douban = "@Referer=https://api.douban.com/@User-Agent=" + Util.CHROME;
+    private String douban = "@Referer=https://api.douban.com/@User-Agent=" + Utils.CHROME;
 
     private Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", Util.CHROME);
+        header.put("User-Agent", Utils.CHROME);
         return header;
     }
 
