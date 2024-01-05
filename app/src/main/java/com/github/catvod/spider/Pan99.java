@@ -38,8 +38,10 @@ public class Pan99 extends Ali {
     @Override
     public void init(Context context, String extend) {
         String[] split = extend.split("\\$");
-        if (split.length == 2 && split[1].length() > 0) siteUrl = split[1];
-        super.init(context, split[0]);
+        if (split.length > 1) {
+            if (split.length == 2 && split[1].length() > 0) siteUrl = split[1];
+            super.init(context, split[0]);
+        }else super.init(context, extend);
     }
 
     @Override
@@ -89,6 +91,7 @@ public class Pan99 extends Ali {
             return super.detailContent(list);
         } catch (Exception e) {
         }
+        return "";
     }
 
     @Override
