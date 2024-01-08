@@ -13,11 +13,11 @@ import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import com.github.catvod.bean.ali.Data;
 import com.github.catvod.utils.QRCode;
 import java.util.concurrent.TimeoutException;
-
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.catvod.bean.Result;
