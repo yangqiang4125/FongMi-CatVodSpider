@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 
 public class API {
     private ScheduledExecutorService service;
+    private ExecutorService threadPool = null;
     private AlertDialog dialog;
     private final List<String> tempIds;
     private final List<String> quality;
@@ -227,7 +228,6 @@ public class API {
             e.printStackTrace();
         }
     }
-
     private boolean refreshAccessToken() {
         return refreshAccessToken(true);
     }
@@ -306,9 +306,21 @@ public class API {
         auth.save();
         updateData();
     }
-    private boolean refreshOpenToken() {
+    public void autoRefreshOpenToken(boolean flag) {
         try {
-            Ali.fetchRule(true, 0);
+            threadPool = Executors.newSingleThreadExecutor();
+            threadPool.execute(()->{
+                refreshOpenToken(flag);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+    private boolean refreshOpenToken(boolean flag) {
+        try {
+            if(flag)Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;
@@ -331,6 +343,9 @@ public class API {
             }
             return false;
         }
+    }
+    private boolean refreshOpenToken() {
+        return refreshOpenToken(true);
     }
 
     public boolean refreshShareToken() {
