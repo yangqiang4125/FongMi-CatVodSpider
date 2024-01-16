@@ -24,28 +24,23 @@ import java.util.regex.Matcher;
  * @author zhixc
  */
 public class PanSearch extends Ali {
-
-    private final String URL = "https://www.pansearch.me/";
-
-    private Map<String, String> getHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", Utils.CHROME);
-        return header;
+    @Override
+    public void init(Context context, String extend){
+        inits(context,extend,"https://www.pansearch.me/");
     }
-
     private Map<String, String> getSearchHeader() {
         Map<String, String> header = getHeader();
         header.put("x-nextjs-data", "1");
-        header.put("referer", URL);
+        header.put("referer", siteUrl);
         return header;
     }
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        String html = OkHttp.string(URL, getHeader());
+        String html = OkHttp.string(siteUrl, getHeader());
         String data = Jsoup.parse(html).select("script[id=__NEXT_DATA__]").get(0).data();
         String buildId = new JSONObject(data).getString("buildId");
-        String url = URL + "_next/data/" + buildId + "/search.json?keyword=" + URLEncoder.encode(key) + "&pan=aliyundrive";
+        String url = siteUrl + "_next/data/" + buildId + "/search.json?keyword=" + URLEncoder.encode(key) + "&pan=aliyundrive";
         String result = OkHttp.string(url, getSearchHeader());
         JSONArray array = new JSONObject(result).getJSONObject("pageProps").getJSONObject("data").getJSONArray("data");
         List<Vod> list = new ArrayList<>();
