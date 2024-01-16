@@ -77,7 +77,7 @@ public class Yingshiche extends Ali {
             String id =list.get(0);
             if (!Utils.regexAli.matcher(id).find()) {
                 String[] arr = id.split("\\$\\$\\$");
-                Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
+                Matcher matcher = Utils.regexAli.matcher(OkHttp.string(siteUrl+arr[0], getHeader()));
                 if (!matcher.find()) return "";
                 arr[0] = matcher.group(1);
                 String uid = TextUtils.join("$$$",arr);
