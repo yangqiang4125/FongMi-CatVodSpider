@@ -23,9 +23,7 @@ public class Wogg extends Ali {
     @Override
     public void init(Context context, String extend) {
         String [] arr = inits(context, extend,"http://tvfan.xxooo.cf");
-        String extJson = "";
-        if(arr.length>2&&arr[2].endsWith(".json")) extJson = arr[2];
-        if(extJson.isEmpty())extJson ="{\n" +
+        String extJson ="{" +
                 "  \"ua\":1,\n" +
                 "  \"name\": \"Wogg\",\n" +
                 "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
