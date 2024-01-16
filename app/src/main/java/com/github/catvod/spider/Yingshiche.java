@@ -94,11 +94,6 @@ public class Yingshiche extends Ali {
         return searchContent(key, "1");
     }
 
-    @Override
-    public String searchContent(String key, boolean quick, String pg) throws Exception {
-        return searchContent(key, pg);
-    }
-
     private String searchContent(String key, String pg) {
         String searchURL = siteUrl + String.format("/vodsearch/%s----------%s---.html", URLEncoder.encode(key), pg);
         String html = OkHttp.string(searchURL, getHeader());
