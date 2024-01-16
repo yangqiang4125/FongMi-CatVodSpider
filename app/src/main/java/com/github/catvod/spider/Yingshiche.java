@@ -62,11 +62,11 @@ public class Yingshiche extends Ali {
         Document doc = Jsoup.parse(OkHttp.string(cateUrl, getHeader()));
         List<Vod> list = new ArrayList<>();
         for (Element li : doc.select(".module-items .module-item")) {
-            String vid = li.select("a").attr("href");
+            String vodId = li.select("a").attr("href");
             String name = li.select("a").attr("title");
             String pic = li.select("img").attr("data-src");
             String remark = li.select("[class=module-item-text]").text();
-            list.add(new Vod(vid, name, pic, remark));
+            list.add(new Vod(vodId + "$$$" + pic + "$$$" + name, name, pic, remark));
         }
         return Result.string(list);
     }
@@ -104,7 +104,7 @@ public class Yingshiche extends Ali {
             String name = item.select(".video-serial").attr("title");
             String pic = item.select(".module-item-pic > img").attr("data-src");
             String remark = item.select(".video-tag-icon").text();
-            list.add(new Vod(vodId, name, pic, remark));
+            list.add(new Vod(vodId + "$$$" + pic + "$$$" + name, name, pic, remark));
         }
         return Result.string(list);
     }
