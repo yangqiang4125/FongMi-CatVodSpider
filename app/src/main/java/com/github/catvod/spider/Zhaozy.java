@@ -20,7 +20,10 @@ import java.util.regex.Pattern;
 
 public class Zhaozy extends Ali {
     private final Pattern regexVid = Pattern.compile("(\\S+)");
-    private final String siteUrl = "https://zhaoziyuan.pw/";
+    @Override
+    public void init(Context context, String extend){
+        inits(context,extend,"https://zhaoziyuan.pw/");
+    }
     private Map<String, String> getHeader() {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);

@@ -19,19 +19,13 @@ import java.util.regex.Matcher;
  * @author zhixc
  */
 public class Wogg extends Ali {
-    private final String siteURL = "http://tvfan.xxooo.cf";
     private MyQQ qq;
-    private Map<String, String> getHeader() {
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", Utils.CHROME);
-        return header;
-    }
-
     @Override
     public void init(Context context, String extend) {
-        super.init(context, extend);
-        String extJson = extend;
-        if(extend==null||extend.isEmpty()||!extend.endsWith(".json"))extJson ="{\n" +
+        String [] arr = inits(context, extend,"http://tvfan.xxooo.cf");
+        String extJson = "";
+        if(arr.length>1&&arr[1].endsWith(".json")) extJson = arr[1];
+        if(!extJson.isEmpty())extJson ="{\n" +
                 "  \"ua\":1,\n" +
                 "  \"name\": \"Wogg\",\n" +
                 "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
@@ -66,12 +60,12 @@ public class Wogg extends Ali {
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        String searchURL = siteURL + "/index.php/vodsearch/-------------.html?wd=" + URLEncoder.encode(key);
+        String searchURL = siteUrl + "/index.php/vodsearch/-------------.html?wd=" + URLEncoder.encode(key);
         String html = OkHttp.string(searchURL, getHeader());
         Elements items = Jsoup.parse(html).select(".module-search-item");
         List<Vod> list = new ArrayList<>();
         for (Element item : items) {
-            String vodId =  siteURL+item.select(".video-serial").attr("href");
+            String vodId =  siteUrl+item.select(".video-serial").attr("href");
             String name = item.select(".video-serial").attr("title");
             String pic = item.select(".module-item-pic > img").attr("data-src");
             String remark = item.select(".video-tag-icon").text();

@@ -300,6 +300,8 @@ public class Utils {
             }
             if(iname.contains(".")&&iname.length()>5) iname = iname.substring(0, iname.lastIndexOf("."));
             if(isNumeric(iname)) {
+                String tn = iname.replace("0", "");
+                if(tn.equals(""))continue;
                 int zi = Integer.parseInt(iname);
                 if(zi>index)index=zi;
                 if(iname.length()==1)iname="0"+iname;

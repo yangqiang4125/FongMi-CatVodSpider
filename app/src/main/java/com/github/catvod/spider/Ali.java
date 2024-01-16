@@ -21,13 +21,32 @@ import java.util.regex.Pattern;
  * @author ColaMint & Adam & FongMi
  */
 public class Ali extends Spider {
+    public String siteUrl = "";
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     @Override
     public void init(Context context, String extend) {
+        initd(context);
+    }
+    private void initd(String extend){
         if(extend.contains("=web"))Utils.jsonUrl = extend;
         fetchRule(false,0);
     }
-
+    public String[] inits(Context context, String extend,String siteUrl) {
+        String[] split = extend.split(";");
+        if (split.length > 1) {
+            if (split.length == 2 && split[1].length() > 0) this.siteUrl = split[1];
+            initd(split[0]);
+        }else {
+            initd(extend);
+            this.siteUrl = siteUrl;
+        }
+        return split;
+    }
+    public Map<String, String> getHeader() {
+        Map<String, String> header = new HashMap<>();
+        header.put("User-Agent", Utils.CHROME);
+        return header;
+    }
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
             if (flag || Utils.siteRule == null ||API.get().isRefresh()) {
