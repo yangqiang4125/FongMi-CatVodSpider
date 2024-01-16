@@ -12,8 +12,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +24,7 @@ public class Ali extends Spider {
     private static String szRegx = ".*(Ep|EP|E|第)(\\d+)[\\.|集]?.*";//集数数字正则匹配
     @Override
     public void init(Context context, String extend) {
-        initd(context);
+        initd(extend);
     }
     private void initd(String extend){
         if(extend.contains("=web"))Utils.jsonUrl = extend;

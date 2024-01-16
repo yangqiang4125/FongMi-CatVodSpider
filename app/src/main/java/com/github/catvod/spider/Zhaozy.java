@@ -9,7 +9,7 @@ import com.github.catvod.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
+import android.content.Context;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class Zhaozy extends Ali {
     public void init(Context context, String extend){
         inits(context,extend,"https://zhaoziyuan.pw/");
     }
-    private Map<String, String> getHeader() {
+    public Map<String, String> getHeader() {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", Utils.CHROME);
         headers.put("Referer", siteUrl);
