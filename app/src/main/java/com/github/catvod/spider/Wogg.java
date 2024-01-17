@@ -22,11 +22,11 @@ public class Wogg extends Ali {
     private MyQQ qq;
     @Override
     public void init(Context context, String extend) {
-        String [] arr = inits(context, extend,"http://tvfan.xxooo.cf");
+        inits(context, extend,"http://tvfan.xxooo.cf");
         String extJson ="{" +
                 "  \"ua\":1,\n" +
                 "  \"name\": \"Wogg\",\n" +
-                "  \"siteUrl\": \"https://tvfan.xxooo.cf\", \n" +
+                "  \"siteUrl\": \""+siteUrl+"\", \n" +
                 "  \"types\": \"国产剧$/index.php/vodshow/2-大陆-------#电影$/index.php/vodshow/1--time------#韩剧$/index.php/vodshow/2-韩国-------#港剧$/index.php/vodshow/2-香港-------#综艺$/index.php/vodshow/4--------#动漫$/index.php/vodshow/3--------#音乐MV$/index.php/vodshow/5--------\", \n" +
                 "  \"end\": \"---.html\", \n" +
                 "  \"search\":\"\",\n" +
