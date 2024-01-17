@@ -36,8 +36,8 @@ public class Ali extends Spider {
             if (split.length == 2 && split[1].length() > 0) this.siteUrl = split[1];
             initd(split[0]);
         }else {
-            initd(extend);
             this.siteUrl = siteUrl;
+            initd(extend);
         }
         return split;
     }
