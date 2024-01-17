@@ -41,11 +41,11 @@ public class Yingshiche extends Ali {
         Document doc = Jsoup.parse(OkHttp.string(siteUrl, getHeader()));
         List<Vod> list = new ArrayList<>();
         for (Element li : doc.select(".module-items .module-item")) {
-            String vid = li.select("a").attr("href");
+            String vid = siteUrl+li.select("a").attr("href");
             String name = li.select("a").attr("title");
             String pic = li.select("img").attr("data-src");
             String remark = li.select("[class=module-item-text]").text();
-            list.add(new Vod(vid, name, pic, remark));
+            list.add(new Vod(vodId + "$$$" + pic + "$$$" + name, name, pic, remark));
         }
         return Result.string(classes, list, filterConfig);
     }
@@ -62,7 +62,7 @@ public class Yingshiche extends Ali {
         Document doc = Jsoup.parse(OkHttp.string(cateUrl, getHeader()));
         List<Vod> list = new ArrayList<>();
         for (Element li : doc.select(".module-items .module-item")) {
-            String vodId = li.select("a").attr("href");
+            String vodId = siteUrl+li.select("a").attr("href");
             String name = li.select("a").attr("title");
             String pic = li.select("img").attr("data-src");
             String remark = li.select("[class=module-item-text]").text();
@@ -77,7 +77,7 @@ public class Yingshiche extends Ali {
             String id =list.get(0);
             if (!Utils.regexAli.matcher(id).find()) {
                 String[] arr = id.split("\\$\\$\\$");
-                Matcher matcher = Utils.regexAli.matcher(OkHttp.string(siteUrl+arr[0], getHeader()));
+                Matcher matcher = Utils.regexAli.matcher(OkHttp.string(arr[0], getHeader()));
                 if (!matcher.find()) return "";
                 arr[0] = matcher.group(1);
                 String uid = TextUtils.join("$$$",arr);
@@ -100,7 +100,7 @@ public class Yingshiche extends Ali {
         Elements items = Jsoup.parse(html).select(".module-search-item");
         List<Vod> list = new ArrayList<>();
         for (Element item : items) {
-            String vodId = item.select(".video-serial").attr("href");
+            String vodId = siteUrl+item.select(".video-serial").attr("href");
             String name = item.select(".video-serial").attr("title");
             String pic = item.select(".module-item-pic > img").attr("data-src");
             String remark = item.select(".video-tag-icon").text();
