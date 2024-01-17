@@ -310,7 +310,7 @@ public class Utils {
                 m.put(iname, map.get(zname));
             }
         }
-        if (!type.isEmpty() && index > 0 && m.size() != index && list.size() == index) return getBx(list, map, "", f);
+        if (!type.isEmpty() && m.size() != index && list.size() > m.size()) return getBx(list, map, "", f);
         return m;
     }
     public static JSONObject jsonParse(String input, String json) throws JSONException {
