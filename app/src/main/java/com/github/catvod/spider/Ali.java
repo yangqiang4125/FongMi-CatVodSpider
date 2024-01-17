@@ -46,6 +46,10 @@ public class Ali extends Spider {
         header.put("User-Agent", Utils.CHROME);
         return header;
     }
+    public String getUrl(String url){
+        if(!url.startsWith("http"))url = siteUrl+url;
+        return url;
+    }
     public static JSONObject fetchRule(boolean flag, int t) {
         try {
             if (flag || Utils.siteRule == null ||API.get().isRefresh()) {

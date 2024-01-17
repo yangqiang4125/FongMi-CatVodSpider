@@ -41,7 +41,7 @@ public class Yingshiche extends Ali {
         Document doc = Jsoup.parse(OkHttp.string(siteUrl, getHeader()));
         List<Vod> list = new ArrayList<>();
         for (Element li : doc.select(".module-items .module-item")) {
-            String vid = siteUrl+li.select("a").attr("href");
+            String vodId = siteUrl+li.select("a").attr("href");
             String name = li.select("a").attr("title");
             String pic = li.select("img").attr("data-src");
             String remark = li.select("[class=module-item-text]").text();

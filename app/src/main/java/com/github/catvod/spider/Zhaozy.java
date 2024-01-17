@@ -72,7 +72,6 @@ public class Zhaozy extends Ali {
 
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        fetchRule(false,0);
         String so = Utils.siteRule.optString("zhaozy", "so");
         String url = siteUrl + so+"?filename=" + URLEncoder.encode(key);
         Document doc = Jsoup.parse(OkHttp.string(url, getHeader()));
