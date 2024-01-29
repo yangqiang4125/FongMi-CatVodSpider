@@ -411,8 +411,8 @@ public class API {
                 if(!s.contains("1079"))type = "1080";
             }
         }
-        String from = getVal("aliFrom","原画%$$$原画i$$$普话%"),fromkey="";
-        //from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%$$$普画i%";
+        String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
+        from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -601,7 +601,6 @@ public class API {
             downloadMap.put(fileId, url);
             return url;
         } catch (Exception e) {
-            alert("getDownloadUrl2:" + e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -626,7 +625,6 @@ public class API {
             downloadMap.put(fileId, url);
             return url;
         } catch (Exception e) {
-            alert("getDownloadUrl:" + e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -654,7 +652,6 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
-        Init.show("playerContent:"+ids[0]);
         return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
