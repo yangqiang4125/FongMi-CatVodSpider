@@ -2,7 +2,6 @@ package com.github.catvod.ali;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.UrlQuerySanitizer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,8 +13,9 @@ import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import com.github.catvod.bean.ali.*;
+import com.github.catvod.bean.ali.Data;
 import com.github.catvod.utils.QRCode;
 import java.util.concurrent.TimeoutException;
 import android.text.TextUtils;
@@ -23,6 +23,8 @@ import android.util.Log;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
+import com.github.catvod.bean.ali.Auth;
+import com.github.catvod.bean.ali.Item;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.spider.Ali;
@@ -36,15 +38,15 @@ import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.github.catvod.utils.ProxyVideo;
+
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class API {
-    private final Map<String, String> downloadMap;
     private ScheduledExecutorService service;
+    private ExecutorService threadPool = null;
     private AlertDialog dialog;
     private final List<String> tempIds;
     private final List<String> quality;
@@ -72,7 +74,6 @@ public class API {
     }
 
     public API() {
-        downloadMap = new HashMap<>();
         tempIds = new ArrayList<>();
         qmap = new LinkedHashMap<>();
         auth = Auth.objectFrom(Prefers.getString("aliyundrive"));
@@ -136,7 +137,12 @@ public class API {
         headers.put("Referer", "https://www.aliyundrive.com/");
         return headers;
     }
-
+    private HashMap<String, String> getHeaders() {
+        HashMap<String, String> headers = getHeader();
+        headers.put("x-share-token", shareToken);
+        headers.put("X-Canary", "client=Android,app=adrive,version=v4.3.1");
+        return headers;
+    }
     private HashMap<String, String> getHeaderAuth() {
         HashMap<String, String> headers = getHeader();
         headers.put("authorization", auth.getAccessToken());
@@ -162,7 +168,7 @@ public class API {
 
     private String auth(String url, String json, boolean retry) {
         url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
-        String result = OkHttp.postJson(url, json, getHeaderAuth());
+        String result = OkHttp.postJson(url, json, url.contains("file/list") ? getHeaders() : getHeaderAuth());
         Log.e("auth", result);
         if (retry && checkAuth(result)) return auth(url, json, false);
         return result;
@@ -227,7 +233,6 @@ public class API {
             e.printStackTrace();
         }
     }
-
     private boolean refreshAccessToken() {
         return refreshAccessToken(true);
     }
@@ -306,9 +311,21 @@ public class API {
         auth.save();
         updateData();
     }
-    private boolean refreshOpenToken() {
+    public void autoRefreshOpenToken(boolean flag) {
         try {
-            Ali.fetchRule(true, 0);
+            threadPool = Executors.newSingleThreadExecutor();
+            threadPool.execute(()->{
+                refreshOpenToken(flag);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+    private boolean refreshOpenToken(boolean flag) {
+        try {
+            if(flag)Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;
@@ -331,6 +348,9 @@ public class API {
             }
             return false;
         }
+    }
+    private boolean refreshOpenToken() {
+        return refreshOpenToken(true);
     }
 
     public boolean refreshShareToken() {
@@ -405,7 +425,7 @@ public class API {
             }
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
+        //from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
@@ -587,33 +607,9 @@ public class API {
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
+
             return new JSONObject(json).getString("url");
         } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        } finally {
-            Init.execute(this::deleteAll);
-        }
-    }
-
-    public String getDownloadUrl(String shareId, String fileId) {
-        try {
-            if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId)))
-                return downloadMap.get(fileId);
-            this.shareId = shareId;
-            refreshShareToken();
-            SpiderDebug.log("getDownloadUrl..." + fileId);
-            tempIds.add(0, copy(fileId));
-            JSONObject param = new JSONObject();
-            param.put("file_id", tempIds.get(0));
-            param.put("drive_id", auth.getDriveId());
-            param.put("expire_sec", "900");
-            String json = oauth("openFile/getDownloadUrl", param.toString(), true);
-            String url = Download.objectFrom(json).getUrl();
-            downloadMap.put(fileId, url);
-            return url;
-        } catch (Exception e) {
-            alert("getDownloadUrl:" + e.getMessage());
             e.printStackTrace();
             return "";
         } finally {
@@ -629,7 +625,7 @@ public class API {
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
             body.put("category", "live_transcoding");
-            body.put("url_expire_sec", "900");
+            body.put("url_expire_sec", "14400");
             String json = oauth("openFile/getVideoPreviewPlayInfo", body.toString(), true);
             return new JSONObject(json).getJSONObject("video_preview_play_info");
         } catch (Exception e) {
@@ -650,7 +646,7 @@ public class API {
             String url = getPreviewUrl(playInfo, flag);
             List<Sub> subs = getSubs(ids);
             subs.addAll(getSubs(playInfo));
-            return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
+            return Result.get().url(url).subs(subs).header(getHeader()).string();
         } catch (Exception e) {
             e.printStackTrace();
             return Result.get().url("").string();
@@ -722,12 +718,10 @@ public class API {
             return false;
         }
     }
+
     public Object[] proxySub(Map<String, String> params) throws Exception {
-        String fileId = params.get("fileId");
-        String shareId = params.get("shareId");
-        Response res = null;
-        if(shareId!=null) res = OkHttp.newCall(getDownloadUrl(shareId, fileId), getHeaderAuth());
-        else res = OkHttp.newCall(getDownloadUrl(fileId), getHeaderAuth());
+        String fileId = params.get("file_id");
+        Response res = OkHttp.newCall(getDownloadUrl(fileId), getHeaderAuth());
         byte[] body = Utils.toUtf8(res.body().bytes());
         Object[] result = new Object[3];
         result[0] = 200;
@@ -735,54 +729,6 @@ public class API {
         result[2] = new ByteArrayInputStream(body);
         return result;
     }
-
-    private String proxyVideoUrl(String cate, String shareId, String fileId) {
-        int thread = 1;
-        String url = String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s", cate, shareId, fileId);
-        if ("open".equals(cate)) thread = 10;
-        if ("share".equals(cate)) thread = 10;
-        return thread == 1 ? url : ProxyVideo.url(url, thread);
-    }
-
-    private String proxyVideoUrl(String cate, String shareId, String fileId, String templateId) {
-        return String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s&templateId=%s", cate, shareId, fileId, templateId);
-    }
-
-    private static boolean isExpire(String url) {
-        String expires = new UrlQuerySanitizer(url).getValue("x-oss-expires");
-        if (TextUtils.isEmpty(expires)) return false;
-        return Long.parseLong(expires) - Utils.Time() <= 60;
-    }
-
-    public Object[] proxyVideo(Map<String, String> params) throws Exception {
-        if (dialog != null && dialog.isShowing()) return null;
-        String templateId = params.get("templateId");
-        String response = params.get("response");
-        String shareId = params.get("shareId");
-        String fileId = params.get("fileId");
-        String cate = params.get("cate");
-        String downloadUrl = "";
-        if(shareId==null)shareId = this.shareId;
-
-        if ("open".equals(cate)) {
-            downloadUrl = getDownloadUrl(shareId, fileId);
-        }
-
-        if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
-        Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        for (String key : params.keySet()) headers.put(key, params.get(key));
-        headers.remove("do");
-        headers.remove("host");
-        headers.remove("type");
-        headers.remove("cate");
-        headers.remove("fileId");
-        headers.remove("shareId");
-        headers.remove("templateId");
-        headers.remove("remote-addr");
-        headers.remove("http-client-ip");
-        return new Object[]{ProxyVideo.proxy(downloadUrl, headers)};
-    }
-
     private void startPen() {
         cleanToken();
         stopService();
