@@ -137,6 +137,13 @@ public class API {
         return headers;
     }
 
+    private HashMap<String, String> getHeaders() {
+        HashMap<String, String> headers = getHeader();
+        headers.put("x-share-token", shareToken);
+        headers.put("X-Canary", "client=Android,app=adrive,version=v4.3.1");
+        return headers;
+    }
+
     private HashMap<String, String> getHeaderAuth() {
         HashMap<String, String> headers = getHeader();
         headers.put("authorization", auth.getAccessToken());
@@ -162,7 +169,7 @@ public class API {
 
     private String auth(String url, String json, boolean retry) {
         url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
-        String result = OkHttp.postJson(url, json, getHeaderAuth());
+        String result = OkHttp.postJson(url, json, url.contains("file/list") ? getHeaders() : getHeaderAuth());
         Log.e("auth", result);
         if (retry && checkAuth(result)) return auth(url, json, false);
         return result;
@@ -404,8 +411,8 @@ public class API {
                 if(!s.contains("1079"))type = "1080";
             }
         }
-        String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
-        from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%$$$普画i%";
+        String from = getVal("aliFrom","原画%$$$原画i$$$普话%"),fromkey="";
+        //from = "原画%。$$$智能%。$$$超清%。$$$高清%。$$$标清%。$$$普画。%$$$原画i%$$$普画i%";
         String jxStr = Utils.getBx(s);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
