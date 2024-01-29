@@ -137,7 +137,12 @@ public class API {
         headers.put("Referer", "https://www.aliyundrive.com/");
         return headers;
     }
-
+    private HashMap<String, String> getHeaders() {
+        HashMap<String, String> headers = getHeader();
+        headers.put("x-share-token", shareToken);
+        headers.put("X-Canary", "client=Android,app=adrive,version=v4.3.1");
+        return headers;
+    }
     private HashMap<String, String> getHeaderAuth() {
         HashMap<String, String> headers = getHeader();
         headers.put("authorization", auth.getAccessToken());
@@ -163,7 +168,7 @@ public class API {
 
     private String auth(String url, String json, boolean retry) {
         url = url.startsWith("https") ? url : "https://api.aliyundrive.com/" + url;
-        String result = OkHttp.postJson(url, json, getHeaderAuth());
+        String result = OkHttp.postJson(url, json, url.contains("file/list") ? getHeaders() : getHeaderAuth());
         Log.e("auth", result);
         if (retry && checkAuth(result)) return auth(url, json, false);
         return result;
