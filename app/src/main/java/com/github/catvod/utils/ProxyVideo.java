@@ -22,17 +22,18 @@ public class ProxyVideo {
 
     private static final String GO_SERVER = "http://127.0.0.1:7777/";
     private static String version = null;
+    private static Boolean close = null;
     public static void go() {
-        boolean close = OkHttp.string(GO_SERVER).isEmpty();
+        if(close==null)close = OkHttp.string(GO_SERVER).isEmpty();
         if (close) OkHttp.string("http://127.0.0.1:" + Proxy.getPort() + "/go");
         if (close) while (OkHttp.string(GO_SERVER).isEmpty()) SystemClock.sleep(20);
     }
 
     public static String goVer() {
         try {
-            if(version!=null&&version.equlas("0"))return version;
+            if(version!=null&&version.equals("0"))return version;
             go();
-            if(version!=null&&!version.equlas("0"))return version;
+            if(version!=null&&!version.equals("0"))return version;
             String result = OkHttp.string(GO_SERVER + "version");
             version = new JSONObject(result).optString("version");
             return version;
