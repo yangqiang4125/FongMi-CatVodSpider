@@ -652,6 +652,7 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
+        if(ProxyVideo.goVer().equlas("0")) return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
         return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
@@ -750,7 +751,7 @@ public class API {
     private String proxyVideoUrl(String cate, String shareId, String fileId) {
         int thread = 1;
         String url = String.format(Proxy.getUrl() + "?do=ali&type=video&cate=%s&shareId=%s&fileId=%s", cate, shareId, fileId);
-        if ("open".equals(cate)) thread = 10;
+        if ("open".equals(cate)) thread = 15;
         if ("share".equals(cate)) thread = 10;
         return thread == 1 ? url : ProxyVideo.url(url, thread);
     }
