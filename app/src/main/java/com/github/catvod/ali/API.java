@@ -414,19 +414,19 @@ public class API {
         boolean fp = playUrls.isEmpty();
         String s = TextUtils.join("#", playUrls);
         List<String> sourceUrls = new LinkedList<>();
-        String type = "";
-        if (!fp){
-            if (s.contains("4K")) {
-                type = "4K";
-            }else if (s.contains("4k")) {
-                type = "4K";
-            }else if (s.contains("1080")) {
-                if(!s.contains("1079"))type = "1080";
-            }
-        }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
         //from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
         String jxStr = Utils.getBx(s);
+        String type = "";
+        if (!fp){
+            if (jxStr.contains("4K")) {
+                type = "4K";
+            }else if (jxStr.contains("4k")) {
+                type = "4K";
+            }else if (jxStr.contains("1080")) {
+                if(!jxStr.contains("1079"))type = "1080";
+            }
+        }
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
