@@ -417,7 +417,9 @@ public class API {
         String type = "";
         if (!fp){
             if (s.contains("4K")) {
-                type = "4K";
+                if(playUrls.size()>1){
+                    if(s.split("4K").length>2)type = "4K";
+                }else type = "4K";
             }else if (s.contains("4k")) {
                 type = "4K";
             }else if (s.contains("1080")) {
