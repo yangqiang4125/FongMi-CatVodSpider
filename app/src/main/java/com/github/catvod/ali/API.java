@@ -14,6 +14,7 @@ import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import com.github.catvod.bean.ali.*;
 import com.github.catvod.utils.QRCode;
@@ -45,6 +46,7 @@ import java.util.regex.Pattern;
 public class API {
     private final Map<String, String> downloadMap;
     private ScheduledExecutorService service;
+    private ExecutorService threadPool = null;
     private AlertDialog dialog;
     private final List<String> tempIds;
     private final List<String> quality;
@@ -235,12 +237,9 @@ public class API {
         }
     }
 
-    private boolean refreshAccessToken() {
-        return refreshAccessToken(true);
-    }
-    public boolean refreshAccessToken(boolean iflag) {
+    public boolean refreshAccessToken() {
         try {
-            if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()||!iflag){
+            if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()){
                 if(iflag) Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
                     if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
@@ -313,9 +312,21 @@ public class API {
         auth.save();
         updateData();
     }
-    private boolean refreshOpenToken() {
+    public void autoRefreshOpenToken(boolean flag) {
         try {
-            Ali.fetchRule(true, 0);
+            threadPool = Executors.newSingleThreadExecutor();
+            threadPool.execute(()->{
+                refreshOpenToken(flag);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+    private boolean refreshOpenToken(boolean flag) {
+        try {
+            if(flag)Ali.fetchRule(true, 0);
             if(updateTk.equals("0"))return true;
             if (auth.getRefreshTokenOpen().isEmpty()) oauthRequest();
             if(!auth.isEmpty()&&!auth.getRefreshTokenOpen().equals(refreshTokenOpen))return true;
@@ -338,6 +349,9 @@ public class API {
             }
             return false;
         }
+    }
+    private boolean refreshOpenToken() {
+        return refreshOpenToken(true);
     }
 
     public boolean refreshShareToken() {
@@ -588,18 +602,13 @@ public class API {
 
     public String getDownloadUrl(String fileId) {
         try {
-            if (downloadMap.containsKey(fileId) && downloadMap.get(fileId) != null && !isExpire(downloadMap.get(fileId)))
-                return downloadMap.get(fileId);
             SpiderDebug.log("getDownloadUrl..." + fileId);
             tempIds.add(0, copy(fileId));
             JSONObject body = new JSONObject();
             body.put("file_id", tempIds.get(0));
             body.put("drive_id", auth.getDriveId());
-            body.put("expire_sec", 900);
             String json = oauth("openFile/getDownloadUrl", body.toString(), true);
-            String url = Download.objectFrom(json).getUrl();
-            downloadMap.put(fileId, url);
-            return url;
+            return new JSONObject(json).getString("url");
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -774,7 +783,7 @@ public class API {
         String cate = params.get("cate");
         String downloadUrl = "";
         if ("open".equals(cate)) {
-            downloadUrl = getDownloadUrl(fileId);
+            downloadUrl = getDownloadUrl(shareId,fileId);
         }
         if ("url".equals(response)) return new Object[]{200, "text/plain; charset=utf-8", new ByteArrayInputStream(downloadUrl.getBytes("UTF-8"))};
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
