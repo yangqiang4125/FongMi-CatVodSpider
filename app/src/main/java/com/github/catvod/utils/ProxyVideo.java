@@ -21,7 +21,7 @@ import okhttp3.Response;
 public class ProxyVideo {
 
     private static final String GO_SERVER = "http://127.0.0.1:7777/";
-
+    private static String version = null;
     public static void go() {
         boolean close = OkHttp.string(GO_SERVER).isEmpty();
         if (close) OkHttp.string("http://127.0.0.1:" + Proxy.getPort() + "/go");
@@ -30,10 +30,14 @@ public class ProxyVideo {
 
     public static String goVer() {
         try {
+            if(version!=null&&version.equlas("0"))return version;
             go();
+            if(version!=null&&!version.equlas("0"))return version;
             String result = OkHttp.string(GO_SERVER + "version");
-            return new JSONObject(result).optString("version");
+            version = new JSONObject(result).optString("version");
+            return version;
         } catch (Exception e) {
+            version = "0";
             return "";
         }
     }
