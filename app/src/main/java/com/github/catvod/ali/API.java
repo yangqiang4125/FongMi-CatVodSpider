@@ -240,7 +240,7 @@ public class API {
     public boolean refreshAccessToken() {
         try {
             if(auth.getRefreshToken().isEmpty()||!refreshToken.isEmpty()){
-                if(iflag) Ali.fetchRule(true, 0);
+                Ali.fetchRule(true, 0);
                 if (!auth.isEmpty()&&!refreshToken.equals(Utils.refreshToken)) {
                     if(!auth.getAccessToken().isEmpty()&&!auth.getRefreshToken().equals(refreshToken))return true;
                 }
