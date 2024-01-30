@@ -652,7 +652,7 @@ public class API {
     }
 
     public String playerContent(String[] ids) {
-        if(ProxyVideo.goVer().equlas("0")) return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
+        if(ProxyVideo.goVer().equals("0")) return Result.get().url(getDownloadUrl(ids[0])).subs(getSubs(ids)).header(getHeader()).string();
         return Result.get().url(proxyVideoUrl("open", this.shareId,ids[0])).octet().subs(getSubs(ids)).header(getHeader()).string();
     }
 
