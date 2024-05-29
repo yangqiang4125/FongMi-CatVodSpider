@@ -22,13 +22,14 @@ public class Zhaozy extends Ali {
     private final Pattern regexVid = Pattern.compile("(\\S+)");
     @Override
     public void init(Context context, String extend){
-        inits(context,extend,"https://zhaoziyuan.pw/");
+
+        inits(context,extend,"https://zhaoziyuan1.cc/");
+        getCookie();
     }
-    public Map<String, String> getHeader() {
+    private Map<String, String> getHeader() {
         Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Utils.CHROME);
+        headers.put("User-Agent", Util.CHROME);
         headers.put("Referer", siteUrl);
-        headers.put("Cookie", getCookie());
         return headers;
     }
 

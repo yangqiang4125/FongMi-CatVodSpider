@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class Yingshiche extends Ali {
     @Override
     public void init(Context context, String extend){
-        inits(context,extend,"https://www.weixine.net");
+        inits(context,extend,"https://www.weixine.link");
     }
 
     @Override

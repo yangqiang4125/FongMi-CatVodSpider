@@ -20,13 +20,24 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class YiSo extends Ali {
+    private String satoken="b943b8c6-a10a-4ebc-814f-a07686957f5e";
+    @Override
+    public void init(Context context, String extend) {
+        String[] split = inits(context, extend, "https://yiso.fun/");
+        if(split.length==3) satoken = split[2];
+    }
+
+    private HashMap<String, String> getHeaders() {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", "Mozilla/5.0 (Linux; Android 12; V2049A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36");
+        headers.put("Referer", siteUrl);
+        headers.put("Cookie", "satoken="+satoken);
+        return headers;
+    }
+
     @Override
     public String searchContent(String key, boolean quick) throws Exception {
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("User-Agent", "Mozilla/5.0 (Linux; Android 12; V2049A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36");
-        hashMap.put("Referer", "https://yiso.fun/");
-        hashMap.put("Cookie", "satoken=2854cb58-3884-473b-84c4-34161f67a409");
-        String poststr = OkHttp.string("https://yiso.fun/api/search?name=" + URLEncoder.encode(key) + "&pageNo=1&from=ali", hashMap);
+        String poststr = OkHttp.string(siteUrl+"search?name=" + URLEncoder.encode(key) + "&pageNo=1&from=ali", getHeaders());
         SpiderDebug.log(poststr);
         JSONArray jsonArray = new JSONObject(poststr).getJSONObject("data").getJSONArray("list");
         ArrayList<Vod> arrayList = new ArrayList<>();
