@@ -27,7 +27,7 @@ public class Zhaozy extends Ali {
         getCookie();
     }
 
-    private String getCookie() {
+    private void getCookie() {
         Map<String, String> params = new HashMap<>();
         params.put("username", "412594121@qq.com");
         params.put("password", "qq@4125");
