@@ -26,12 +26,6 @@ public class Zhaozy extends Ali {
         inits(context,extend,"https://zhaoziyuan1.cc/");
         getCookie();
     }
-    private Map<String, String> getHeader() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Util.CHROME);
-        headers.put("Referer", siteUrl);
-        return headers;
-    }
 
     private String getCookie() {
         if (Utils.zzy == null) {

@@ -1,5 +1,5 @@
 package com.github.catvod.spider;
-
+import android.util.Base64;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.upyun.Data;
@@ -10,6 +10,8 @@ import com.github.catvod.utils.Utils;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Upyunso extends Ali {
     @Override

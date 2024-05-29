@@ -44,6 +44,7 @@ public class Ali extends Spider {
     public Map<String, String> getHeader() {
         Map<String, String> header = new HashMap<>();
         header.put("User-Agent", Utils.CHROME);
+        headers.put("Referer", siteUrl);
         return header;
     }
     public String getUrl(String url){
