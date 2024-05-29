@@ -22,7 +22,7 @@ public class Wogg extends Ali {
     private MyQQ qq;
     @Override
     public void init(Context context, String extend) {
-        inits(context, extend,"http://tvfan.xxooo.cf");
+        inits(context, extend,"https://www.wogg.net");
         String extJson ="{" +
                 "  \"ua\":1,\n" +
                 "  \"name\": \"Wogg\",\n" +

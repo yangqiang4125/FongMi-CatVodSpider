@@ -28,21 +28,15 @@ public class Zhaozy extends Ali {
     }
 
     private String getCookie() {
-        if (Utils.zzy == null) {
-            Map<String, String> params = new HashMap<>();
-            params.put("username", "412594121@qq.com");
-            params.put("password", "qq@4125");
-            Map<String, String> headers = new HashMap<>();
-            headers.put("User-Agent", Utils.CHROME);
-            headers.put("Referer", siteUrl + "stop.html");
-            headers.put("Origin", siteUrl);
-            Map<String, List<String>> resp = new HashMap<>();
-            OkHttp.post(siteUrl + "logiu.html", params, headers, resp);
-            StringBuilder sb = new StringBuilder();
-            for (String item : resp.get("set-cookie")) sb.append(item.split(";")[0]).append(";");
-            Utils.zzy = sb.toString();
-        }
-        return Utils.zzy;
+        Map<String, String> params = new HashMap<>();
+        params.put("username", "412594121@qq.com");
+        params.put("password", "qq@4125");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", Utils.CHROME);
+        headers.put("Referer", siteUrl + "stop.html");
+        headers.put("Origin", siteUrl);
+        Map<String, List<String>> resp = new HashMap<>();
+        OkHttp.post(siteUrl + "logiu.html", params, headers, resp);
     }
 
     @Override

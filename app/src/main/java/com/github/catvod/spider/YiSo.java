@@ -29,7 +29,7 @@ public class YiSo extends Ali {
 
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", "Mozilla/5.0 (Linux; Android 12; V2049A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36");
+        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
         headers.put("Referer", siteUrl);
         headers.put("Cookie", "satoken="+satoken);
         return headers;
