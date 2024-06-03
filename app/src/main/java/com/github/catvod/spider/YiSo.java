@@ -21,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class YiSo extends Ali {
     private String satoken="b943b8c6-a10a-4ebc-814f-a07686957f5e";
+    private String pic = "http://f.haocew.com/image/tv/yiso.jpg";
     @Override
     public void init(Context context, String extend) {
         String[] split = inits(context, extend, "https://yiso.fun/");
@@ -29,7 +30,7 @@ public class YiSo extends Ali {
 
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+        headers.put("User-Agent", "Mozilla/5.0 (Linux; Android 12; V2049A Build/SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36");
         headers.put("Referer", siteUrl);
         headers.put("Cookie", "satoken="+satoken);
         return headers;
@@ -40,27 +41,25 @@ public class YiSo extends Ali {
         String poststr = OkHttp.string(siteUrl+"search?name=" + URLEncoder.encode(key) + "&pageNo=1&from=ali", getHeaders());
         SpiderDebug.log(poststr);
         JSONArray jsonArray = new JSONObject(poststr).getJSONObject("data").getJSONArray("list");
-        ArrayList<Vod> arrayList = new ArrayList<>();
+        ArrayList<Vod> list = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             Vod vod = new Vod();
-            String string = jsonArray.getJSONObject(i).getJSONArray("fileInfos").getJSONObject(0).getString("fileName");
-            String string2 = jsonArray.getJSONObject(i).getString("gmtCreate");
-            vod.setVodId(decrypt(jsonArray.getJSONObject(i).getString("url")));
-            vod.setVodName(string);
-            vod.setVodRemarks(string2);
-            arrayList.add(vod);
+            String vodName = jsonArray.getJSONObject(i).getJSONArray("fileInfos").getJSONObject(0).getString("fileName");
+            String vodRemarks = jsonArray.getJSONObject(i).getString("gmtCreate");
+            String vodId=decrypt(jsonArray.getJSONObject(i).getString("url"));
+            list.add(new Vod(vodId + "$$$" + pic + "$$$" + vodName, vodName, pic, vodRemarks));
         }
-        return Result.string(arrayList);
+        return Result.string(list);
     }
 
-    public static String decrypt(String str) {
+    public String decrypt(String str) {
         try {
-            SecretKeySpec secretKeySpec = new SecretKeySpec("4OToScUFOaeVTrHE".getBytes("UTF-8"), "AES");
-            IvParameterSpec ivParameterSpec = new IvParameterSpec("9CLGao1vHKqm17Oz".getBytes("UTF-8"));
+            SecretKeySpec key = new SecretKeySpec("4OToScUFOaeVTrHE".getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec("9CLGao1vHKqm17Oz".getBytes("UTF-8"));
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(2, secretKeySpec, ivParameterSpec);
+            cipher.init(Cipher.DECRYPT_MODE, key, iv);
             return new String(cipher.doFinal(Base64.decode(str.getBytes(), 0)), "UTF-8");
-        } catch (Exception unused) {
+        } catch (Exception e) {
             return "";
         }
     }
