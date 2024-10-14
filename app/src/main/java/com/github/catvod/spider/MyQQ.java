@@ -203,15 +203,14 @@ public class MyQQ extends Spider {
             if(!iactor.isEmpty())vod.setVodActor(getText(doc, iactor));
             vod.setVodYear(getText(doc, iyear));
 
+            vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
-            String jsnum = getText(doc, ijsnum);
-            if(!jsnum.isEmpty()){
+            if(!tag.isEmpty()){
+                String jsnum = getText(doc, ijsnum);
                 tag = tag+"   评分：无 "+jsnum;
+                vod.setVodTag(tag);
+                if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             }
-            vod.setVodTag(tag);
-            vod.setVodTag(tag);
-            if(!iremark.isEmpty())vod.setVodRemarks(getText(doc,iremark));
-            if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
             Elements sources = doc.select(iform);
             Elements sourceList = doc.select(iurls);
