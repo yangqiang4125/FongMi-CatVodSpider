@@ -205,7 +205,10 @@ public class MyQQ extends Spider {
 
             String tag = getText(doc, itag);
             String jsnum = getText(doc, ijsnum);
-            tag = tag+"   评分：无 "+jsnum;
+            if(!jsnum.isEmpty()){
+                tag = tag+"   评分：无 "+jsnum;
+            }
+            vod.setVodTag(tag);
             vod.setVodTag(tag);
             if(!iremark.isEmpty())vod.setVodRemarks(getText(doc,iremark));
             if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
