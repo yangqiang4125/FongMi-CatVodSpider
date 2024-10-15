@@ -196,7 +196,8 @@ public class MyQQ extends Spider {
             String pic = getText(doc, ipic);
             String content = getText(doc, icontent);
             vod.setVodId(ids.get(0));
-            if(!name.isEmpty())vod.setVodName(name);
+            if(name.isEmpty()) name = getText(doc,"title");
+            vod.setVodName(name);
             if(!pic.isEmpty())vod.setVodPic(pic);
             if(!content.isEmpty())vod.setVodContent(content);
             if(!idirector.isEmpty())vod.setVodDirector(getText(doc, idirector));
@@ -228,6 +229,10 @@ public class MyQQ extends Spider {
                 }
             }
             if (sites.size() > 0) {
+                String tabfirst = getVal("tabfirst");
+                if (!tabfirst.isEmpty()) {
+                    sites=moveKeyToFirst(sites, tabfirst);
+                }
                 vod.setVodPlayFrom(TextUtils.join("$$$", sites.keySet()));
                 vod.setVodPlayUrl(TextUtils.join("$$$", sites.values()));
             }
@@ -236,7 +241,13 @@ public class MyQQ extends Spider {
         }
         return "";
     }
-
+    public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
+        Map<String, String> newMap = new LinkedHashMap<>();
+        newMap.put(key, map.get(key));
+        map.remove(key);
+        newMap.putAll(map);
+        return newMap;
+    }
     public String getText(Element element,String key){
         String rhtml = null;
         if(key.contains("(.*?)")){
@@ -312,6 +323,11 @@ public class MyQQ extends Spider {
             String sname=null,surl=null,spic = null;
             if (search.isEmpty()) {
                 String durl = getVal("idetail","/detail/%.html");
+                String id = "id";
+                if (!durl.contains("%")) {
+                    id = durl.replaceAll(".*\\((\\w+)\\).*", "$1");
+                    durl = durl.replace("(" + id + ")", "%");
+                }
                 String result = OkHttp.string(siteUrl+"/ajax/suggest?mid=1&wd="+key);
                 JSONObject response = new JSONObject(result);
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
@@ -321,7 +337,7 @@ public class MyQQ extends Spider {
                         sname = o.optString("name", "");
                         spic = o.optString("pic", "");
                         if(spic!=null) spic = Utils.fixUrl(siteUrl, spic);
-                        surl = o.optString("id", "");
+                        surl = o.optString(id, "");
                         surl = durl.replace("%", surl);
                         if(surl!=null) surl = getUrl(siteUrl, surl);
                         surl= surl + "$$$" + spic + "$$$" + sname;
