@@ -242,6 +242,7 @@ public class MyQQ extends Spider {
         return "";
     }
     public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
+        if(!map.containsKey(key))return map;
         Map<String, String> newMap = new LinkedHashMap<>();
         newMap.put(key, map.get(key));
         map.remove(key);
