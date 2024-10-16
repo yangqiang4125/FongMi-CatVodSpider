@@ -126,22 +126,30 @@ public class MyQQ extends Spider {
         String elpic = getVal("elpic");
         String elremarks = getVal("elremarks");
         String pageText = getVal("page");
-        String page = "0";
-        if (pageText.contains("@")) {
-            page = getText(doc2, pageText);
-            page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
+        if(pageText.isEmpty()) {
+            if(Utils.isNumeric(pg)) total = Integer.parseInt(pg)+1;
         }else {
-            if(Utils.isNumeric(pageText))page = pageText;
-            else {
-                String html = doc2.html();
-                Matcher matcher = Utils.matcher(pageText, html);
-                while (matcher.find()) {
-                    page = matcher.group(1);
-                    break;
+            String page = "0";
+            try {
+                if (pageText.contains("@")) {
+                    page = getText(doc2, pageText);
+                    page = page.replaceAll(".*?(\\d+)"+wUrl, "$1");
+                }else {
+                    if(Utils.isNumeric(pageText))page = pageText;
+                    else {
+                        String html = doc2.html();
+                        Matcher matcher = Utils.matcher(pageText, html);
+                        while (matcher.find()) {
+                            page = matcher.group(1);
+                            break;
+                        }
+                    }
                 }
+                if(Utils.isNumeric(page)) total = Integer.parseInt(page);
+            } catch (Exception e) {
+                if(Utils.isNumeric(pg)) total = Integer.parseInt(pg)+1;
             }
         }
-        if(Utils.isNumeric(page)) total = Integer.parseInt(page);
         for (Element element : doc2.select(elbox)) {
             String id = getText(element,elurl);
             if(id!=null) id = getUrl(siteUrl, id);
@@ -192,23 +200,28 @@ public class MyQQ extends Spider {
                 if(Utils.isNumeric(iname))iname = ibox.replace("%", iname);
                 if(Utils.isNumeric(itag))itag = ibox.replace("%", itag);
             }
+            String jsa=vod.vodTag;
             String name = getText(doc,iname);
             String pic = getText(doc, ipic);
             String content = getText(doc, icontent);
-            vod.setVodId(ids.get(0));
             if(name.isEmpty()) name = getText(doc,"title");
+            vod.setVodId(ids.get(0));
             vod.setVodName(name);
-            if(!pic.isEmpty())vod.setVodPic(pic);
-            if(!content.isEmpty())vod.setVodContent(content);
-            if(!idirector.isEmpty())vod.setVodDirector(getText(doc, idirector));
-            if(!iactor.isEmpty())vod.setVodActor(getText(doc, iactor));
+            vod.setVodPic(pic);
+            vod.setVodContent(content);
+            vod.setVodTag(getText(doc, itag));
+            vod.setVodDirector(getText(doc, idirector));
+            vod.setVodActor(getText(doc, iactor));
             vod.setVodYear(getText(doc, iyear));
-
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
             if(!tag.isEmpty()){
                 String jsnum = getText(doc, ijsnum);
-                tag = tag+"   评分：无 "+jsnum;
+                if(jsnum.isEmpty()&&jsa!=null)jsnum=jsa;
+                if(!jsnum.isEmpty()) {
+                    jsnum = jsnum.trim();
+                    tag = tag+"   评分：无 "+jsnum;
+                }
                 vod.setVodTag(tag);
                 if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             }
@@ -242,10 +255,16 @@ public class MyQQ extends Spider {
         return "";
     }
     public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
-        if(!map.containsKey(key))return map;
+        String [] arr=key.split("\\|");
+        if(arr.length==1&&!map.containsKey(key))return map;
         Map<String, String> newMap = new LinkedHashMap<>();
-        newMap.put(key, map.get(key));
-        map.remove(key);
+        for (String k : arr) {
+            if (map.containsKey(k)) {
+                newMap.put(k, map.get(k));
+                map.remove(k);
+                break;
+            }
+        }
         newMap.putAll(map);
         return newMap;
     }
@@ -306,7 +325,7 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("状态")) vod.setVodRemarks(value);
+                        else if (k.contains("集")||k.contains("备注")) vod.setVodTag(value);
                         else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
                     }
                 }
