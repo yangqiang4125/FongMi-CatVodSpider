@@ -205,10 +205,10 @@ public class MyQQ extends Spider {
             vod.setVodTag(getText(doc, itag));
             String idirectort = getText(doc, idirector);
             if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
-            if(vod.vodDirector.isEmpty())vod.setVodDirector("未知");
+            if(vod.vodDirector!=null&&vod.vodDirector.isEmpty())vod.setVodDirector("未知");
             String iactort = getText(doc, iactor);
             if(!iactort.isEmpty())vod.setVodActor(iactort);
-            if(vod.vodActor.isEmpty())vod.setVodActor("未知");
+            if(vod.vodActor!=null&&vod.vodActor.isEmpty())vod.setVodActor("未知");
             vod.setVodYear(getText(doc, iyear));
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
