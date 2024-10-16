@@ -201,7 +201,7 @@ public class MyQQ extends Spider {
             vod.setVodId(ids.get(0));
             vod.setVodName(name);
             vod.setVodPic(pic);
-            vod.setVodContent(content);
+            if(!content.isEmpty()) vod.setVodContent(content);
             vod.setVodTag(getText(doc, itag));
             String idirectort = getText(doc, idirector);
             if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
@@ -333,7 +333,7 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("集")||k.contains("备注")) vod.setVodTag(value);
+                        else if (k.contains("集")||k.contains("备注")||k.contains("更新")) vod.setVodTag(value);
                         else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
                     }
                 }
