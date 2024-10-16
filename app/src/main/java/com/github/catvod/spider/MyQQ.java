@@ -192,13 +192,6 @@ public class MyQQ extends Spider {
                 for (Element el : els) {
                     getValue(el.text(),vod);
                 }
-                if(Utils.isNumeric(idirector))idirector = ibox.replace("%", idirector);
-                if(Utils.isNumeric(iactor))iactor = ibox.replace("%", iactor);
-                if(Utils.isNumeric(iyear))iyear = ibox.replace("%", iyear);
-                if(Utils.isNumeric(iremark))iremark = ibox.replace("%", iremark);
-                if(Utils.isNumeric(icontent))icontent = ibox.replace("%", icontent);
-                if(Utils.isNumeric(iname))iname = ibox.replace("%", iname);
-                if(Utils.isNumeric(itag))itag = ibox.replace("%", itag);
             }
             String jsa=vod.vodTag;
             String name = getText(doc,iname);
@@ -212,8 +205,10 @@ public class MyQQ extends Spider {
             vod.setVodTag(getText(doc, itag));
             String idirectort = getText(doc, idirector);
             if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
+            if(vod.vodDirector.isEmpty())vod.setVodDirector("未知");
             String iactort = getText(doc, iactor);
             if(!iactort.isEmpty())vod.setVodActor(iactort);
+            if(vod.vodActor.isEmpty())vod.setVodActor("未知");
             vod.setVodYear(getText(doc, iyear));
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
@@ -281,6 +276,7 @@ public class MyQQ extends Spider {
         return newMap;
     }
     public String getText(Element element,String key){
+        if(key.isEmpty()) return "";
         String rhtml = null;
         if(key.contains("(.*?)")){
             rhtml = Utils.getStrByRegex(key, elBoxHtml!=null?elBoxHtml:element.html());
