@@ -8,7 +8,7 @@ public class Vod {
     @SerializedName("type_name")
     private String typeName;
     @SerializedName("vod_id")
-    private String vodId;
+    public String vodId;
     @SerializedName("vod_name")
     private String vodName;
     @SerializedName("vod_pic")
@@ -16,19 +16,19 @@ public class Vod {
     @SerializedName("vod_remarks")
     public String vodRemarks;
     @SerializedName("vod_year")
-    private String vodYear;
+    public String vodYear;
     @SerializedName("vod_area")
-    private String vodArea;
+    public String vodArea;
     @SerializedName("vod_actor")
-    private String vodActor;
+    public String vodActor;
     @SerializedName("vod_director")
-    private String vodDirector;
+    public String vodDirector;
     @SerializedName("vod_content")
-    private String vodContent;
+    public String vodContent;
     @SerializedName("vod_play_from")
-    private String vodPlayFrom;
+    public String vodPlayFrom;
     @SerializedName("vod_play_url")
-    private String vodPlayUrl;
+    public String vodPlayUrl;
     @SerializedName("vod_tag")
     public String vodTag;
 
