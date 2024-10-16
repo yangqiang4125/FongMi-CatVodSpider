@@ -91,7 +91,6 @@ public class Vod {
     public void setVodDirector(String vodDirector) {
         this.vodDirector = Trans.get(vodDirector);
     }
-
     public void setVodContent(String vodContent) {
         this.vodContent = Trans.get(vodContent);
     }
@@ -100,15 +99,17 @@ public class Vod {
         this.vodPlayFrom = Trans.get(vodPlayFrom);
     }
 
+    public String getVodName() {return vodName;
+    }
+    public String getVodContent() {
+        return vodContent;
+    }
+
     public void setVodPlayUrl(String vodPlayUrl) {
         this.vodPlayUrl = vodPlayUrl;
     }
 
     public void setVodTag(String vodTag) {
         this.vodTag = vodTag;
-    }
-
-    public String getVodContent() {
-        return vodContent;
     }
 }
