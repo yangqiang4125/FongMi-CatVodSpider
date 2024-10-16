@@ -210,8 +210,10 @@ public class MyQQ extends Spider {
             vod.setVodPic(pic);
             vod.setVodContent(content);
             vod.setVodTag(getText(doc, itag));
-            vod.setVodDirector(getText(doc, idirector));
-            vod.setVodActor(getText(doc, iactor));
+            String idirectort = getText(doc, idirector);
+            if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
+            String iactort = getText(doc, iactor);
+            if(!iactort.isEmpty())vod.setVodActor(iactort);
             vod.setVodYear(getText(doc, iyear));
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
@@ -256,12 +258,22 @@ public class MyQQ extends Spider {
     }
     public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
         String [] arr=key.split("\\|");
-        if(arr.length==1&&!map.containsKey(key))return map;
+        if(arr.length==1&&!key.contains("\\")&&!map.containsKey(key))return map;
         Map<String, String> newMap = new LinkedHashMap<>();
         for (String k : arr) {
-            if (map.containsKey(k)) {
-                newMap.put(k, map.get(k));
-                map.remove(k);
+            String mkey = k;
+            if (mkey.contains("\\")) {
+                for (String mk : map.keySet()) {
+                    boolean fb = Utils.matcher(mkey, mk).matches();
+                    if (fb) {
+                        mkey = mk;
+                        break;
+                    }
+                }
+            }
+            if (map.containsKey(mkey)) {
+                newMap.put(mkey, map.get(mkey));
+                map.remove(mkey);
                 break;
             }
         }
