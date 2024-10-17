@@ -212,16 +212,14 @@ public class MyQQ extends Spider {
             vod.setVodYear(getText(doc, iyear));
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
-            if(!tag.isEmpty()){
-                String jsnum = getText(doc, ijsnum);
-                if(jsnum.isEmpty()&&jsa!=null)jsnum=jsa;
-                if(!jsnum.isEmpty()) {
-                    jsnum = jsnum.trim();
-                    tag = tag+"   评分：无 "+jsnum;
-                }
-                vod.setVodTag(tag);
-                if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
+            String jsnum = getText(doc, ijsnum);
+            if(jsnum.isEmpty()&&jsa!=null)jsnum=jsa;
+            if(!jsnum.isEmpty()) {
+                jsnum = jsnum.trim();
+                tag = tag+"   评分：无 "+jsnum;
             }
+            vod.setVodTag(tag);
+            if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
             Elements sources = doc.select(iform);
             Elements sourceList = doc.select(iurls);
@@ -374,6 +372,7 @@ public class MyQQ extends Spider {
                 }
             }else {
                 String target = siteUrl + search + key;
+                if(search.contains("%")) target = siteUrl + search.replace("%",key);
                 Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
                 String sbox= getVal("sbox");
                 sname=getVal("sname");
