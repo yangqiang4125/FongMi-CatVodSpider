@@ -323,6 +323,7 @@ public class MyQQ extends Spider {
             if (!value.startsWith("http")) {
                 String val = value;
                 if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
+                if(value.startsWith("/")) value = value.substring(1, value.length());
                 value = value.replace("&nbsp;", " ");
                 value = value.replace("详情", "");
                 Matcher m = Utils.matcher("(.*)(:|：)(.*)", value);
@@ -339,7 +340,7 @@ public class MyQQ extends Spider {
                                 value = val.replaceAll(".*?(\\d+)集.*", "$1集");
                                 vod.setVodTag(value);
                             }
-                        } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
+                        } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")|| k.contains("剧情")) vod.setVodContent(value);
                     }
                 }
             }
