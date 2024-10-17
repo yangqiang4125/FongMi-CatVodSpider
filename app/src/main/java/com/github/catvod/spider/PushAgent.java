@@ -48,14 +48,18 @@ public class PushAgent extends Ali {
             spName = idInfo[2].trim();
             url = url+"$$$1";
             idInfo = url.split("\\$\\$\\$");
-        } else  spName = Utils.getWebName(url2, 0);
+            if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName).matches()) spName = spName + ".";
+        } else  {
+            String[] arr = url.split("\\/");
+            spName = arr[arr.length - 1];
+            spName = spName.split("\\.")[0];
+        }
         Vod vod = new Vod();
         vod.setVodId(url2);
         vod.setTypeName("QQPush");
-        if(!Utils.matcher("[\\u4e00-\\u9fa5]",spName).matches()) spName = spName + ".";
         vod.setVodName(spName);
         vod.setVodPic(pic);
-        vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直连", "嗅探", "解析")));
+        vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("嗅探", "直连", "解析")));
         vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList("播放$" + url2, "播放$" + url2, "播放$" + url2)));
         if(flag) vod = API.get().getVodInfo(spName, vod, idInfo);
         return vod;
