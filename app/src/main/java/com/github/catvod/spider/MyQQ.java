@@ -321,6 +321,7 @@ public class MyQQ extends Spider {
         if(value!=null) {
             if(value.contains("http")||Utils.isSpUrl(value)) value = Utils.trim(value);
             if (!value.startsWith("http")) {
+                String val = value;
                 if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
                 value = value.replace("&nbsp;", " ");
                 value = value.replace("详情", "");
@@ -331,8 +332,14 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("集")||k.contains("备注")||k.contains("更新")) vod.setVodTag(value);
-                        else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
+                        else if (k.contains("状态")) vod.setVodRemarks(value);
+                        else if (k.contains("集")||k.contains("备注")||k.contains("更新")) {
+                            if(value.contains("集")) vod.setVodTag(value);
+                            else if (val.contains("集")) {
+                                value = val.replaceAll(".*?(\\d+)集.*", "$1集");
+                                vod.setVodTag(value);
+                            }
+                        } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")) vod.setVodContent(value);
                     }
                 }
             }
