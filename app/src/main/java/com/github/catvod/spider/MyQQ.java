@@ -58,7 +58,6 @@ public class MyQQ extends Spider {
             }
             ext = new JSONObject(extend);
             siteUrl = getVal("siteUrl");
-            listUrl = siteUrl + "/"+getVal("start")+"/";
             wUrl = getVal("end");
             pageUrl = getVal("pageUrl");
             String fl = getVal("types");
