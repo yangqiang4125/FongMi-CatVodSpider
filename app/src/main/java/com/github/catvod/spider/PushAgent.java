@@ -49,7 +49,7 @@ public class PushAgent extends Ali {
             url = url+"$$$1";
             idInfo = url.split("\\$\\$\\$");
         }
-        if (!Utils.matcher("[\\u4e00-\\u9fa5]",spName).matches()) {
+        if (url2.indexOf(spName)>-1&&!Utils.matcher("[\\u4e00-\\u9fa5]",spName).matches()) {
             String[] arr = url2.split("\\/");
             spName = arr[arr.length - 1];
             spName = spName.split("\\.")[0];
