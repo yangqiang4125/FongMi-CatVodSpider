@@ -26,6 +26,7 @@ public class MyQQ extends Spider {
     private String extend;
     private static String siteUrl = "https://www.voflix.me";
     private static String wUrl = "---.html";
+    private static String pageUrl = "";
     private String[] types;
     private Integer total=0;
     private String elBoxHtml = null;
@@ -57,9 +58,22 @@ public class MyQQ extends Spider {
             }
             ext = new JSONObject(extend);
             siteUrl = getVal("siteUrl");
+            listUrl = siteUrl + "/"+getVal("start")+"/";
             wUrl = getVal("end");
+            pageUrl = getVal("pageUrl");
             String fl = getVal("types");
             types = fl.split("#");
+            if (!pageUrl.isEmpty()) {
+                int z=0;
+                for (String v : types) {
+                    String [] arr = v.split("\\$");
+                    String num = arr[1];
+                    String purl = pageUrl.replaceFirst("%", num);
+                    v=arr[0]+"$"+purl;
+                    types[z] = v;
+                    z++;
+                }
+            }
         } catch (JSONException e) {
         }
     }
