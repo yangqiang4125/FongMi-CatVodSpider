@@ -181,7 +181,7 @@ public class MyQQ extends Spider {
         try {
             String url = ids.get(0);
             String[] info = url.split("\\$\\$\\$");
-            url = info[0];
+            String id = info[0];
             String iboxHtml = getVal("iboxHtml");
             String ibox = getVal("ibox");
             String iname = getVal("iname");
@@ -196,8 +196,11 @@ public class MyQQ extends Spider {
             String iremark = getVal("iremarks");
             String iform = getVal("iform");
             String iurls = getVal("iurls");
-            Document doc = Jsoup.parse(OkHttp.string(url, getHeaders()));
-            if (!iboxHtml.isEmpty()) elBoxHtml = doc.selectFirst(iboxHtml).html();
+            Document doc = Jsoup.parse(OkHttp.string(id, getHeaders()));
+            if (!iboxHtml.isEmpty()) {
+                Element el = doc.selectFirst(iboxHtml);
+                if(el!=null) elBoxHtml = el.html();
+            }
             Vod vod = new Vod();
             if (!ibox.isEmpty()) {
                 String rbox = ibox.replace(":eq(%)", "");
@@ -208,12 +211,21 @@ public class MyQQ extends Spider {
             }
             String jsa=vod.vodTag;
             String name = getText(doc,iname);
-            String pic = getText(doc, ipic);
-            String content = getText(doc, icontent);
+            String pic = getText(doc, ipic),gname="播放";
+            if (info.length > 2) {
+                if(name.isEmpty()){
+                    name = info[2];
+                }
+                if(pic.isEmpty()){
+                    pic = info[1];
+                }
+            }
             if(name.isEmpty()) name = getText(doc,"title");
-            vod.setVodId(ids.get(0));
+            else gname=name;
+            vod.setVodId(url);
             vod.setVodName(name);
             vod.setVodPic(pic);
+            String content = getText(doc, icontent);
             if(!content.isEmpty()) vod.setVodContent(content);
             vod.setVodTag(getText(doc, itag));
             String idirectort = getText(doc, idirector);
@@ -234,28 +246,33 @@ public class MyQQ extends Spider {
             vod.setVodTag(tag);
             if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
-            Elements sources = doc.select(iform);
-            Elements sourceList = doc.select(iurls);
-            for (int i = 0; i < sources.size(); i++) {
-                Element source = sources.get(i);
-                String sourceName = source.text();
-                Elements playList = sourceList.get(i).select("a");
-                List<String> vodItems = new ArrayList<>();
-                for (int j = 0; j < playList.size(); j++) {
-                    Element e = playList.get(j);
-                    vodItems.add(Trans.get(e.text()) + "$" + getUrl(siteUrl, e.attr("href")));
+            String tabfirst = getVal("tabfirst");
+            if (tabfirst.equals("xiu")) {
+                vod.setVodPlayFrom("嗅探");
+                vod.setVodPlayUrl(gname+"$"+url);
+            }else {
+                Elements sources = doc.select(iform);
+                Elements sourceList = doc.select(iurls);
+                for (int i = 0; i < sources.size(); i++) {
+                    Element source = sources.get(i);
+                    String sourceName = source.text();
+                    Elements playList = sourceList.get(i).select("a");
+                    List<String> vodItems = new ArrayList<>();
+                    for (int j = 0; j < playList.size(); j++) {
+                        Element e = playList.get(j);
+                        vodItems.add(Trans.get(e.text()) + "$" + getUrl(siteUrl, e.attr("href")));
+                    }
+                    if (vodItems.size() > 0) {
+                        sites.put(sourceName, TextUtils.join("#", vodItems));
+                    }
                 }
-                if (vodItems.size() > 0) {
-                    sites.put(sourceName, TextUtils.join("#", vodItems));
+                if (sites.size() > 0) {
+                    if (!tabfirst.isEmpty()) {
+                        sites=moveKeyToFirst(sites, tabfirst);
+                    }
+                    vod.setVodPlayFrom(TextUtils.join("$$$", sites.keySet()));
+                    vod.setVodPlayUrl(TextUtils.join("$$$", sites.values()));
                 }
-            }
-            if (sites.size() > 0) {
-                String tabfirst = getVal("tabfirst");
-                if (!tabfirst.isEmpty()) {
-                    sites=moveKeyToFirst(sites, tabfirst);
-                }
-                vod.setVodPlayFrom(TextUtils.join("$$$", sites.keySet()));
-                vod.setVodPlayUrl(TextUtils.join("$$$", sites.values()));
             }
             return Result.string(vod);
         } catch (Exception e) {
