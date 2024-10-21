@@ -222,7 +222,7 @@ public class MyQQ extends Spider {
             }
             if(name.isEmpty()) name = getText(doc,"title");
             else gname=name;
-            vod.setVodId(url);
+            vod.setVodId(id);
             vod.setVodName(name);
             vod.setVodPic(pic);
             String content = getText(doc, icontent);
