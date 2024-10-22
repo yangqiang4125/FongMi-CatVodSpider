@@ -180,7 +180,6 @@ public class MyQQ extends Spider {
         Vod vod = new Vod();
         try {
             String url = ids.get(0);
-            Init.show("url:"+url);
             String[] info = url.split("\\$\\$\\$");
             String id = info[0];
             String iboxHtml = getVal("iboxHtml");
@@ -197,7 +196,6 @@ public class MyQQ extends Spider {
             String iremark = getVal("iremarks");
             String iform = getVal("iform");
             String iurls = getVal("iurls");
-            Init.show("id:"+id);
             Document doc = Jsoup.parse(OkHttp.string(id, getHeaders()));
             if (!iboxHtml.isEmpty()) {
                 Element el = doc.selectFirst(iboxHtml);
@@ -213,7 +211,6 @@ public class MyQQ extends Spider {
             }
             String jsa=vod.vodTag;
             String name = getText(doc,iname);
-            Init.show("name:" + name + " iname:" + iname);
             String pic = getText(doc, ipic),gname="播放";
             if (info.length > 2) {
                 if(name.isEmpty())name = info[2];
@@ -253,7 +250,6 @@ public class MyQQ extends Spider {
             }else {
                 Elements sources = doc.select(iform);
                 Elements sourceList = doc.select(iurls);
-                Init.show("sources:"+iform+"  sites:"+sources.size());
                 for (int i = 0; i < sources.size(); i++) {
                     Element source = sources.get(i);
                     String sourceName = source.text();
@@ -343,7 +339,6 @@ public class MyQQ extends Spider {
                     value = element.text();
                 } else value = element.attr(type);
             }
-            value = getValue(value,vod);
         } catch (Exception e) {
         }
         return value == null ? "" : value;
