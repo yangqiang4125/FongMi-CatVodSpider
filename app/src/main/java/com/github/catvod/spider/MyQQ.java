@@ -222,28 +222,29 @@ public class MyQQ extends Spider {
             }
             if(name.isEmpty()) name = getText(doc,"title");
             else gname=name;
-            vod.setVodId(id);
+            vod.setVodId(url);
             vod.setVodName(name);
             vod.setVodPic(pic);
             String content = getText(doc, icontent);
             if(!content.isEmpty()) vod.setVodContent(content);
-            vod.setVodTag(getText(doc, itag));
-            String idirectort = getText(doc, idirector);
-            if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
-            if(vod.vodDirector!=null&&vod.vodDirector.isEmpty())vod.setVodDirector("未知");
-            String iactort = getText(doc, iactor);
-            if(!iactort.isEmpty())vod.setVodActor(iactort);
-            if(vod.vodActor!=null&&vod.vodActor.isEmpty())vod.setVodActor("未知");
             vod.setVodYear(getText(doc, iyear));
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
             String jsnum = getText(doc, ijsnum);
             if(jsnum.isEmpty()&&jsa!=null)jsnum=jsa;
-            if(!jsnum.isEmpty()) {
-                jsnum = jsnum.trim();
-                tag = tag+"   评分：无 "+jsnum;
+            if (!jsnum.isEmpty() || !tag.isEmpty()) {
+                if(!jsnum.isEmpty()) {
+                    jsnum = jsnum.trim();
+                    tag = tag+"   评分：无 "+jsnum;
+                }
+                vod.setVodTag(tag);
+                String idirectort = getText(doc, idirector);
+                if(!idirectort.isEmpty())vod.setVodDirector(idirectort);
+                if(vod.vodDirector!=null&&vod.vodDirector.isEmpty())vod.setVodDirector("未知");
+                String iactort = getText(doc, iactor);
+                if(!iactort.isEmpty())vod.setVodActor(iactort);
+                if(vod.vodActor!=null&&vod.vodActor.isEmpty())vod.setVodActor("未知");
             }
-            vod.setVodTag(tag);
             if(vod.vodRemarks!=null&&vod.vodRemarks.isEmpty()) vod.setVodRemarks(jsnum);
             Map<String, String> sites = new LinkedHashMap<>();
             String tabfirst = getVal("tabfirst");
