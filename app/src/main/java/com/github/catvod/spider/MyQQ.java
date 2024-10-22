@@ -16,7 +16,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
+import com.github.catvod.spider.Init;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -178,6 +178,7 @@ public class MyQQ extends Spider {
     }
     @Override
     public String detailContent(List<String> ids) {
+        Vod vod = new Vod();
         try {
             String url = ids.get(0);
             String[] info = url.split("\\$\\$\\$");
@@ -201,7 +202,6 @@ public class MyQQ extends Spider {
                 Element el = doc.selectFirst(iboxHtml);
                 if(el!=null) elBoxHtml = el.html();
             }
-            Vod vod = new Vod();
             vod.setTypeName("QQ解析");
             if (!ibox.isEmpty()) {
                 String rbox = ibox.replace(":eq(%)", "");
@@ -272,10 +272,12 @@ public class MyQQ extends Spider {
                     vod.setVodPlayUrl(TextUtils.join("$$$", sites.values()));
                 }
             }
-            return Result.string(vod);
+            Init.show("from:"+TextUtils.join("$$$", sites.keySet()));
         } catch (Exception e) {
+            Init.show(e.getMessage());
+            return Result.string(vod);
         }
-        return "";
+        return Result.string(vod);
     }
     public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
         String [] arr=key.split("\\|");
