@@ -247,7 +247,7 @@ public class MyQQ extends Spider {
             String tabfirst = getVal("tabfirst");
             if (tabfirst.equals("xiu")) {
                 vod.setVodPlayFrom("嗅探");
-                vod.setVodPlayUrl(gname+"$"+url);
+                vod.setVodPlayUrl(gname+"$"+id);
             }else {
                 Elements sources = doc.select(iform);
                 Elements sourceList = doc.select(iurls);
