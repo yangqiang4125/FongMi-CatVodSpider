@@ -202,6 +202,7 @@ public class MyQQ extends Spider {
                 if(el!=null) elBoxHtml = el.html();
             }
             Vod vod = new Vod();
+            vod.setTypeName("QQ解析");
             if (!ibox.isEmpty()) {
                 String rbox = ibox.replace(":eq(%)", "");
                 Elements els = doc.select(rbox);
@@ -213,16 +214,12 @@ public class MyQQ extends Spider {
             String name = getText(doc,iname);
             String pic = getText(doc, ipic),gname="播放";
             if (info.length > 2) {
-                if(name.isEmpty()){
-                    name = info[2];
-                }
-                if(pic.isEmpty()){
-                    pic = info[1];
-                }
+                if(name.isEmpty())name = info[2];
+                if(pic.isEmpty())pic = info[1];
             }
             if(name.isEmpty()) name = getText(doc,"title");
             else gname=name;
-            vod.setVodId(url);
+            vod.setVodId(id);
             vod.setVodName(name);
             vod.setVodPic(pic);
             String content = getText(doc, icontent);
