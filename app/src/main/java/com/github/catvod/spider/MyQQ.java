@@ -251,6 +251,7 @@ public class MyQQ extends Spider {
             }else {
                 Elements sources = doc.select(iform);
                 Elements sourceList = doc.select(iurls);
+                String iurlsn = getVal("iurlsn");
                 for (int i = 0; i < sources.size(); i++) {
                     Element source = sources.get(i);
                     String sourceName = source.text();
@@ -258,7 +259,11 @@ public class MyQQ extends Spider {
                     List<String> vodItems = new ArrayList<>();
                     for (int j = 0; j < playList.size(); j++) {
                         Element e = playList.get(j);
-                        vodItems.add(Trans.get(e.text()) + "$" + getUrl(siteUrl, e.attr("href")));
+                        String text = e.text();
+                        if (!iurlsn.isEmpty()) {
+                            if(Utils.matcher(iurlsn, text).matches())continue;
+                        }
+                        vodItems.add(Trans.get(text) + "$" + getUrl(siteUrl, e.attr("href")));
                     }
                     if (vodItems.size() > 0) {
                         sites.put(sourceName, TextUtils.join("#", vodItems));
