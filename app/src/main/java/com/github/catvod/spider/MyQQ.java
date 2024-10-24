@@ -218,12 +218,13 @@ public class MyQQ extends Spider {
             }
             if(name.isEmpty()) name = getText(doc,"title");
             else gname=name;
-            vod.setVodId(id);
+            vod.setVodId(url);
             vod.setVodName(name);
             vod.setVodPic(pic);
             String content = getText(doc, icontent);
             if(!content.isEmpty()) vod.setVodContent(content);
-            vod.setVodYear(getText(doc, iyear));
+            String year=getText(doc, iyear);
+            if(!year.isEmpty())vod.setVodYear(year);
             vod.setVodRemarks(getText(doc,iremark));
             String tag = getText(doc, itag);
             String jsnum = getText(doc, ijsnum);
@@ -361,11 +362,12 @@ public class MyQQ extends Spider {
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
                         else if (k.contains("状态")) vod.setVodRemarks(value);
+                        else if (k.contains("首映")||k.contains("上映")) vod.setVodYear(value);
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")) {
-                            if(value.contains("集")) vod.setVodTag(value);
+                            if(value.contains("集")||value.contains("已完结")) vod.setVodTag(value);
                             else if (val.contains("集")) {
                                 value = val.replaceAll(".*?(\\d+)集.*", "$1集");
-                                vod.setVodTag(value);
+                                if(!value.contains(":")&&!value.contains("："))vod.setVodTag(value);
                             }
                         } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")|| k.contains("剧情")) vod.setVodContent(value);
                     }
