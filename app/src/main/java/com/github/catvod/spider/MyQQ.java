@@ -346,28 +346,30 @@ public class MyQQ extends Spider {
     }
 
     public String getValue(String value,Vod vod){
-        if(value!=null) {
+        if(!value.isEmpty()) {
+            value = value.replace("//", "/");
+            String val = value;
             if(value.contains("http")||Utils.isSpUrl(value)) value = Utils.trim(value);
             if (!value.startsWith("http")) {
-                String val = value;
-                if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
-                if(value.startsWith("/")) value = value.substring(1, value.length());
                 value = value.replace("&nbsp;", " ");
                 value = value.replace("详情", "");
                 Matcher m = Utils.matcher("(.*)(:|：)(.*)", value);
                 if (m.matches()) {
                     value = m.group(3);
                     if (vod != null) {
+                        value = value.trim();
+                        if (value.endsWith("/")) value = value.substring(0, value.length() - 1);
+                        if(value.startsWith("/")) value = value.substring(1, value.length());
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
                         else if (k.contains("状态")) vod.setVodRemarks(value);
                         else if (k.contains("首映")||k.contains("上映")) vod.setVodYear(value);
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")) {
-                            if(value.contains("集")||value.contains("已完结")) vod.setVodTag(value);
+                            if(value.contains("集")) vod.setVodTag(value);
                             else if (val.contains("集")) {
                                 value = val.replaceAll(".*?(\\d+)集.*", "$1集");
-                                if(!value.contains(":")&&!value.contains("："))vod.setVodTag(value);
+                                vod.setVodTag(value);
                             }
                         } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")|| k.contains("剧情")) vod.setVodContent(value);
                     }
