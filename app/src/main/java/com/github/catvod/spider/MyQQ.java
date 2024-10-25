@@ -251,6 +251,7 @@ public class MyQQ extends Spider {
             }else {
                 Elements sources = doc.select(iform);
                 Elements sourceList = doc.select(iurls);
+                if (sourceList.isEmpty()) Init.show("未找到视频播放链接信息");
                 String iurlsn = getVal("iurlsn");
                 for (int i = 0; i < sources.size(); i++) {
                     Element source = sources.get(i);
