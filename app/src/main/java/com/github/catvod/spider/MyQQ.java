@@ -315,6 +315,7 @@ public class MyQQ extends Spider {
             rhtml = Utils.getStrByRegex(key, elBoxHtml!=null?elBoxHtml:element.html());
         }else rhtml = getText(element, key, null);
         if(rhtml.endsWith("/")) rhtml = rhtml.replaceAll("(.*?)\\/+$", "$1");
+        if(rhtml!=null)rhtml=rhtml.trim();
         return rhtml;
     }
     public String getText(Element element,String key,Vod vod){
@@ -372,11 +373,11 @@ public class MyQQ extends Spider {
                         else if (k.contains("状态")) vod.setVodRemarks(value);
                         else if (k.contains("首映")||k.contains("上映")) vod.setVodYear(value);
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")) {
-                            if(value.contains("集")) vod.setVodTag(value);
+                            if(Utils.matcher(".*\\d+集.*",value).matches()||Utils.matcher("\\d+",value).matches()||value.contains("全集")||value.contains("完结")) vod.setVodTag(value);
                             else if (val.contains("集")) {
                                 value = val.replaceAll(".*?(\\d+)集.*", "$1集");
                                 vod.setVodTag(value);
-                            }
+                            } else value = "";
                         } else if (k.contains("简介") || k.contains("介绍") || k.contains("详情")|| k.contains("剧情")) vod.setVodContent(value);
                     }
                 }
