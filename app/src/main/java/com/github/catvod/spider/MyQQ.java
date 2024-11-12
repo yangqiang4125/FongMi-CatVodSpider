@@ -68,7 +68,8 @@ public class MyQQ extends Spider {
                 for (String v : types) {
                     String [] arr = v.split("\\$");
                     String num = arr[1];
-                    String purl = pageUrl.replaceFirst("%", num);
+                    String purl =num;
+                    if(!purl.startsWith("/")) purl = pageUrl.replaceFirst("%", num);
                     v=arr[0]+"$"+purl;
                     types[z] = v;
                     z++;
