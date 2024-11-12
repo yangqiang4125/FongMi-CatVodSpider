@@ -253,6 +253,8 @@ public class MyQQ extends Spider {
                 Elements sourceList = doc.select(iurls);
                 if (sourceList.isEmpty()) Init.show("未找到视频播放链接信息");
                 String iurlsn = getVal("iurlsn");
+                int z=-1;
+                if(Utils.isNumeric(iurlsn)) z = Integer.parseInt(iurlsn);
                 for (int i = 0; i < sources.size(); i++) {
                     Element source = sources.get(i);
                     String sourceName = source.text();
@@ -261,7 +263,9 @@ public class MyQQ extends Spider {
                     for (int j = 0; j < playList.size(); j++) {
                         Element e = playList.get(j);
                         String text = e.text();
-                        if (!iurlsn.isEmpty()) {
+                        if(z>-1){
+                            if(j<z-1)continue;
+                        } else if (!iurlsn.isEmpty()) {
                             if(Utils.matcher(iurlsn, text).matches())continue;
                         }
                         vodItems.add(Trans.get(text) + "$" + getUrl(siteUrl, e.attr("href")));
@@ -399,7 +403,7 @@ public class MyQQ extends Spider {
                     id = durl.replaceAll(".*\\((\\w+)\\).*", "$1");
                     durl = durl.replace("(" + id + ")", "%");
                 }
-                String result = OkHttp.string(siteUrl+"/ajax/suggest?mid=1&wd="+key);
+                String result = OkHttp.string(siteUrl+"/ajax/suggest?mid=1&wd="+key, getHeaders());
                 JSONObject response = new JSONObject(result);
                 if (response.optInt("code", 0) == 1 && response.optInt("total", 0) > 0) {
                     JSONArray jsonArray = response.getJSONArray("list");
