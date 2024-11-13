@@ -37,8 +37,11 @@ public class MyQQ extends Spider {
     public MyQQ() { }
     private HashMap<String, String> getHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", Utils.CHROME);
-        headers.put("Referer", siteUrl);
+        String mtype = Utils.CHROME;
+        String m = getVal("ua");
+        if (!m.isEmpty()&&m.equals("mobile"))mtype=Utils.MOBILE;
+        if(m.length()>12)mtype = m;
+        headers.put("User-Agent", mtype);
         return headers;
     }
     private HashMap<String, String> getHeadersUa() {
@@ -375,7 +378,7 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("首映")||k.contains("上映")) vod.setVodYear(value);
+                        else if (k.contains("首映")||k.contains("上映")||k.contains("时间")) vod.setVodYear(value);
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")||k.contains("状态")) {
                             if(Utils.matcher(".*\\d+集.*",value).matches()||value.contains("全集")||value.contains("完结")) vod.setVodTag(value);
                             else if (val.contains("集")) {
