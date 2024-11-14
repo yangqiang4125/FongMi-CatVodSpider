@@ -39,16 +39,17 @@ public class MyQQ extends Spider {
         HashMap<String, String> headers = new HashMap<>();
         String mtype = Utils.CHROME;
         String m = getVal("ua");
-        if (!m.isEmpty()&&m.equals("mobile"))mtype=Utils.MOBILE;
+        if (!m.isEmpty()&&(m.equals("mobile")||m.equals("m")))mtype=Utils.MOBILE;
         if(m.length()>12)mtype = m;
         headers.put("User-Agent", mtype);
         return headers;
     }
+
     private HashMap<String, String> getHeadersUa() {
         HashMap<String, String> headers = new HashMap<>();
         String mtype = Utils.CHROME;
         String m = getVal("ua");
-        if (!m.isEmpty()) if(m.equals("0")||m.equals("mobile"))mtype=Utils.MOBILE;
+        if (!m.isEmpty()) if(!m.equals("1")||m.equals("mobile"))mtype=Utils.MOBILE;
         if(m.length()>12)mtype = m;
         headers.put("User-Agent", mtype);
         return headers;
@@ -378,7 +379,7 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("首映")||k.contains("上映")||k.contains("时间")) vod.setVodYear(value);
+                        else if (k.contains("首映")||k.contains("上映")||k.contains("时间")||k.contains("年份")) vod.setVodYear(value);
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")||k.contains("状态")) {
                             if(Utils.matcher(".*\\d+集.*",value).matches()||value.contains("全集")||value.contains("完结")) vod.setVodTag(value);
                             else if (val.contains("集")) {
@@ -429,12 +430,12 @@ public class MyQQ extends Spider {
                 Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
                 String sbox= getVal("sbox");
                 sname=getVal("sname");
-                surl = getVal("surl");
+                surl = getVal("surl","a@href");
                 spic = getVal("spic");
                 String sremarks = getVal("sremarks");
 
                 for (Element element : doc.select(sbox)) {
-                    String id = element.select(surl).attr("href");
+                    String id =  getText(element,surl);
                     if(id!=null) id = getUrl(siteUrl, id);
                     String name = getText(element, sname);
                     String pic = getText(element, spic);
