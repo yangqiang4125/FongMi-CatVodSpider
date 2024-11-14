@@ -138,7 +138,7 @@ public class MyQQ extends Spider {
         if(tid.contains("%")) furl = siteUrl + tid.replace("%", pg);
         Document doc2 = Jsoup.parse(OkHttp.string(furl, getHeaders()));
         String elbox = getVal("elbox");
-        String elurl = getVal("elurl");
+        String elurl = getVal("elurl","@href");
         String elname = getVal("elname");
         String elpic = getVal("elpic");
         String elremarks = getVal("elremarks");
@@ -430,10 +430,10 @@ public class MyQQ extends Spider {
                 Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
                 String sbox= getVal("sbox");
                 sname=getVal("sname");
-                surl = getVal("surl","a@href");
+                surl = getVal("surl","@href");
+                if(surl.equals("a"))surl="@href";
                 spic = getVal("spic");
                 String sremarks = getVal("sremarks");
-
                 for (Element element : doc.select(sbox)) {
                     String id =  getText(element,surl);
                     if(id!=null) id = getUrl(siteUrl, id);
