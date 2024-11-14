@@ -379,7 +379,12 @@ public class MyQQ extends Spider {
                         String k = m.group(1);
                         if (k.contains("演员") || k.contains("主演")) vod.setVodActor(value);
                         else if (k.contains("导演")) vod.setVodDirector(value);
-                        else if (k.contains("首映")||k.contains("上映")||k.contains("时间")||k.contains("年份")) vod.setVodYear(value);
+                        else if (k.contains("首映")||k.contains("上映")||k.contains("时间")||k.contains("年份")) {
+                            if (value.length() < 3) {
+                                value = m.group(1).replaceAll("(.*?)(:|：)(.*)", "$3");
+                            }
+                            if(vod.vodYear==null||value.length()>5)vod.setVodYear(value);
+                        }
                         else if (k.contains("集")||k.contains("备注")||k.contains("更新")||k.contains("状态")) {
                             if(Utils.matcher(".*\\d+集.*",value).matches()||value.contains("全集")||value.contains("完结")) vod.setVodTag(value);
                             else if (val.contains("集")) {
