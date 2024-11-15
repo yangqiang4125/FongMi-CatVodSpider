@@ -225,7 +225,7 @@ public class MyQQ extends Spider {
             else gname=name;
             vod.setVodId(url);
             vod.setVodName(name);
-            vod.setVodPic(pic);
+            vod.setVodPic(getUrl(siteUrl,pic));
             String content = getText(doc, icontent);
             if(!content.isEmpty()) vod.setVodContent(content);
             String year=getText(doc, iyear);
