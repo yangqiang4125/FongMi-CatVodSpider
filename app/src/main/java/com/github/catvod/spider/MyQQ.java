@@ -27,6 +27,7 @@ public class MyQQ extends Spider {
     private static String siteUrl = "https://www.voflix.me";
     private static String wUrl = "---.html";
     private static String pageUrl = "";
+    private static String cookie = "";
     private String[] types;
     private Integer total=0;
     private String elBoxHtml = null;
@@ -41,6 +42,7 @@ public class MyQQ extends Spider {
         String m = getVal("ua");
         if (!m.isEmpty()&&(m.equals("mobile")||m.equals("m")))mtype=Utils.MOBILE;
         if(m.length()>12)mtype = m;
+        if(!cookie.isEmpty()) headers.put("Cookie", cookie);
         headers.put("User-Agent", mtype);
         return headers;
     }
@@ -65,6 +67,7 @@ public class MyQQ extends Spider {
             siteUrl = getVal("siteUrl");
             wUrl = getVal("end");
             pageUrl = getVal("pageUrl");
+            cookie = getVal("cookie");
             String fl = getVal("types");
             types = fl.split("#");
             if (!pageUrl.isEmpty()) {
