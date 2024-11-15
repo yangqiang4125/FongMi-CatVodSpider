@@ -279,6 +279,7 @@ public class MyQQ extends Spider {
                         vodItems.add(Trans.get(text) + "$" + getUrl(siteUrl, e.attr("href")));
                     }
                     if (vodItems.size() > 0) {
+                        Collections.sort(vodItems);
                         sites.put(sourceName, TextUtils.join("#", vodItems));
                     }
                 }
