@@ -220,19 +220,20 @@ public class Utils {
         return s;
     }
 
-    public static String getBx(String vod_play_url){
+    public static String getBx(String vod_play_url,String type){
         int z = 0;//更换第一个
         String[] playUrls = vod_play_url.split("\\$\\$\\$");
         String s = playUrls[z];
-        String type = "";
         boolean f = false;
-        if (s.contains("4K")) {
-            type = "4K";
-        }else if (s.contains("4k")) {
-            type = "4K";
-        }else if (s.contains("1080")) {
-            if(!s.contains("1079"))type = "1080";
-            else f = true;
+        if (type.isEmpty()) {
+            if (s.contains("4K")) {
+                type = "4K";
+            }else if (s.contains("4k")) {
+                type = "4K";
+            }else if (s.contains("1080")) {
+                if(!s.contains("1079"))type = "1080";
+                else f = true;
+            }
         }
         Map<String, String> hashMap = new LinkedHashMap<>();
         String[] urls = s.split("#");
@@ -306,7 +307,10 @@ public class Utils {
                 if(zi>index)index=zi;
                 if(iname.length()==1)iname="0"+iname;
             } else iname = zname;
-            if (type.isEmpty()||zname.contains(type)) {
+            if (type.equals("d")) {
+                if(m.containsKey(iname)||zname.contains("4K")||zname.contains("4k"))continue;
+                m.put(iname, map.get(zname));
+            }else if (type.isEmpty()||zname.contains(type)) {
                 m.put(iname, map.get(zname));
             }
         }
