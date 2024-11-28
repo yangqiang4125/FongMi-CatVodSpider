@@ -428,7 +428,9 @@ public class API {
         }
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
         //from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
-        String jxStr = Utils.getBx(s);
+        String type = "";
+        if(from.contains("d")) type = "d";
+        String jxStr = Utils.getBx(s,type);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
