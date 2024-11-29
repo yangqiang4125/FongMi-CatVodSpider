@@ -235,7 +235,6 @@ public class Utils {
                 else f = true;
             }
         }
-        Init.show(type);
         Map<String, String> hashMap = new LinkedHashMap<>();
         String[] urls = s.split("#");
 
