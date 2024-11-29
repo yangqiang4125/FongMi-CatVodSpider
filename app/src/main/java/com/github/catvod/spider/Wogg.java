@@ -63,8 +63,9 @@ public class Wogg extends Ali {
         Elements items = Jsoup.parse(html).select(".module-search-item");
         List<Vod> list = new ArrayList<>();
         for (Element item : items) {
-            String vodId =  siteUrl+item.select(".video-serial").attr("href");
             String name = item.select(".video-serial").attr("title");
+            if(name.contains("臻彩"))continue;
+            String vodId =  siteUrl+item.select(".video-serial").attr("href");
             String pic = item.select(".module-item-pic > img").attr("data-src");
             String remark = item.select(".video-tag-icon").text();
             list.add(new Vod(vodId + "$$$" + pic + "$$$" + name, name, pic, remark));
