@@ -418,20 +418,19 @@ public class API {
         String from = getVal("aliFrom","原画%$$$普话%"),fromkey="";
         //from = "智能%。$$$超清%。$$$高清%。$$$标清%。$$$原画%。$$$普画。%$$$普画i%";
         if(from.contains("d")) type = "d";
-        else {
-            if (!fp){
-                if (s.contains("4K")) {
-                    if(playUrls.size()>1){
-                        if(s.split("4K").length>2)type = "4K";
-                    }else type = "4K";
-                }else if (s.contains("4k")) {
-                    type = "4K";
-                }else if (s.contains("1080")) {
-                    if(!s.contains("1079"))type = "1080";
-                }
+        String jxStr = Utils.getBx(s,type);
+        type = "";
+        if (!fp){
+            if (s.contains("4K")) {
+                if(playUrls.size()>1){
+                    if(s.split("4K").length>2)type = "4K";
+                }else type = "4K";
+            }else if (s.contains("4k")) {
+                type = "4K";
+            }else if (s.contains("1080")) {
+                if(!s.contains("1079"))type = "1080";
             }
         }
-        String jxStr = Utils.getBx(s,type);
         from = from.replace("%", type);
         String [] fromArr = from.split("\\$\\$\\$");
         for (int i=0; i < fromArr.length; i++) {
