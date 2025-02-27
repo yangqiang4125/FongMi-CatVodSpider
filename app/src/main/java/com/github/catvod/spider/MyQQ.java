@@ -24,10 +24,10 @@ import java.util.regex.Matcher;
 public class MyQQ extends Spider {
     private JSONObject ext;
     private String extend;
-    private static String siteUrl = "https://www.voflix.me";
-    private static String wUrl = "---.html";
-    private static String pageUrl = "";
-    private static String cookie = "";
+    private String siteUrl = "https://www.voflix.me";
+    private String wUrl = "---.html";
+    private String pageUrl = "";
+    private String cookie = "";
     private String[] types;
     private Integer total=0;
     private String elBoxHtml = null;
@@ -297,7 +297,7 @@ public class MyQQ extends Spider {
         }
         return Result.string(vod);
     }
-    public static Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
+    public Map<String, String> moveKeyToFirst(Map<String, String> map, String key) {
         String [] arr=key.split("\\|");
         if(arr.length==1&&!key.contains("\\")&&!map.containsKey(key))return map;
         Map<String, String> newMap = new LinkedHashMap<>();
