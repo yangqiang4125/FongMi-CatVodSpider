@@ -259,7 +259,7 @@ public class MyQQ extends Spider {
             }else {
                 Elements sources = doc.select(iform);
                 Elements sourceList = doc.select(iurls);
-                if (sourceList.isEmpty()) Init.show("未找到视频播放链接信息");
+                if (sourceList.isEmpty()) Init.show("未找到视频播放链接信息 url:"+url);
                 String iurlsn = getVal("iurlsn");
                 int z=-1;
                 if(Utils.isNumeric(iurlsn)) z = Integer.parseInt(iurlsn);
