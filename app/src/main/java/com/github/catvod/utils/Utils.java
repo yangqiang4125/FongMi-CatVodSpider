@@ -461,7 +461,17 @@ public class Utils {
             webView.loadUrl(url);
         });
     }
+    public static String substring(String text) {
+        return substring(text, 1);
+    }
 
+    public static String substring(String text, int num) {
+        if (text != null && text.length() > num) {
+            return text.substring(0, text.length() - num);
+        } else {
+            return text;
+        }
+    }
     public static String getDataStr(String str) {
         String str1 = str.replace("1", "9").replace("z", "s");
         return str1;
