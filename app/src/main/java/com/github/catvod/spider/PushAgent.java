@@ -53,6 +53,7 @@ public class PushAgent extends Ali {
             String[] arr = url2.split("\\/");
             spName = arr[arr.length - 1];
             spName = spName.split("\\.")[0];
+            if(spName.equals("index") spName=url2;
         }
         Vod vod = new Vod();
         vod.setVodId(url2);
