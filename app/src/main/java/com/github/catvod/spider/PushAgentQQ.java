@@ -150,7 +150,7 @@ public class PushAgentQQ extends PushAgent {
             String cid = null;
             for (String fenlei : fenleis) {
                 String[] info = fenlei.split("\\$");
-                String id=info[1]);
+                String id=info[1];
                 if(cid!=null)cid = id;
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("type_name", info[0]);
