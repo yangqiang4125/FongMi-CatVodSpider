@@ -152,13 +152,17 @@ public class PushAgentQQ extends PushAgent {
                 String[] info = fenlei.split("\\$");
                 String id=info[1];
                 if(cid==null)cid = id;
+                if(id.contains("one")){
+                    id = id.replace("one", "");
+                    cid=id;
+                }
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("type_name", info[0]);
                 jsonObject.put("type_id", id);
                 classes.put(jsonObject);
             }
             JSONObject result = category(cid, "1", true, null,jo);
-            result.put("class", classes);
+            if(!filter)result.put("class", classes);
             return result.toString();
         } catch (
                 Exception e) {
