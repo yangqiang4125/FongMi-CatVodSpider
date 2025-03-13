@@ -147,14 +147,17 @@ public class PushAgentQQ extends PushAgent {
             JSONObject jo = fetchRule(true,1);
             JSONArray classes = new JSONArray();
             String[] fenleis = getRuleVal(Utils.siteRule,"fenlei", "").split("#");
+            String cid = null;
             for (String fenlei : fenleis) {
                 String[] info = fenlei.split("\\$");
+                String id=info[1]);
+                if(cid!=null)cid = id;
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("type_name", info[0]);
-                jsonObject.put("type_id", info[1]);
+                jsonObject.put("type_id", id);
                 classes.put(jsonObject);
             }
-            JSONObject result = category("t1", "1", true, null,jo);
+            JSONObject result = category(cid, "1", true, null,jo);
             result.put("class", classes);
             return result.toString();
         } catch (
