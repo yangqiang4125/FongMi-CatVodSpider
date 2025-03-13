@@ -162,13 +162,18 @@ public class PushAgentQQ extends PushAgent {
                 classes.put(jsonObject);
             }
             JSONObject result = category(cid, "1", true, null,jo);
-            if(!filter)result.put("class", classes);
+            if(filter)result.put("class", classes);
             return result.toString();
         } catch (
                 Exception e) {
             SpiderDebug.log(e);
         }
         return "";
+    }
+
+     @Override
+    public String homeVideoContent() {
+        return homeContent(false);
     }
 
     private JSONObject category(String tid, String pg, boolean filter, HashMap<String, String> extend,JSONObject jo) {
